@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
+#include <stdio.h>
 #include "driver.h"
 #include "parser.h"
 %}
@@ -18,10 +19,14 @@ yy::parser::symbol_type make_INTEGER_LITERAL(
     const std::string &s, const yy::parser::location_type& loc);
 yy::parser::symbol_type make_STRING_LITERAL(
     const std::string &s, const yy::parser::location_type& loc);
+void incrementComment(
+    const std::string &s, const yy::parser::location_type& loc);
 %}
 
 DIGIT       [0-9]
 LETTER      [a-zA-Z]
+NoStar      [^*]
+NoStarDash  [^/*]
 
 %{
 #define YY_USER_ACTION loc.columns(yyleng);
@@ -36,6 +41,7 @@ loc.step();
 
 [ \t\r] loc.step();
 \n+ loc.lines(yyleng); loc.step();
+\/\/.* loc.step();
 
 [ \n]|(\r\n)               {yylineno++;}
 
@@ -71,19 +77,30 @@ loc.step();
 "||"                        return yy::parser::make_BOOLOR(loc);
 "=="                        return yy::parser::make_BOOLEQUAL(loc);
 "!="                        return yy::parser::make_BOOLNOTEQUAL(loc);
-">"                         return yy::parser::make_GT(loc);
-"<"                         return yy::parser::make_LT(loc);
 "<="                        return yy::parser::make_LTEQUAL(loc);
 ">="                        return yy::parser::make_GTEQUAL(loc);
+"{"                         return yy::parser::make_LEFTSBRACE(loc);
+"}"                         return yy::parser::make_RIGHTSBRACE(loc);
+"["                         return yy::parser::make_LEFTBRACE(loc);
+"]"                         return yy::parser::make_RIGHTBRACE(loc);
+"("                         return yy::parser::make_LEFTPAREN(loc);
+")"                         return yy::parser::make_RIGHTPAREN(loc);
+";"                         return yy::parser::make_SEMICOLON(loc);
+">"                         return yy::parser::make_GT(loc);
+"<"                         return yy::parser::make_LT(loc);
 "+"                         return yy::parser::make_PLUS(loc);
 "-"                         return yy::parser::make_MINUS(loc);
-"*"                         return yy::parser::make_MULTIPLY(loc);
-"/"                         return yy::parser::make_DIVIDE(loc);
-"!"                         return yy::parser::make_FACTORIAL(loc);
+"*"                         return yy::parser::make_STAR(loc);
+"/"                         return yy::parser::make_SLASH(loc);
+"!"                         return yy::parser::make_EXCLAMATION(loc);
+"."                         return yy::parser::make_DOT(loc);
+","                         return yy::parser::make_COMMA(loc);
+"="                         return yy::parser::make_EQUAL(loc);
 
 {DIGIT}+                        return make_INTEGER_LITERAL(yytext, loc);
 {LETTER}+({LETTER}|{DIGIT}|_)*  return yy::parser::make_ID(yytext, loc);
 \".*\"                          return make_STRING_LITERAL(yytext, loc);
+"/*"({NoStar}|\*+{NoStarDash})*\*+"/"
 
 . {
   throw yy::parser::syntax_error(

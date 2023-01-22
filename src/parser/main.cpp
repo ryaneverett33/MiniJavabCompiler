@@ -10,8 +10,9 @@ int main(int argc, char** argv) {
 
   Driver drv;
   if (!drv.parse(argv[1])) {
-    std::cout << drv.result << std::endl;
-    return drv.result;
+    //std::cout << drv.result << std::endl;
+    drv.result->Dbg();
+    return 0;
   }
   return 0;
 }
