@@ -4,9 +4,9 @@
 namespace MiniJavab {
 namespace AST {
 
-UnaryExpNode::UnaryExpNode(OperatorType op, ExpNode* child)
-    : ExpNode({child}) {
-        this->op = op;
-}
+UnaryExpNode::UnaryExpNode(OperatorType op, ExpNode* exp)
+    : ExpNode(),
+    Operator(op),
+    Expression(exp) { }
 
 }} // namespace

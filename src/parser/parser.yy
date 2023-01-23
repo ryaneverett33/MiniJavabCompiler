@@ -8,6 +8,7 @@
 
 %code requires {
 #include <string>
+#include <vector>
 #include <stdio.h>
 #include "ast/ast.h"
 using namespace MiniJavab::AST;
@@ -80,31 +81,31 @@ class Driver;
 %token <std::string> ID "id"
 %token <std::string> STRING_LITERAL
 %type <ExpNode*> exp
-%type <ExpNode*> program
-%type <ExpNode*> mainclass
-%type <ExpNode*> classdecllist
-%type <ExpNode*> classdecl
-%type <ExpNode*> methoddecllist
-%type <ExpNode*> methoddecl
-%type <ExpNode*> formallist
-%type <ExpNode*> formalrestlist
-%type <ExpNode*> formalrest
+%type <ProgramNode*> program
+%type <ClassDeclNode*> mainclass
+%type <std::vector<ClassDeclNode*>> classdecllist
+%type <ClassDeclNode*> classdecl
+%type <std::vector<MethodDeclNode*>> methoddecllist
+%type <MethodDeclNode*> methoddecl
+%type <std::vector<VarDeclNode*>> formallist
+%type <std::vector<VarDeclNode*>> formalrestlist
+%type <VarDeclNode*> formalrest
 %type <TypeNode*> type
 %type <TypeNode*> primetype
 %type <TypeNode*> typeb
 %type <TypeNode*> primetypeb
-%type <ExpNode*> vardecllist
-%type <ExpNode*> vardecl
-%type <ExpNode*> object
-%type <ExpNode*> objectb
-%type <ExpNode*> statementlist
-%type <ExpNode*> statement
-%type <ExpNode*> index
-%type <ExpNode*> explist
-%type <ExpNode*> exprestlist
+%type <std::vector<VarDeclNode*>> vardecllist
+%type <VarDeclNode*> vardecl
+%type <ObjectNode*> object
+%type <ObjectNode*> objectb
+%type <std::vector<StatementNode*>> statementlist
+%type <StatementNode*> statement
+%type <IndexNode*> index
+%type <std::vector<ExpNode*>> explist
+%type <std::vector<ExpNode*>> exprestlist
 %type <ExpNode*> exprest
 
-%printer { yyo << $$; } <*>
+/*%printer { yyo << $$; } <*>*/
 
 %%
 
@@ -121,36 +122,42 @@ unit: program {
 %left "*" "/";
 %left "+" "-";
 
-program: mainclass classdecllist { $$ = new ExpNode({}); }
+program: mainclass[main] classdecllist[list] { $$ = new ProgramNode($main, $list); }
 
-mainclass: CLASS ID "{" MAINCLASS "(" STRINGTY "[" "]" ID ")" "{" statement "}" "}" { $$ = new ExpNode({}); }
+mainclass: CLASS ID[name] "{" MAINCLASS "(" STRINGTY "[" "]" ID[args] ")" "{" statement "}" "}" 
+        { 
+          MainMethodDeclNode* mainMethod = new MainMethodDeclNode($args, $statement);
+          $$ = new ClassDeclNode($name, {}, {mainMethod});
+        }
         ;
 
-classdecllist: classdecllist classdecl { $$ = new ExpNode({}); }
-            | { $$ = new ExpNode({}); }
+classdecllist: classdecllist[list] classdecl[decl] { $list.push_back($decl); $$ = $list; }
+            | { $$ = std::vector<ClassDeclNode*>(); }
             ;
 
-classdecl: CLASS ID "{" vardecllist methoddecllist "}" { $$ = new ExpNode({}); }
-        | CLASS ID EXTENDS ID "{" vardecllist methoddecllist "}" { $$ = new ExpNode({}); }
+classdecl: CLASS ID[name] "{" vardecllist[variables] methoddecllist[methods] "}" { $$ = new ClassDeclNode($name, $variables, $methods); }
+        | CLASS ID[name] EXTENDS ID[baseClass] "{" vardecllist[variables] methoddecllist[methods] "}" { $$ = new ClassDeclNode($name, $baseClass, $variables, $methods); }
         ;
 
-methoddecllist: methoddecllist methoddecl { $$ = new ExpNode({}); }
-            | { $$ = new ExpNode({}); }
+methoddecllist: methoddecllist[list] methoddecl[method] { $list.push_back($method); $$ = $list; }
+            | { $$ = std::vector<MethodDeclNode*>(); }
             ;
 
-methoddecl: PUBLIC type ID "(" formallist ")" "{" vardecllist statementlist RETURN exp ";" "}" { $$ = new ExpNode({}); }
-        | PUBLIC type ID "(" formallist ")" "{" vardecllist RETURN exp ";" "}" { $$ = new ExpNode({}); }
+methoddecl: PUBLIC type ID[name] "(" formallist[parameters] ")" "{" vardecllist[variables] statementlist[statements] RETURN exp ";" "}" 
+          { $$ = new MethodDeclNode($type, $name, {}, $variables, $statements, $exp); }
+        | PUBLIC type ID[name] "(" formallist[parameters] ")" "{" vardecllist[variables] RETURN exp ";" "}" 
+          { $$ = new MethodDeclNode($type, $name, {}, $variables, {}, $exp); }
         ;
 
-formallist: type ID formalrestlist { $$ = new ExpNode({}); }
-        | { $$ = new ExpNode({}); }
+formallist: type ID formalrestlist[list] { $list.push_back(new VarDeclNode($type, $ID)); $$ = $list; }
+        | { $$ = std::vector<VarDeclNode*>(); }
         ;
 
-formalrestlist: formalrestlist formalrest { $$ = new ExpNode({}); }
-        | { $$ = new ExpNode({}); }
+formalrestlist: formalrestlist[list] formalrest[param] { $list.push_back($param); $$ = $list; }
+        | { $$ = std::vector<VarDeclNode*>(); }
         ;
 
-formalrest: "," type ID { $$ = new ExpNode({}); }
+formalrest: "," type ID { $$ = new VarDeclNode($type, $ID); }
         ;
 
 type: primetype { $$ = $1; }
@@ -181,46 +188,46 @@ primetypeb: INTTY { $$ = new IntegerTypeNode(); }
         | BOOLEANTY { $$ = new BooleanTypeNode(); }
         ;
 
-vardecllist: vardecllist vardecl { $$ = new ExpNode({}); }
-        | { $$ = new ExpNode({}); }
+vardecllist: vardecllist[list] vardecl[decl] { $list.push_back($decl); $$ = $list; }
+        | { $$ = std::vector<VarDeclNode*>(); }
         ;
 
-vardecl: typeb ID ";" { $$ = new ExpNode({}); }
-      | ID ID ";" { $$ = new ExpNode({}); }
+vardecl: typeb[type] ID[name] ";" { $$ = new VarDeclNode($type, $name); }
+      | ID[type] ID[name] ";" { $$ = new VarDeclNode($type, $name); }
       ;
 
-object: ID { $$ = new ExpNode({}); }
-    | THIS { $$ = new ExpNode({}); }
-    | NEW ID "(" ")" { $$ = new ExpNode({}); }
-    | NEW primetype index { $$ = new ExpNode({}); }
+object: ID { $$ = new NamedObjectNode($ID); }
+    | THIS { $$ = new ThisObjectNode(); }
+    | NEW ID "(" ")" { $$ = new NewObjectNode($ID); }
+    | NEW primetype[type] index { $$ = new NewArrayObjectNode($type, $index); }
     ;
 
-objectb: THIS { $$ = new ExpNode({}); }
-    | NEW ID "(" ")" { $$ = new ExpNode({}); }
-    | NEW primetype index { $$ = new ExpNode({}); }
+objectb: THIS { $$ = new ThisObjectNode(); }
+    | NEW ID "(" ")" { $$ = new NamedObjectNode($ID); }
+    | NEW primetype[type] index { $$ = new NewArrayObjectNode($type, $index); }
     ;
 
-statementlist: statementlist statement { $$ = new ExpNode({}); }
-    | statement { $$ = new ExpNode({}); }
+statementlist: statementlist[list] statement 
+          { $$ = std::vector<StatementNode*>(); $$.push_back($statement); }
+    | statement { $$ = {$statement}; }
     ;
 
-statement: "{" statementlist "}" { $$ = new ExpNode({}); }
-      | "{" "}" { $$ = new ExpNode({}); }
-      | IF "(" exp ")" statement ELSE statement { $$ = new ExpNode({}); }
-      | WHILE "(" exp ")" statement { $$ = new ExpNode({}); }
-      | PRINTLN "(" exp ")" ";" { $$ = new ExpNode({}); }
-      | PRINTLN "(" STRING_LITERAL ")" ";" { $$ = new ExpNode({}); }
-      | PRINT "(" exp ")" ";" { $$ = new ExpNode({}); }
-      | PRINT "(" STRING_LITERAL ")" ";" { $$ = new ExpNode({}); }
-      | ID "=" exp ";" { $$ = new ExpNode({}); }
-      | ID index "=" exp ";" { $$ = new ExpNode({}); }
-      | RETURN exp ";" { $$ = new ExpNode({}); }
+statement: "{" statementlist[list] "}" { $$ = new NestedStatementsNode($list); }
+      | "{" "}" { $$ = new NestedStatementsNode({});}
+      | IF "(" exp ")" statement[ifState] ELSE statement[elseState] { $$ = new IfStatementNode($exp, $ifState, $elseState); }
+      | WHILE "(" exp ")" statement[state] { $$ = new WhileStatementNode($exp, $state); }
+      | PRINTLN "(" exp ")" ";" { $$ = new PrintExpStatementNode($exp); }
+      | PRINTLN "(" STRING_LITERAL[string] ")" ";" { $$ = new PrintStatementNode($string); }
+      | PRINT "(" exp ")" ";" { $$ = new PrintExpStatementNode($exp, true); }
+      | PRINT "(" STRING_LITERAL[string] ")" ";" { $$ = new PrintStatementNode($string, true); }
+      | ID "=" exp ";" { $$ = new AssignmentStatementNode($ID, $exp); }
+      | ID index "=" exp ";" { $$ = new AssignmentIndexStatementNode($ID, $index, $exp); }
+      | RETURN exp ";" { $$ = new ReturnStatementNode($exp);}
       ;
 
-index: "[" exp "]" { $$ = new ExpNode({}); }
-    | index "[" exp "]" { $$ = new ExpNode({}); }
+index: "[" exp "]" { $$ = new IndexNode($exp); }
+    | index[in] "[" exp "]" { $in->Expressions.push_back($exp); $$ = $in; }
     ;
-
 
 exp: exp "&&" exp { $$ = new BinaryExpNode(OperatorType::BooleanAnd, $1, $3);}
   | exp "||" exp { $$ = new BinaryExpNode(OperatorType::BooleanOr, $1, $3);}
@@ -241,24 +248,24 @@ exp: exp "&&" exp { $$ = new BinaryExpNode(OperatorType::BooleanAnd, $1, $3);}
   | STRING_LITERAL { $$ = new StringLiteralExpNode($1); }
   | TRUE { $$ = new BooleanLiteralExpNode(true); }
   | FALSE { $$ = new BooleanLiteralExpNode(false); }
-  | object { $$ = new ExpNode({}); /*todo*/}
-  | "(" exp ")" { $$ = new ExpNode({}); /*todo*/}
-  | ID index { $$ = new ExpNode({}); }
-  | ID "." LENGTH { $$ = new ExpNode({}); }
-  | ID index "." LENGTH { $$ = new ExpNode({}); }
-  | ID "." ID "(" explist ")" { $$ = new ExpNode({}); }
-  | objectb "." ID "(" explist ")" { $$ = new ExpNode({}); }
+  | object { $$ = new ObjectExpNode($object);}
+  | "(" exp[e] ")" { $$ = new NestedExpNode($e);}
+  | ID index { $$ = new IndexExpNode($index);}
+  | ID "." LENGTH { $$ = new LengthExpNode($ID);}
+  | ID index "." LENGTH { $$ = new LengthExpNode($ID, $index);}
+  | ID[object] "." ID[method] "(" explist ")" { $$ = new MethodCallExpNode($object, $method, $explist);}
+  | objectb[object] "." ID[method] "(" explist ")" { $$ = new MethodCallExpNode($object, $method, $explist);}
   ;
 
-explist: exp exprestlist { $$ = new ExpNode({}); }
-    | { $$ = new ExpNode({}); }
+explist: exp exprestlist[list] { $list.push_back($exp); $$ = $list; }
+    | { $$ = std::vector<ExpNode*>(); }
     ;
 
-exprestlist: exprestlist exprest { $$ = new ExpNode({}); }
-        | { $$ = new ExpNode({}); }
+exprestlist: exprestlist[list] exprest[exp] { $list.push_back($exp); $$ = $list; }
+        | { $$ = std::vector<ExpNode*>(); }
         ;
 
-exprest: "," exp { $$ = new ExpNode({}); }
+exprest: "," exp { $$ = $exp; }
       ;
   
 %%

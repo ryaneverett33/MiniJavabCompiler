@@ -5,8 +5,10 @@ namespace MiniJavab {
 namespace AST {
 
 BinaryExpNode::BinaryExpNode(OperatorType op, ExpNode* left, ExpNode* right)
-    : ExpNode({left, right}) {
-        this->op = op;
-}
+    : ExpNode(),
+    Operator(op),
+    LeftSide(left),
+    RightSide(right)
+    {}
 
 }}

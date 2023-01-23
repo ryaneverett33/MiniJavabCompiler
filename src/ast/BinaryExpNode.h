@@ -8,8 +8,10 @@ class BinaryExpNode : public ExpNode {
     public:
         BinaryExpNode(OperatorType op, ExpNode* left, ExpNode* right);
         void Dbg() override {}
-    private:
-        OperatorType op;
+        
+        OperatorType Operator;
+        ExpNode* LeftSide;
+        ExpNode* RightSide;
 };
 
 }}

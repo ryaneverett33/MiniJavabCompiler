@@ -1,0 +1,7 @@
+- String objects
+- Void return type for methods
+- MainClass parity with other classes
+    - can have other methods besides `main`
+    - `main` can have variables
+- Private methods
+- Libraries

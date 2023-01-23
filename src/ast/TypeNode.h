@@ -8,7 +8,7 @@ namespace AST {
 
 class TypeNode : public Node {
     public:
-        TypeNode() : Node({}) {}
+        TypeNode() : Node() {}
 };
 
 class IntegerTypeNode : public TypeNode {
@@ -21,6 +21,12 @@ class BooleanTypeNode : public TypeNode {
     public:
         BooleanTypeNode() : TypeNode() {}
         void Dbg() { printf("Boolean Type\n"); }
+};
+
+class VoidTypeNode : public TypeNode {
+    public:
+        VoidTypeNode() : TypeNode() {}
+        void Dbg() { printf("Void Type\n"); }
 };
 
 class ObjectTypeNode : public TypeNode {

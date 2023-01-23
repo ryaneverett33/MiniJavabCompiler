@@ -6,10 +6,11 @@ namespace AST {
 
 class UnaryExpNode : public ExpNode {
     public:
-        UnaryExpNode(OperatorType op, ExpNode* child);
+        UnaryExpNode(OperatorType op, ExpNode* exp);
         void Dbg() override {}
-    private:
-        OperatorType op;
+  
+        OperatorType Operator;
+        ExpNode* Expression;
 };
 
 }}

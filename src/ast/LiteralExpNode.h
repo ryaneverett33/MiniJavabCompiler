@@ -9,22 +9,22 @@ class IntegerLiteralExpNode : public ExpNode {
     public:
         IntegerLiteralExpNode(int literal);
         void Dbg() override;
-    private:
-        int value;
+
+        int Value;
 };
 class BooleanLiteralExpNode : public ExpNode {
     public:
         BooleanLiteralExpNode(bool literal);
         void Dbg() override;
-    private:
-        bool value;
+
+        bool Value;
 };
 class StringLiteralExpNode : public ExpNode {
     public:
         StringLiteralExpNode(std::string literal);
         void Dbg() override;
-    private:
-        std::string value;
+
+        std::string Value;
 };
 /*class ObjectLiteralExpNode : public ExpNode {
     public:
