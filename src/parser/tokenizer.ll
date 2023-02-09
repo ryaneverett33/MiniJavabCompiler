@@ -4,7 +4,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
-#include <stdio.h>
+#include <stdexcept>
 #include "parserdriver.h"
 #include "parser.h"
 %}
@@ -129,8 +129,7 @@ void ParserDriver::ScanFile(std::string filePath) {
   assert(!IsScanning && "Already scanning, can't scan again");
 
   if (!(yyin = fopen(filePath.c_str(), "r"))) {
-    std::cerr << "cannot open " << filePath << ": " << strerror(errno) << std::endl;
-    exit(EXIT_FAILURE);
+    throw std::invalid_argument("Cannot open " + filePath + " error, " + strerror(errno));
   }
 
   CurrentLocation.initialize(&filePath);
