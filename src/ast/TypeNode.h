@@ -14,25 +14,36 @@ class TypeNode : public Node {
 class IntegerTypeNode : public TypeNode {
     public:
         IntegerTypeNode() : TypeNode() {}
-        void Dbg() { printf("Integer Type\n"); }
+        void Dump(std::ostream& out=std::cout) override { out << "Integer Type" << std::endl; }
+        void Str(std::ostream& out) override { out << "int"; }
+};
+
+class StringTypeNode : public TypeNode {
+    public:
+        StringTypeNode() : TypeNode() {}
+        void Dump(std::ostream& out=std::cout) override { out << "String Type" << std::endl; }
+        void Str(std::ostream& out) override { out << "String"; }
 };
 
 class BooleanTypeNode : public TypeNode {
     public:
         BooleanTypeNode() : TypeNode() {}
-        void Dbg() { printf("Boolean Type\n"); }
+        void Dump(std::ostream& out=std::cout) override { out << "Boolean Type" << std::endl; }
+        void Str(std::ostream& out) override { out << "boolean"; }
 };
 
 class VoidTypeNode : public TypeNode {
     public:
         VoidTypeNode() : TypeNode() {}
-        void Dbg() { printf("Void Type\n"); }
+        void Dump(std::ostream& out=std::cout) override { out << "Void Type" << std::endl; }
+        void Str(std::ostream& out) override { out << "void"; }
 };
 
 class ObjectTypeNode : public TypeNode {
     public:
         ObjectTypeNode(std::string objectType);
-        void Dbg() { printf("%s Type\n", ObjectType.c_str()); }
+        void Dump(std::ostream& out=std::cout) override { out << ObjectType << " Type" << std::endl; }
+        void Str(std::ostream& out) override { out << ObjectType; }
 
         std::string ObjectType;
 };
@@ -40,8 +51,9 @@ class ObjectTypeNode : public TypeNode {
 class ArrayTypeNode : public TypeNode {
     public:
         ArrayTypeNode(TypeNode* baseType, int dimensions=1);
-        void Increase();
-        void Dbg();
+        void Increase() { Dimensions += 1; }
+        void Dump(std::ostream& out=std::cout) override;
+        void Str(std::ostream& out) override;
 
         TypeNode* BaseType;
         int Dimensions;

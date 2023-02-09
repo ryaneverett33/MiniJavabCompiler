@@ -11,4 +11,10 @@ BinaryExpNode::BinaryExpNode(OperatorType op, ExpNode* left, ExpNode* right)
     RightSide(right)
     {}
 
-}}
+void BinaryExpNode::Str(std::ostream& out) {
+    LeftSide->Str(out);
+    out << " " << OperatorStr(Operator) << " ";
+    RightSide->Str(out);
+}
+
+}} // end namespace

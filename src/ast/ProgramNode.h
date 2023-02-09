@@ -13,7 +13,20 @@ class ProgramNode : public Node {
             MainClass(mainClass),
             Classes(classes) {}
 
-        void Dbg() {}
+        void Dump(std::ostream& out=std::cout) override {
+            MainClass->Dump(out);
+            if (Classes.size() > 0) {
+                for (ClassDeclNode* cls : Classes) {
+                    cls->Dump(out);
+                }
+            }
+        }
+        void Str(std::ostream& out) override {
+            MainClass->Str(out);
+            for (ClassDeclNode* classDecl: Classes) {
+                classDecl->Str(out);
+            }
+        }
 
         ClassDeclNode* MainClass;
         std::vector<ClassDeclNode*> Classes;

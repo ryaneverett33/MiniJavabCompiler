@@ -9,7 +9,11 @@ class NestedExpNode : public ExpNode {
         NestedExpNode(ExpNode* expression)
             : ExpNode(),
             Expression(expression) {}
-        void Dbg() {}
+        void Str(std::ostream& out) override {
+            out << "(";
+            Expression->Str(out);
+            out << ")";
+        }
 
         ExpNode* Expression;
 };

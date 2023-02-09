@@ -20,11 +20,11 @@ endif()
 BISON_TARGET(Parser parser.yy ${CMAKE_CURRENT_BINARY_DIR}/parser.cpp
              DEFINES_FILE ${CMAKE_CURRENT_BINARY_DIR}/parser.h)
              # COMPILE_FLAGS -Wcounterexamples)
-FLEX_TARGET(Scanner scanner.ll  ${CMAKE_CURRENT_BINARY_DIR}/scanner.cpp)
-ADD_FLEX_BISON_DEPENDENCY(Scanner Parser)
+FLEX_TARGET(Tokenizer tokenizer.ll ${CMAKE_CURRENT_BINARY_DIR}/tokenizer.cpp)
+ADD_FLEX_BISON_DEPENDENCY(Tokenizer Parser)
 
-add_executable(MiniJavabCompiler main.cpp driver.cpp ${BISON_Parser_OUTPUTS} ${FLEX_Scanner_OUTPUTS})
-target_include_directories(MiniJavabCompiler PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+add_library(parser SHARED scanner.cpp ${BISON_Parser_OUTPUTS} ${FLEX_Tokenizer_OUTPUTS})
+target_include_directories(parser PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 
 # link against the AST library
-target_link_libraries(MiniJavabCompiler AST)
+target_link_libraries(parser AST)

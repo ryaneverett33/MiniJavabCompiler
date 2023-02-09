@@ -10,7 +10,6 @@ class StatementNode : public Node {
     public:
         StatementNode()
         : Node() {}
-        void Dbg() {};
 };
 
 }} // end namespace

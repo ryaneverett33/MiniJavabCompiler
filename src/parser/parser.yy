@@ -3,8 +3,9 @@
 %defines
 
 %define api.token.constructor
+%verbose
 %define api.value.type variant
-%define parse.assert
+%define parse.trace
 
 %code requires {
 #include <string>
@@ -12,18 +13,18 @@
 #include <stdio.h>
 #include "ast/ast.h"
 using namespace MiniJavab::AST;
-class Driver;
+class ParserDriver;
 }
 
-%param { Driver& drv }
+%param { ParserDriver& driver }
 
 %locations
 
-%define parse.trace
 %define parse.error verbose
+%verbose
 
 %code {
-#include "driver.h"
+#include "parserdriver.h"
 #include <iostream>
 #include <string>
 }
@@ -105,13 +106,18 @@ class Driver;
 %type <std::vector<ExpNode*>> exprestlist
 %type <ExpNode*> exprest
 
-/*%printer { yyo << $$; } <*>*/
+%printer {
+  yyo << "shit's a vector" << std::endl;
+} classdecllist methoddecllist formallist formalrestlist vardecllist statementlist explist exprestlist
+%printer {
+  yyo << $$;
+} <*>
 
 %%
 
 %start unit;
 unit: program { 
-            drv.result = $1; 
+            driver.Result = $1; 
 }
   ;
 %left "==" "!=";
@@ -144,9 +150,9 @@ methoddecllist: methoddecllist[list] methoddecl[method] { $list.push_back($metho
             ;
 
 methoddecl: PUBLIC type ID[name] "(" formallist[parameters] ")" "{" vardecllist[variables] statementlist[statements] RETURN exp ";" "}" 
-          { $$ = new MethodDeclNode($type, $name, {}, $variables, $statements, $exp); }
+          { $$ = new MethodDeclNode($type, $name, $parameters, $variables, $statements, $exp); }
         | PUBLIC type ID[name] "(" formallist[parameters] ")" "{" vardecllist[variables] RETURN exp ";" "}" 
-          { $$ = new MethodDeclNode($type, $name, {}, $variables, {}, $exp); }
+          { $$ = new MethodDeclNode($type, $name, $parameters, $variables, {}, $exp); }
         ;
 
 formallist: type ID formalrestlist[list] { $list.push_back(new VarDeclNode($type, $ID)); $$ = $list; }
@@ -203,12 +209,12 @@ object: ID { $$ = new NamedObjectNode($ID); }
     ;
 
 objectb: THIS { $$ = new ThisObjectNode(); }
-    | NEW ID "(" ")" { $$ = new NamedObjectNode($ID); }
+    | NEW ID "(" ")" { $$ = new NewObjectNode($ID); }
     | NEW primetype[type] index { $$ = new NewArrayObjectNode($type, $index); }
     ;
 
 statementlist: statementlist[list] statement 
-          { $$ = std::vector<StatementNode*>(); $$.push_back($statement); }
+          { $list.push_back($statement); $$ = $list; }
     | statement { $$ = {$statement}; }
     ;
 
@@ -216,10 +222,10 @@ statement: "{" statementlist[list] "}" { $$ = new NestedStatementsNode($list); }
       | "{" "}" { $$ = new NestedStatementsNode({});}
       | IF "(" exp ")" statement[ifState] ELSE statement[elseState] { $$ = new IfStatementNode($exp, $ifState, $elseState); }
       | WHILE "(" exp ")" statement[state] { $$ = new WhileStatementNode($exp, $state); }
-      | PRINTLN "(" exp ")" ";" { $$ = new PrintExpStatementNode($exp); }
-      | PRINTLN "(" STRING_LITERAL[string] ")" ";" { $$ = new PrintStatementNode($string); }
-      | PRINT "(" exp ")" ";" { $$ = new PrintExpStatementNode($exp, true); }
-      | PRINT "(" STRING_LITERAL[string] ")" ";" { $$ = new PrintStatementNode($string, true); }
+      | PRINTLN "(" exp ")" ";" { $$ = new PrintExpStatementNode($exp, true); }
+      | PRINTLN "(" STRING_LITERAL[string] ")" ";" { $$ = new PrintStringStatementNode($string, true); }
+      | PRINT "(" exp ")" ";" { $$ = new PrintExpStatementNode($exp); }
+      | PRINT "(" STRING_LITERAL[string] ")" ";" { $$ = new PrintStringStatementNode($string); }
       | ID "=" exp ";" { $$ = new AssignmentStatementNode($ID, $exp); }
       | ID index "=" exp ";" { $$ = new AssignmentIndexStatementNode($ID, $index, $exp); }
       | RETURN exp ";" { $$ = new ReturnStatementNode($exp);}
@@ -239,7 +245,7 @@ exp: exp "&&" exp { $$ = new BinaryExpNode(OperatorType::BooleanAnd, $1, $3);}
   | exp ">" exp { $$ = new BinaryExpNode(OperatorType::GreaterThan, $1, $3);}
   | exp "+" exp { $$ = new BinaryExpNode(OperatorType::Add, $1, $3);}
   | exp "-" exp { $$ = new BinaryExpNode(OperatorType::Subtract, $1, $3);}
-  | exp "*" exp { $$ = new BinaryExpNode(OperatorType::Multiple, $1, $3);}
+  | exp "*" exp { $$ = new BinaryExpNode(OperatorType::Multiply, $1, $3);}
   | exp "/" exp { $$ = new BinaryExpNode(OperatorType::Divide, $1, $3);}
   | "!" exp { $$ = new UnaryExpNode(OperatorType::Factorial, $2);}
   | "-" exp { $$ = new UnaryExpNode(OperatorType::Subtract, $2);}
@@ -250,7 +256,7 @@ exp: exp "&&" exp { $$ = new BinaryExpNode(OperatorType::BooleanAnd, $1, $3);}
   | FALSE { $$ = new BooleanLiteralExpNode(false); }
   | object { $$ = new ObjectExpNode($object);}
   | "(" exp[e] ")" { $$ = new NestedExpNode($e);}
-  | ID index { $$ = new IndexExpNode($index);}
+  | ID index { $$ = new IndexExpNode($ID, $index);}
   | ID "." LENGTH { $$ = new LengthExpNode($ID);}
   | ID index "." LENGTH { $$ = new LengthExpNode($ID, $index);}
   | ID[object] "." ID[method] "(" explist ")" { $$ = new MethodCallExpNode($object, $method, $explist);}

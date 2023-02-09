@@ -8,7 +8,6 @@ class ObjectNode : public Node {
     public:
         ObjectNode()
             : Node() {}
-        void Dbg() {}
 };
 
 class NamedObjectNode : public ObjectNode {
@@ -16,7 +15,7 @@ class NamedObjectNode : public ObjectNode {
         NamedObjectNode(std::string name)
             : ObjectNode(),
             Name(name) {}
-        void Dbg() {}
+        void Str(std::ostream& out) override { out << Name; }
 
         std::string Name;
 };
@@ -24,7 +23,7 @@ class NamedObjectNode : public ObjectNode {
 class ThisObjectNode : public ObjectNode {
     public:
         ThisObjectNode() : ObjectNode() {}
-        void Dbg() {}
+        void Str(std::ostream& out) override { out << "this"; }
 };
 
 }} // end namespace 

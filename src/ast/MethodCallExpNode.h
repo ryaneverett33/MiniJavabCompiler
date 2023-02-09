@@ -19,7 +19,7 @@ class MethodCallExpNode : public ExpNode {
             Object(object),
             Method(method),
             Expressions(expressions) {}
-        void Dbg() {}
+        void Str(std::ostream& out) override;
 
         ObjectNode* Object;
         std::string Method;

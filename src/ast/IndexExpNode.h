@@ -7,11 +7,16 @@ namespace AST {
 
 class IndexExpNode : public ExpNode {
     public:
-        IndexExpNode(IndexNode* index)
+        IndexExpNode(std::string object, IndexNode* index)
             : ExpNode(),
+            Object(object),
             Index(index) {}
-        void Dbg() {}
+        void Str(std::ostream& out) override {
+            out << Object;
+            Index->Str(out);
+        }
 
+        std::string Object;
         IndexNode* Index;
 };
 

@@ -5,7 +5,7 @@
 #include <cstring>
 #include <string>
 #include <stdio.h>
-#include "driver.h"
+#include "parserdriver.h"
 #include "parser.h"
 %}
 
@@ -35,7 +35,7 @@ NoStarDash  [^/*]
 %%
 
 %{
-yy::location& loc = drv.location;
+yy::location& loc = driver.CurrentLocation;
 loc.step();
 %}
 
@@ -125,15 +125,28 @@ yy::parser::symbol_type make_STRING_LITERAL(
     return yy::parser::make_STRING_LITERAL(s.substr(1, s.length() - 2), loc);
 }
 
-void Driver::scan_begin() {
-  if (file.empty() || file == "-") {
-    yyin = stdin;
-  } else if (!(yyin = fopen(file.c_str(), "r"))) {
-    std::cerr << "cannot open " << file << ": " << strerror(errno) << std::endl;
+void ParserDriver::ScanFile(std::string filePath) {
+  assert(!IsScanning && "Already scanning, can't scan again");
+
+  if (!(yyin = fopen(filePath.c_str(), "r"))) {
+    std::cerr << "cannot open " << filePath << ": " << strerror(errno) << std::endl;
     exit(EXIT_FAILURE);
   }
+
+  CurrentLocation.initialize(&filePath);
+  IsScanning = true;
+}
+void ParserDriver::ScanStandardInput() {
+  assert(!IsScanning && "Already scanning, can't scan again");
+
+  yyin = stdin;
+  IsScanning = true;
+  CurrentLocation.initialize();
 }
 
-void Driver::scan_end() {
+void ParserDriver::FinishScanning() {
+  assert(IsScanning && "Haven't started scanning yet");
+
+  IsScanning = false;
   fclose(yyin);
 }

@@ -14,7 +14,7 @@ class MethodDeclNode : public Node {
     public:
         MethodDeclNode(TypeNode* type, std::string name, std::vector<VarDeclNode*> parameters, 
                         std::vector<VarDeclNode*> variables, std::vector<StatementNode*> statements, ExpNode* returnExp);
-        void Dbg() {};
+        void Str(std::ostream& out) override;
 
         TypeNode* Type;
         std::string Name;
@@ -27,7 +27,9 @@ class MethodDeclNode : public Node {
 class MainMethodDeclNode : public MethodDeclNode {
     public:
         MainMethodDeclNode(std::string parameterName, StatementNode* statement)
-                        : MethodDeclNode(new VoidTypeNode(), "main", {}, {}, {}, {}),
+                        : MethodDeclNode(new VoidTypeNode(), "main", 
+                                        { new VarDeclNode(new StringTypeNode(), parameterName) }, 
+                                        {}, { statement }, nullptr),
                         ParameterName(parameterName),
                         Statement(statement) {}
 

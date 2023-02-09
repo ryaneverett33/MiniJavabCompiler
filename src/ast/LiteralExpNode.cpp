@@ -9,23 +9,23 @@ IntegerLiteralExpNode::IntegerLiteralExpNode(int literal)
     : ExpNode(),
     Value(literal) { }
 
-void IntegerLiteralExpNode::Dbg() {
-    std::cout << "Integer Literal: " << std::to_string(Value) << std::endl;
+void IntegerLiteralExpNode::Str(std::ostream& out) {
+    out << std::to_string(Value);
 }
 
 BooleanLiteralExpNode::BooleanLiteralExpNode(bool literal)
     : ExpNode(),
     Value(literal) { }
-void BooleanLiteralExpNode::Dbg() {
-    std::cout << "Boolean Literal: " << std::boolalpha << Value << std::endl;
+void BooleanLiteralExpNode::Str(std::ostream& out) {
+    out << std::boolalpha << Value;
 }
 
 StringLiteralExpNode::StringLiteralExpNode(std::string literal)
     : ExpNode(),
     Value(literal) { }
 
-void StringLiteralExpNode::Dbg() {
-    std::cout << "String Literal: " << Value << std::endl;
+void StringLiteralExpNode::Str(std::ostream& out) {
+    out << Value;
 }
 
 }} // end namespace

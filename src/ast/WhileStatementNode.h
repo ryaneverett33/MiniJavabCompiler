@@ -11,7 +11,13 @@ class WhileStatementNode : public StatementNode {
         : StatementNode(),
         Expression(expression),
         Statement(statement) {}
-        void Dbg() {};
+        void Str(std::ostream& out) override {
+            out << "while(";
+            Expression->Str(out);
+            out << ") {" << std::endl;
+            Statement->Str(out);
+            out << std::endl << "}";
+        }
 
         ExpNode* Expression;
         StatementNode* Statement;

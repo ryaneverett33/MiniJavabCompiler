@@ -4,10 +4,10 @@
 namespace MiniJavab {
 namespace AST {
 
-enum OperatorType {
+enum class OperatorType {
     Add,
     Subtract,
-    Multiple,
+    Multiply,
     Divide,
     Factorial,
     BooleanAnd,
@@ -24,7 +24,36 @@ class ExpNode : public Node {
     public:
         ExpNode()
         : Node() {}
-        virtual void Dbg() {}
+        std::string OperatorStr(OperatorType op) {
+            switch (op) {
+                case OperatorType::Add:
+                    return "+";
+                case OperatorType::Subtract:
+                    return "-";
+                case OperatorType::Multiply:
+                    return "*";
+                case OperatorType::Divide:
+                    return "/";
+                case OperatorType::Factorial:
+                    return "!";
+                case OperatorType::BooleanAnd:
+                    return "&&";
+                case OperatorType::BooleanOr:
+                    return "||";
+                case OperatorType::LessThan:
+                    return "<";
+                case OperatorType::GreaterThan:
+                    return ">";
+                case OperatorType::LessThanEqualTo:
+                    return "<=";
+                case OperatorType::GreaterThanEqualTo:
+                    return ">=";
+                case OperatorType::EqualTo:
+                    return "==";
+                case OperatorType::NotEqualTo:
+                    return "!=";
+            }
+        }
 };
 
 }}

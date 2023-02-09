@@ -11,7 +11,7 @@ class ObjectExpNode : public ExpNode {
         ObjectExpNode(ObjectNode* object)
             : ExpNode(),
             Object(object) {}
-        void Dbg() {}
+        void Str(std::ostream& out) override { Object->Str(out); }
 
         ObjectNode* Object;
 };

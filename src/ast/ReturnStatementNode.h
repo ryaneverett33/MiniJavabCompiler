@@ -10,7 +10,11 @@ class ReturnStatementNode : public StatementNode {
         ReturnStatementNode(ExpNode* expression)
         : StatementNode(),
         Expression(expression) {}
-        void Dbg() {};
+        void Str(std::ostream& out) override {
+            out << "return ";
+            Expression->Str(out);
+            out << ";";
+        }
 
         ExpNode* Expression;
 };

@@ -12,17 +12,29 @@ class AssignmentStatementNode : public StatementNode {
         : StatementNode(),
         Name(name),
         Expression(expression) {}
-        void Dbg() {};
+        void Str(std::ostream& out) override {
+            CommonStr(out);
+            out << ";";
+        }
 
         std::string Name;
         ExpNode* Expression;
+    protected:
+        void CommonStr(std::ostream& out) {
+            out << Name << " = ";
+            Expression->Str(out);
+        }
 };
 class AssignmentIndexStatementNode : public AssignmentStatementNode {
     public:
         AssignmentIndexStatementNode(std::string name, IndexNode* index, ExpNode* expression)
         : AssignmentStatementNode(name, expression),
         Index(index) {}
-        void Dbg() {}
+        void Str(std::ostream& out) override {
+            CommonStr(out);
+            Index->Str(out);
+            out << ";";
+        }
 
         IndexNode* Index;
 };

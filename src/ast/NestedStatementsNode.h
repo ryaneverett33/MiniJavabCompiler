@@ -10,7 +10,13 @@ class NestedStatementsNode : public StatementNode {
         NestedStatementsNode(std::vector<StatementNode*> statements)
         : StatementNode(),
         Statements(statements) {}
-        void Dbg() {};
+        void Str(std::ostream& out) override {
+            for (int statementIndex = 0; statementIndex < Statements.size(); statementIndex++) {
+                StatementNode* statement = Statements[statementIndex];
+                statement->Str(out);
+                if ((statementIndex + 1) < Statements.size()) { out << std::endl; }
+            }
+        }
 
         std::vector<StatementNode*> Statements;
 };

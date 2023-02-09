@@ -15,4 +15,10 @@ VarDeclNode::VarDeclNode(std::string type, std::string name)
     Type = new ObjectTypeNode(type);
 }
 
+void VarDeclNode::Str(std::ostream& out) {
+    Type->Str(out);
+    out << " ";
+    out << Name;
+}
+
 }} // end namespace

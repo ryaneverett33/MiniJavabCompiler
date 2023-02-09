@@ -12,7 +12,9 @@ class NewObjectNode : public ObjectNode {
         NewObjectNode(std::string name)
             : ObjectNode(),
             Name(name) {}
-        void Dbg() {}
+        void Str(std::ostream& out) override {
+            out << "new " << Name << "()";
+        }
 
         std::string Name;
 };
@@ -23,7 +25,11 @@ class NewArrayObjectNode : public ObjectNode {
             : ObjectNode(),
             Type(type),
             Index(index) {}
-        void Dbg() {}
+        void Str(std::ostream& out) override {
+            out << "new ";
+            Type->Str(out);
+            Index->Str(out);
+        }
 
         TypeNode* Type;
         IndexNode* Index;

@@ -12,7 +12,7 @@ class IfStatementNode : public StatementNode {
         Expression(expression),
         IfStatement(ifStatement),
         ElseStatement(elseStatement) {}
-        void Dbg() {};
+        void Str(std::ostream& out) override;
 
         ExpNode* Expression;
         StatementNode* IfStatement;

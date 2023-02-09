@@ -4,17 +4,26 @@
 #include "Node.h"
 #include "ExpNode.h"
 
-namespace MiniJavab {
-namespace AST {
+namespace MiniJavab
+{
+namespace AST
+{
 
-class IndexNode : public Node {
+class IndexNode : public Node
+{
     public:
-        IndexNode(ExpNode* expression)
-                : Node(),
-                Expressions({expression}) { }
-        void Dbg() {}
+        IndexNode(ExpNode *expression)
+            : Node(),
+            Expressions({expression}) {}
+        void Str(std::ostream &out) override {
+            for (ExpNode* expression : Expressions) {
+                out << "[";
+                expression->Str(out);
+                out << "]";
+            }
+        }
 
-        std::vector<ExpNode*> Expressions;
+        std::vector<ExpNode *> Expressions;
 };
 
 }} // end namespace

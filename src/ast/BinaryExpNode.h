@@ -7,7 +7,7 @@ namespace AST {
 class BinaryExpNode : public ExpNode {
     public:
         BinaryExpNode(OperatorType op, ExpNode* left, ExpNode* right);
-        void Dbg() override {}
+        void Str(std::ostream& out) override;
         
         OperatorType Operator;
         ExpNode* LeftSide;

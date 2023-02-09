@@ -9,7 +9,7 @@ class VarDeclNode : public Node {
     public:
         VarDeclNode(TypeNode* type, std::string name);
         VarDeclNode(std::string type, std::string name);
-        void Dbg() {};
+        void Str(std::ostream& out) override;
 
         TypeNode* Type;
         std::string Name;

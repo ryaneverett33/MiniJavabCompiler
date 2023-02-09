@@ -17,7 +17,13 @@ class LengthExpNode : public ExpNode {
             : ExpNode(),
             Name(name),
             Index(index) {}
-        void Dbg() {}
+        void Str(std::ostream& out) override {
+            out << Name;
+            if (Index != nullptr) {
+                Index->Str(out);
+            }
+            out << ".length";
+        }
 
         std::string Name;
         IndexNode* Index;

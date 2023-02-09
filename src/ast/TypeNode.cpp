@@ -12,8 +12,7 @@ ArrayTypeNode::ArrayTypeNode(TypeNode* baseType, int dimensions)
     BaseType(baseType),
     Dimensions(dimensions) {}
 
-void ArrayTypeNode::Increase() { Dimensions += 1; }
-void ArrayTypeNode::Dbg() {
+void ArrayTypeNode::Dump(std::ostream& out) {
     std::string baseStr;
     if (dynamic_cast<IntegerTypeNode*>(BaseType)) {
         baseStr = "Integer";
@@ -25,11 +24,18 @@ void ArrayTypeNode::Dbg() {
         ObjectTypeNode* objectType = dynamic_cast<ObjectTypeNode*>(BaseType);
         baseStr = objectType->ObjectType;
     }
-    printf("%s", baseStr.c_str());
+    out << baseStr;
     for (int i = 0; i < Dimensions; i++) {
-        printf("[]");
+        out << "[]";
     }
-    printf(" Type\n");
+    out << " Type" << std::endl;
+}
+
+void ArrayTypeNode::Str(std::ostream& out) {
+    BaseType->Str(out);
+    for (int i = 0; i < Dimensions; i++) {
+        out << "[]";
+    }
 }
 
 }} // end namespace

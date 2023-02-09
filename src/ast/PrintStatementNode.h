@@ -7,26 +7,50 @@ namespace AST {
 
 class PrintStatementNode : public StatementNode {
     public:
-        PrintStatementNode(std::string string, bool newLine=false)
+        PrintStatementNode(bool newLine=false)
         : StatementNode(),
-        String(string),
         NewLine(newLine) {}
-        void Dbg() {};
 
-        std::string String;
         bool NewLine;
+    protected:
+        void MethodStr(std::ostream& out) {
+            if (NewLine) {
+                out << "System.out.println";
+            }
+            else {
+                out << "System.out.print";
+            }
+        }
 };
 
-class PrintExpStatementNode : public StatementNode {
+class PrintStringStatementNode : public PrintStatementNode {
+    public:
+        PrintStringStatementNode(std::string string, bool newLine=false)
+        : PrintStatementNode(newLine),
+        String(string) {}
+        
+        void Str(std::ostream& out) override {
+            PrintStatementNode::MethodStr(out);
+            out << "(" << "\"" << String << "\";";
+        }
+
+        std::string String;
+};
+
+class PrintExpStatementNode : public PrintStatementNode {
     public:
         PrintExpStatementNode(ExpNode* expression, bool newLine=false)
-        : StatementNode(),
-        Expression(expression),
-        NewLine(newLine) {}
-        void Dbg() {};
+        : PrintStatementNode(newLine),
+        Expression(expression) {}
+
+        void Str(std::ostream& out) override {
+            PrintStatementNode::MethodStr(out);
+            out << "(";
+            Expression->Str(out);
+            out << ");";
+        }
 
         ExpNode* Expression;
-        bool NewLine;
 };
 
 }} // end namespace

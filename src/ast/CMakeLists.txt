@@ -10,6 +10,8 @@ set (SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/VarDeclNode.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/MethodDeclNode.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/ClassDeclNode.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/IfStatementNode.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/MethodCallExpNode.cpp
 )
 
 add_library(AST SHARED ${SOURCES})
