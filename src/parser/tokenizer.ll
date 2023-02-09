@@ -127,6 +127,7 @@ yy::parser::symbol_type make_STRING_LITERAL(
 
 void ParserDriver::ScanFile(std::string filePath) {
   assert(!IsScanning && "Already scanning, can't scan again");
+  YY_FLUSH_BUFFER;
 
   if (!(yyin = fopen(filePath.c_str(), "r"))) {
     throw std::invalid_argument("Cannot open " + filePath + " error, " + strerror(errno));
@@ -137,6 +138,7 @@ void ParserDriver::ScanFile(std::string filePath) {
 }
 void ParserDriver::ScanStandardInput() {
   assert(!IsScanning && "Already scanning, can't scan again");
+  YY_FLUSH_BUFFER;
 
   yyin = stdin;
   IsScanning = true;
@@ -147,5 +149,6 @@ void ParserDriver::FinishScanning() {
   assert(IsScanning && "Haven't started scanning yet");
 
   IsScanning = false;
+  YY_FLUSH_BUFFER;
   fclose(yyin);
 }

@@ -5,7 +5,7 @@
 #include "common.h"
 using namespace MiniJavab;
 
-// Demonstrate some basic assertions.
+// Basic test case for `Hello World`
 TEST_F(LanguageTests, HelloWorld) {
     AST::Node* tree = Parser::ParseFileToAST(TestDirectory / "hello_world/" / "Program.java");
     EXPECT_NE(tree, nullptr);
