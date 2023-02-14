@@ -1,3 +1,2 @@
-add_subdirectory(ast/)
-add_subdirectory(parser/)
+add_subdirectory(frontend)
 add_subdirectory(tools/)

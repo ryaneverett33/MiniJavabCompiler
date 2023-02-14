@@ -1,18 +1,18 @@
 #include <gtest/gtest.h>
-#include "ast/ast.h"
-#include "parser/scanner.h"
+#include "frontend/ast/ast.h"
+#include "frontend/parser/scanner.h"
 // TestDirectory fixture is defined here
 #include "common.h"
-using namespace MiniJavab;
+using namespace MiniJavab::Frontend::Parser;
 
 // Test the 2D Array implementation
 TEST_F(LanguageTests, Arrays_2DArray) {
-    AST::Node* tree = Parser::ParseFileToAST(TestDirectory / "arrays/" / "2DArray.java");
-    EXPECT_NE(tree, nullptr);
+    ScanResult* result = ParseFileToAST(TestDirectory / "arrays/" / "2DArray.java");
+    EXPECT_NE(result->Result, nullptr);
 }
 
 // Test the usage of a single dimension array
 TEST_F(LanguageTests, Arrays_ArrayUsage) {
-    AST::Node* tree = Parser::ParseFileToAST(TestDirectory / "arrays/" / "ArrayUsage.java");
-    EXPECT_NE(tree, nullptr);
+    ScanResult* result = ParseFileToAST(TestDirectory / "arrays/" / "ArrayUsage.java");
+    EXPECT_NE(result->Result, nullptr);
 }

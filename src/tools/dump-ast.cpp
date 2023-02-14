@@ -1,10 +1,10 @@
 #include <iostream>
 #include <string>
-#include "ast/ast.h"
-#include "parser/scanner.h"
+#include "frontend/ast/ast.h"
+#include "frontend/parser/scanner.h"
 #define YYDEBUG 1
 
-using namespace MiniJavab;
+using namespace MiniJavab::Frontend;
 
 int main(int argc, char** argv) {
   if (argc != 2) {
@@ -12,7 +12,8 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-  AST::ProgramNode* tree = dynamic_cast<AST::ProgramNode*>(Parser::ParseFileToAST(argv[1]));
+  Parser::ScanResult* result = Parser::ParseFileToAST(argv[1]);
+  AST::Node* tree = result->Result;
   if (tree == nullptr) {
     std::cout << "Failed to parse AST" << std::endl;
     return 1;
