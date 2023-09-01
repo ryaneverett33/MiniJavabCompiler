@@ -10,7 +10,7 @@ namespace AST {
 class ObjectExpNode : public ExpNode {
     public:
         ObjectExpNode(ObjectNode* object)
-            : ExpNode(),
+            : ExpNode(ExpKind::Object),
             Object(object) {}
         void Str(std::ostream& out) override { Object->Str(out); }
 

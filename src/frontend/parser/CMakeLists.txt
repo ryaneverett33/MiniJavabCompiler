@@ -1,11 +1,11 @@
 project(MiniJavabCompiler)
 cmake_minimum_required(VERSION 3.14)
-set (CMAKE_CXX_STANDARD 20)
+set (CMAKE_CXX_STANDARD 17)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     # Use homebrew's version of flex/bison
-    set(BISON_EXECUTABLE /usr/local/opt/bison/bin/bison)
-    set(FLEX_EXECUTABLE /usr/local/opt/flex/bin/flex)
+    set(BISON_EXECUTABLE /opt/homebrew/opt/bison/bin/bison)
+    set(FLEX_EXECUTABLE /opt/homebrew/opt/flex/bin/flex)
 endif()
 
 find_package(BISON 3.4)

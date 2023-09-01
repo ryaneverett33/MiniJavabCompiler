@@ -2,7 +2,6 @@
 #include <string>
 #include "frontend/ast/ast.h"
 #include "frontend/parser/scanner.h"
-#define YYDEBUG 1
 
 using namespace MiniJavab::Frontend;
 

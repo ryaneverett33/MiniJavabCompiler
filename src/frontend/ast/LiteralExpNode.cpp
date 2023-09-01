@@ -7,7 +7,7 @@ namespace Frontend {
 namespace AST {
 
 IntegerLiteralExpNode::IntegerLiteralExpNode(int literal)
-    : ExpNode(),
+    : LiteralExpNode(LiteralExpKind::Integer),
     Value(literal) { }
 
 void IntegerLiteralExpNode::Str(std::ostream& out) {
@@ -15,14 +15,14 @@ void IntegerLiteralExpNode::Str(std::ostream& out) {
 }
 
 BooleanLiteralExpNode::BooleanLiteralExpNode(bool literal)
-    : ExpNode(),
+    : LiteralExpNode(LiteralExpKind::Boolean),
     Value(literal) { }
 void BooleanLiteralExpNode::Str(std::ostream& out) {
     out << std::boolalpha << Value;
 }
 
 StringLiteralExpNode::StringLiteralExpNode(std::string literal)
-    : ExpNode(),
+    : LiteralExpNode(LiteralExpKind::String),
     Value(literal) { }
 
 void StringLiteralExpNode::Str(std::ostream& out) {

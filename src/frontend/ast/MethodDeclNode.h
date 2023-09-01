@@ -22,6 +22,9 @@ class MethodDeclNode : public Node {
         std::vector<VarDeclNode*> Parameters;
         std::vector<VarDeclNode*> Variables;
         std::vector<StatementNode*> Statements;
+
+        /// The value expression being returned by this method.
+        /// @note Void-type functions (like `main`) don't have return expressions, so this will be nullptr
         ExpNode* ReturnExp;
 };
 

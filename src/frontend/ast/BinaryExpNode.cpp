@@ -6,7 +6,7 @@ namespace Frontend {
 namespace AST {
 
 BinaryExpNode::BinaryExpNode(OperatorType op, ExpNode* left, ExpNode* right)
-    : ExpNode(),
+    : ExpNode(ExpKind::Binary),
     Operator(op),
     LeftSide(left),
     RightSide(right)

@@ -10,13 +10,13 @@ namespace AST {
 class MethodCallExpNode : public ExpNode {
     public:
         MethodCallExpNode(std::string objectName, std::string method, std::vector<ExpNode*> expressions)
-            : ExpNode(),
+            : ExpNode(ExpKind::MethodCall),
             Method(method),
             Expressions(expressions) {
                 Object = new NamedObjectNode(objectName);
         }
         MethodCallExpNode(ObjectNode* object, std::string method, std::vector<ExpNode*> expressions)
-            : ExpNode(),
+            : ExpNode(ExpKind::MethodCall),
             Object(object),
             Method(method),
             Expressions(expressions) {}

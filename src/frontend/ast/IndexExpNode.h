@@ -9,7 +9,7 @@ namespace AST {
 class IndexExpNode : public ExpNode {
     public:
         IndexExpNode(std::string object, IndexNode* index)
-            : ExpNode(),
+            : ExpNode(ExpKind::Index),
             Object(object),
             Index(index) {}
         void Str(std::ostream& out) override {

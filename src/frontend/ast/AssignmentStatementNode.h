@@ -10,7 +10,7 @@ namespace AST {
 class AssignmentStatementNode : public StatementNode {
     public:
         AssignmentStatementNode(std::string name, ExpNode* expression)
-        : StatementNode(),
+        : StatementNode(StatementKind::Assignment),
         Name(name),
         Expression(expression) {}
         void Str(std::ostream& out) override {

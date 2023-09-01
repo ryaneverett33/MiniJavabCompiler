@@ -8,14 +8,15 @@ namespace MiniJavab {
 namespace Frontend {
 namespace AST {
 
-class NewObjectNode : public ObjectNode {
+class NewObjectNode : public NamedObjectNode {
     public:
         NewObjectNode(std::string name)
-            : ObjectNode(),
+            : NamedObjectNode(name),
             Name(name) {}
         void Str(std::ostream& out) override {
             out << "new " << Name << "()";
         }
+        virtual bool IsNewObject() override { return true; }
 
         std::string Name;
 };
@@ -31,6 +32,7 @@ class NewArrayObjectNode : public ObjectNode {
             Type->Str(out);
             Index->Str(out);
         }
+        bool IsNewArray() override { return true; }
 
         TypeNode* Type;
         IndexNode* Index;

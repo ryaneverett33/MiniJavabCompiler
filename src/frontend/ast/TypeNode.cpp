@@ -5,11 +5,11 @@ namespace Frontend {
 namespace AST {
 
 ObjectTypeNode::ObjectTypeNode(std::string objectType)
-    : TypeNode(),
+    : TypeNode(TypeNodeKind::Object),
     ObjectType(objectType) {}
 
 ArrayTypeNode::ArrayTypeNode(TypeNode* baseType, int dimensions)
-    : TypeNode(),
+    : TypeNode(TypeNodeKind::Array),
     BaseType(baseType),
     Dimensions(dimensions) {}
 

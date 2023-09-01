@@ -21,10 +21,27 @@ enum class OperatorType {
     NotEqualTo
 };
 
+enum class ExpKind {
+    Binary,
+    Unary,
+    Literal,
+    LengthMethod,
+    MethodCall,
+    Nested,
+    Object,
+    Index
+};
+
 class ExpNode : public Node {
     public:
-        ExpNode()
-        : Node() {}
+        ExpNode(ExpKind kind)
+            : Node(),
+            Kind(kind) 
+        {}
+        
+        /// Converts an OperatorType to the MiniJavab equivalent
+        /// @param op Operator to convert
+        /// @return String representation of the operator
         std::string OperatorStr(OperatorType op) {
             switch (op) {
                 case OperatorType::Add:
@@ -55,6 +72,18 @@ class ExpNode : public Node {
                     return "!=";
             }
         }
+
+        bool IsBinaryExpression() { return Kind == ExpKind::Binary; }
+        bool IsUnaryExpression() { return Kind == ExpKind::Unary; }
+        bool IsLiteralExpression() { return Kind == ExpKind::Literal; }
+        bool IsLengthMethodExpression() { return Kind == ExpKind::LengthMethod; }
+        bool IsMethodCallExpression() { return Kind == ExpKind::MethodCall; }
+        bool IsNestedExpression() { return Kind == ExpKind::Nested; }
+        bool IsObjectExpression() { return Kind == ExpKind::Object; }
+        bool IsIndexExpression() { return Kind == ExpKind::Index; }
+
+        /// The Kind of Expression this is
+        ExpKind Kind;
 };
 
 }}}

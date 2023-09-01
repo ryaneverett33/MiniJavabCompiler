@@ -6,7 +6,7 @@ namespace Frontend {
 namespace AST {
 
 UnaryExpNode::UnaryExpNode(OperatorType op, ExpNode* exp)
-    : ExpNode(),
+    : ExpNode(ExpKind::Unary),
     Operator(op),
     Expression(exp) { }
 
