@@ -11,14 +11,11 @@ namespace AST {
 class NewObjectNode : public NamedObjectNode {
     public:
         NewObjectNode(std::string name)
-            : NamedObjectNode(name),
-            Name(name) {}
+            : NamedObjectNode(name) {}
         void Str(std::ostream& out) override {
             out << "new " << Name << "()";
         }
         virtual bool IsNewObject() override { return true; }
-
-        std::string Name;
 };
 
 class NewArrayObjectNode : public ObjectNode {
