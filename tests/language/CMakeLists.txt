@@ -19,7 +19,7 @@ set(TEST_DIRECTORIES
 add_executable(language-tests
     common.cpp
     ${TEST_SUITES})
-target_link_libraries(language-tests GTest::gtest_main ast parser)
+target_link_libraries(language-tests GTest::gtest_main frontend)
 
 foreach (test_directory IN LISTS TEST_DIRECTORIES)
     # remove the old directory if it exists

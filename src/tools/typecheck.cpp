@@ -24,8 +24,10 @@ int main(int argc, char** argv) {
     // Perform typechecking
     if (Frontend::TypeChecker::Check(dynamic_cast<Frontend::AST::ProgramNode*>(tree), classTable)) {
         std::cout << "Program passed typechecking" << std::endl;
+        return 0;
     }
     else {
         std::cout << "Program has errors" << std::endl;
+        return 2;
     }
 }

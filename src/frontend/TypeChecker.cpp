@@ -49,14 +49,14 @@ ASTVariable* findVariableOrParameter(std::string name, ASTClass* const classObje
 
 Core::Type* TypeCheckProcedure::FatalError(std::string message) {
     ValidCheck = false;
-    Errs << message << std::endl;
+    Errs << message << "\n";
     return nullptr;
 }
 Core::Type* TypeCheckProcedure::GetType(AST::BinaryExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
-    return nullptr;
+    return FatalError("GetType for binary expressions not implemented yet\n");
 }
 Core::Type* TypeCheckProcedure::GetType(AST::IndexExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
-    return nullptr;
+    return FatalError("GetType for index expressions not implemented yet\n");
 }
 Core::Type* TypeCheckProcedure::GetType(AST::LengthExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
     // lookup the object
@@ -162,7 +162,7 @@ Core::Type* TypeCheckProcedure::GetType(AST::ObjectExpNode* const node, ASTClass
         // verify that the named class exists before accepting it's type
         if (variable == nullptr) {
             ValidCheck = false;
-            Errs << "Not a valid object type: " << namedObjectNode->Name << std::endl;
+            Errs << "Not a valid object type: " << namedObjectNode->Name << "\n";
             return nullptr;
         }
         return variable->Type;
@@ -174,13 +174,15 @@ Core::Type* TypeCheckProcedure::GetType(AST::ObjectExpNode* const node, ASTClass
     assert(false && "Unrecognized object expression type");
 }
 Core::Type* TypeCheckProcedure::GetType(AST::UnaryExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
-    return nullptr;
+    return GetType(node->Expression, classObject, methodObject);
 }
 
 void TypeCheckProcedure::TypeCheck(AST::AssignmentStatementNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
+    FatalError("assignment statement typechecking Not implemented yet\n");
 }
 
 void TypeCheckProcedure::TypeCheck(AST::IfStatementNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
+    FatalError("if statement typechecking Not implemented yet\n");
 }
 
 void TypeCheckProcedure::TypeCheck(AST::PrintStatementNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
@@ -188,18 +190,24 @@ void TypeCheckProcedure::TypeCheck(AST::PrintStatementNode* const node, ASTClass
     if (node->IsPrintExpressionStatement()) {
         AST::PrintExpStatementNode* printExpNode = dynamic_cast<AST::PrintExpStatementNode*>(node);
         Core::Type* expressionType = GetType(printExpNode->Expression, classObject, methodObject);
-        if (expressionType == nullptr) { ValidCheck = false; return; }
+        if (expressionType == nullptr) { 
+            ValidCheck = false; 
+            Errs << "Failed to get expression type\n";
+            return; 
+        }
         if (!expressionType->IsIntegerType()) {
             ValidCheck = false;
-            Errs << "Print expression must return an integer" << std::endl;
+            Errs << "Print expression must return an integer\n";
         }
     }
 }
 
 void TypeCheckProcedure::TypeCheck(AST::ReturnStatementNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
+    FatalError("return statement typechecking Not implemented yet\n");
 }
 
 void TypeCheckProcedure::TypeCheck(AST::WhileStatementNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
+    FatalError("While statement typechecking Not implemented yet\n");
 }
 
 Core::Type* TypeCheckProcedure::GetType(AST::ExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
@@ -272,13 +280,13 @@ void TypeCheckProcedure::TypeCheck(AST::MethodDeclNode* const node, ASTClass* co
         Core::Type* returnType = GetType(node->ReturnExp, classObject, methodObject);
 
         if (returnType == nullptr) {
-            Errs << "Failed to get return type" << std::endl;
+            Errs << "Failed to get return type\n";
             ValidCheck = false;
             return;
         }
 
         if (!returnType->Equals(methodObject->ReturnType)) {
-            Errs << "Return type doesn't match" << std::endl;
+            Errs << "Return type doesn't match\n";
             ValidCheck = false;
             return;
         } 
@@ -286,7 +294,7 @@ void TypeCheckProcedure::TypeCheck(AST::MethodDeclNode* const node, ASTClass* co
     else {
         // if the return expression is null, then the method type must be void
         if (!methodObject->ReturnType->IsVoidType()) {
-            Errs << "Method doesn't return for non-void type method" << std::endl;
+            Errs << "Method doesn't return for non-void type method\n";
             ValidCheck = false;
             return;
         }

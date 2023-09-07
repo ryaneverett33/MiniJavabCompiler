@@ -1,18 +1,32 @@
-#include <gtest/gtest.h>
+#include "common.h"
+
 #include "frontend/ast/ast.h"
 #include "frontend/parser/scanner.h"
-// TestDirectory fixture is defined here
-#include "common.h"
-using namespace MiniJavab::Frontend::Parser;
+#include "frontend/TypeChecker.h"
+#include "frontend/frontend.h"
+
+#include <gtest/gtest.h>
+
+#include <iostream>
+
+using namespace MiniJavab::Frontend;
 
 // Test the 2D Array implementation
 TEST_F(LanguageTests, Arrays_2DArray) {
-    ScanResult* result = ParseFileToAST(TestDirectory / "arrays/" / "2DArray.java");
-    EXPECT_NE(result->Result, nullptr);
+    Parser::ScanResult* result = Parser::ParseFileToAST(TestDirectory / "arrays/" / "2DArray.java");
+    ASSERT_NE(result->Result, nullptr);
+
+    AST::ProgramNode* program = static_cast<AST::ProgramNode*>(result->Result);
+    ASTClassTable* classTable = LoadClassTableFromAST(program);
+    ASSERT_TRUE(TypeChecker::Check(program, classTable));
 }
 
 // Test the usage of a single dimension array
 TEST_F(LanguageTests, Arrays_ArrayUsage) {
-    ScanResult* result = ParseFileToAST(TestDirectory / "arrays/" / "ArrayUsage.java");
-    EXPECT_NE(result->Result, nullptr);
+    Parser::ScanResult* result = Parser::ParseFileToAST(TestDirectory / "arrays/" / "ArrayUsage.java");
+    ASSERT_NE(result->Result, nullptr);
+
+    AST::ProgramNode* program = static_cast<AST::ProgramNode*>(result->Result);
+    ASTClassTable* classTable = LoadClassTableFromAST(program);
+    ASSERT_TRUE(TypeChecker::Check(program, classTable));
 }

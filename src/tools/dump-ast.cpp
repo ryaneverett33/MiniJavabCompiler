@@ -18,6 +18,6 @@ int main(int argc, char** argv) {
     return 1;
   }
   std::cout << "AST:" << std::endl;
-  tree->Dump(std::cout);
+  tree->Dump();
   return 0;
 }
