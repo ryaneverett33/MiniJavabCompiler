@@ -10,21 +10,18 @@ namespace AST {
 class AssignmentStatementNode : public StatementNode {
     public:
         AssignmentStatementNode(std::string name, ExpNode* expression)
-        : StatementNode(),
+        : StatementNode(StatementKind::Assignment),
         Name(name),
         Expression(expression) {}
         void Str(std::ostream& out) override {
-            CommonStr(out);
+            out << Name << " = ";
+            Expression->Str(out);
             out << ";";
         }
+        virtual bool IsIndexedAssignment() const { return false; }
 
         std::string Name;
         ExpNode* Expression;
-    protected:
-        void CommonStr(std::ostream& out) {
-            out << Name << " = ";
-            Expression->Str(out);
-        }
 };
 class AssignmentIndexStatementNode : public AssignmentStatementNode {
     public:
@@ -32,10 +29,13 @@ class AssignmentIndexStatementNode : public AssignmentStatementNode {
         : AssignmentStatementNode(name, expression),
         Index(index) {}
         void Str(std::ostream& out) override {
-            CommonStr(out);
+            out << Name;
             Index->Str(out);
+            out << " = ";
+            Expression->Str(out);
             out << ";";
         }
+        bool IsIndexedAssignment() const override { return true; }
 
         IndexNode* Index;
 };

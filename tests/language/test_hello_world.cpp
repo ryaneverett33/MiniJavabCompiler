@@ -1,12 +1,18 @@
 #include <gtest/gtest.h>
 #include "frontend/ast/ast.h"
 #include "frontend/parser/scanner.h"
+#include "frontend/frontend.h"
+#include "frontend/TypeChecker.h"
 // TestDirectory fixture is defined here
 #include "common.h"
-using namespace MiniJavab::Frontend::Parser;
+using namespace MiniJavab::Frontend;
 
 // Basic test case for `Hello World`
 TEST_F(LanguageTests, HelloWorld) {
-    ScanResult* result = ParseFileToAST(TestDirectory / "hello_world/" / "Program.java");
-    EXPECT_NE(result->Result, nullptr);
+    Parser::ScanResult* result = Parser::ParseFileToAST(TestDirectory / "hello_world/" / "Program.java");
+    ASSERT_NE(result->Result, nullptr);
+
+    AST::ProgramNode* program = static_cast<AST::ProgramNode*>(result->Result);
+    ASTClassTable* classTable = LoadClassTableFromAST(program);
+    ASSERT_TRUE(TypeChecker::Check(program, classTable));
 }

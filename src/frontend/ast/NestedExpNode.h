@@ -8,7 +8,7 @@ namespace AST {
 class NestedExpNode : public ExpNode {
     public:
         NestedExpNode(ExpNode* expression)
-            : ExpNode(),
+            : ExpNode(ExpKind::Nested),
             Expression(expression) {}
         void Str(std::ostream& out) override {
             out << "(";

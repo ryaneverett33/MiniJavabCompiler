@@ -9,7 +9,7 @@ namespace AST {
 class ReturnStatementNode : public StatementNode {
     public:
         ReturnStatementNode(ExpNode* expression)
-        : StatementNode(),
+        : StatementNode(StatementKind::Return),
         Expression(expression) {}
         void Str(std::ostream& out) override {
             out << "return ";

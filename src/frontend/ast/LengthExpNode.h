@@ -8,14 +8,15 @@ namespace Frontend {
 namespace AST {
 
 class LengthExpNode : public ExpNode {
+    // hello.length, Name: "hello"
     public:
         LengthExpNode(std::string name)
-            : ExpNode(),
+            : ExpNode(ExpKind::LengthMethod),
             Name(name),
             Index(nullptr) {}
 
         LengthExpNode(std::string name, IndexNode* index)
-            : ExpNode(),
+            : ExpNode(ExpKind::LengthMethod),
             Name(name),
             Index(index) {}
         void Str(std::ostream& out) override {

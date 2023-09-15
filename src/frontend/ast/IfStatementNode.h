@@ -9,7 +9,7 @@ namespace AST {
 class IfStatementNode : public StatementNode {
     public:
         IfStatementNode(ExpNode* expression, StatementNode* ifStatement, StatementNode* elseStatement)
-        : StatementNode(),
+        : StatementNode(StatementKind::If),
         Expression(expression),
         IfStatement(ifStatement),
         ElseStatement(elseStatement) {}

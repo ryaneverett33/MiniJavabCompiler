@@ -9,8 +9,10 @@ namespace AST {
 class PrintStatementNode : public StatementNode {
     public:
         PrintStatementNode(bool newLine=false)
-        : StatementNode(),
+        : StatementNode(StatementKind::Print),
         NewLine(newLine) {}
+        virtual bool IsPrintStringStatement() { return false; }
+        virtual bool IsPrintExpressionStatement() { return false; }
 
         bool NewLine;
     protected:
@@ -34,6 +36,7 @@ class PrintStringStatementNode : public PrintStatementNode {
             PrintStatementNode::MethodStr(out);
             out << "(" << "\"" << String << "\";";
         }
+        bool IsPrintStringStatement() override { return true; }
 
         std::string String;
 };
@@ -50,6 +53,7 @@ class PrintExpStatementNode : public PrintStatementNode {
             Expression->Str(out);
             out << ");";
         }
+        bool IsPrintExpressionStatement() override { return true; }
 
         ExpNode* Expression;
 };

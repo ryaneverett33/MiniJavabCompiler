@@ -2,7 +2,6 @@
 #include <string>
 #include "frontend/ast/ast.h"
 #include "frontend/parser/scanner.h"
-#define YYDEBUG 1
 
 using namespace MiniJavab::Frontend;
 
@@ -19,6 +18,6 @@ int main(int argc, char** argv) {
     return 1;
   }
   std::cout << "AST:" << std::endl;
-  tree->Dump(std::cout);
+  tree->Dump();
   return 0;
 }

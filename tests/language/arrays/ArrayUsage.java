@@ -17,6 +17,7 @@ class Runner {
         System.out.println(a.size(arr));
         hello = r.make(5);
         System.out.println(hello.length);
+        // System.out.println(this.length); // Errors
         return 0;
     }
 }

@@ -11,6 +11,7 @@ class Test {
         arr[3][3] = 3;
         System.out.println(arr[0][0]);
         System.out.println(arr[3][3]);
+        System.out.println(arr[0].length);
         return -1;
     }
 }

@@ -9,7 +9,7 @@ namespace AST {
 class NestedStatementsNode : public StatementNode {
     public:
         NestedStatementsNode(std::vector<StatementNode*> statements)
-        : StatementNode(),
+        : StatementNode(StatementKind::Nested),
         Statements(statements) {}
         void Str(std::ostream& out) override {
             for (int statementIndex = 0; statementIndex < Statements.size(); statementIndex++) {

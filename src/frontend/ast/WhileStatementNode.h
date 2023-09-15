@@ -9,7 +9,7 @@ namespace AST {
 class WhileStatementNode : public StatementNode {
     public:
         WhileStatementNode(ExpNode* expression, StatementNode* statement)
-        : StatementNode(),
+        : StatementNode(StatementKind::While),
         Expression(expression),
         Statement(statement) {}
         void Str(std::ostream& out) override {
