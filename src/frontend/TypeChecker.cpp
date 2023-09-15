@@ -115,7 +115,39 @@ Core::Type* TypeCheckProcedure::GetType(AST::BinaryExpNode* const node, ASTClass
     }
 }
 Core::Type* TypeCheckProcedure::GetType(AST::IndexExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
-    return FatalError("GetType for index expressions not implemented yet\n");
+    // check that the variable exists
+    ASTVariable* variable = nullptr;
+    if (ASTVariable* parameter = methodObject->GetParameter(node->Object)) {
+        variable = parameter;
+    }
+    else if (ASTVariable* methodVariable = methodObject->GetVariable(node->Object)) {
+        variable = methodVariable;
+    }
+    else if (ASTVariable* objectVariable = classObject->GetVariable(node->Object)) {
+        variable = objectVariable;
+    }
+    else {
+        return FatalError("Variable doesn't exist: " + node->Object);
+    }
+
+    // make sure the variable is an array type
+    if (!variable->Type->IsArrayType()) {
+        return FatalError("Cannot use an array operator on a non-array type");
+    }
+
+    // make sure the accessor indices are <= to the type dimensions 
+    Core::ArrayType* variableType = static_cast<Core::ArrayType*>(variable->Type);
+    if (node->Index->Expressions.size() > variableType->Dimensions) {
+        return FatalError("Cannot access " + std::to_string(node->Index->Expressions.size()) + " dimensions of a " + std::to_string(variableType->Dimensions) + " dimensional array");
+    }
+
+    // if the accessor indices count matches the array dimensions, then we're accessing the base type (eg. arr[0] of int[] arr)
+    if (node->Index->Expressions.size() == variableType->Dimensions) {
+        return variableType->BaseType;
+    }
+    else { // else we're accessing a sub-array within the array (eg. arr[0] of int[][] arr)
+        return new Core::ArrayType(variableType->BaseType, node->Index->Expressions.size());
+    }
 }
 Core::Type* TypeCheckProcedure::GetType(AST::LengthExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
     // lookup the object
