@@ -1,4 +1,4 @@
-#include "ClassDeclNode.h"
+#include "minijavab/frontend/ast/ClassDeclNode.h"
 
 namespace MiniJavab {
 namespace Frontend {

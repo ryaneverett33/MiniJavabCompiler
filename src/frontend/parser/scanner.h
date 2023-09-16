@@ -1,5 +1,5 @@
 #pragma once
-#include "frontend/ast/ProgramNode.h"
+#include "minijavab/frontend/ast/ProgramNode.h"
 
 namespace MiniJavab {
 namespace Frontend {

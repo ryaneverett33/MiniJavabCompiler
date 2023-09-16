@@ -24,7 +24,7 @@ FLEX_TARGET(Tokenizer tokenizer.ll ${CMAKE_CURRENT_BINARY_DIR}/tokenizer.cpp)
 ADD_FLEX_BISON_DEPENDENCY(Tokenizer Parser)
 
 add_library(parser SHARED scanner.cpp ${BISON_Parser_OUTPUTS} ${FLEX_Tokenizer_OUTPUTS})
-target_include_directories(parser PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(parser PUBLIC ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 
 # link against the AST library
 target_link_libraries(parser ast)

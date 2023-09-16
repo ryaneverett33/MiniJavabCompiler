@@ -3,7 +3,7 @@
 #include <string>
 #include <map>
 #include "parser.h"
-#include "frontend/ast/Node.h"
+#include "minijavab/frontend/ast/Node.h"
 
 #define YY_DECL \
     yy::parser::symbol_type yylex (ParserDriver& driver)

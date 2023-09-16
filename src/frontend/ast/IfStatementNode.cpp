@@ -1,5 +1,5 @@
-#include "IfStatementNode.h"
-#include "ObjectNode.h"
+#include "minijavab/frontend/ast/IfStatementNode.h"
+#include "minijavab/frontend/ast/ObjectNode.h"
 
 namespace MiniJavab {
 namespace Frontend {

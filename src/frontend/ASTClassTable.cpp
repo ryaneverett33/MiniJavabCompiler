@@ -1,5 +1,5 @@
-#include "ASTClassTable.h"
-#include "frontend.h"
+#include "minijavab/frontend/ASTClassTable.h"
+#include "minijavab/frontend/frontend.h"
 
 namespace MiniJavab {
 namespace Frontend {

@@ -1,4 +1,4 @@
-#include "MethodDeclNode.h"
+#include "minijavab/frontend/ast/MethodDeclNode.h"
 
 namespace MiniJavab {
 namespace Frontend {
