@@ -1,2 +1,64 @@
-add_subdirectory(src/)
+cmake_minimum_required(VERSION 3.14)
+project(MiniJavabCompiler CXX)
+set(CMAKE_CXX_STANDARD 17)
+option(USE_HOMEBREW "fds" OFF)
+
+# Find bison and flex
+if (${USE_HOMEBREW})
+    # Use homebrew's version of flex/bison
+    set(BISON_EXECUTABLE /opt/homebrew/opt/bison/bin/bison)
+    set(FLEX_EXECUTABLE /opt/homebrew/opt/flex/bin/flex)
+endif()
+
+find_package(BISON 3.4)
+find_package(FLEX 2.6)
+
+if (NOT BISON_FOUND)
+    MESSAGE(FATAL_ERROR "Couldn't find bison!")
+elseif (NOT FLEX_FOUND)
+    MESSAGE(FATAL_ERROR "Couldn't find flex!")
+endif()
+
+# Build Core target
+add_library(core SHARED src/core/Type.cpp)
+
+# Build AST target
+set (AST_SOURCES
+    src/frontend/ast/UnaryExpNode.cpp
+    src/frontend/ast/LiteralExpNode.cpp
+    src/frontend/ast/BinaryExpNode.cpp
+    src/frontend/ast/TypeNode.cpp
+    src/frontend/ast/VarDeclNode.cpp
+    src/frontend/ast/MethodDeclNode.cpp
+    src/frontend/ast/ClassDeclNode.cpp
+    src/frontend/ast/IfStatementNode.cpp
+    src/frontend/ast/MethodCallExpNode.cpp
+)
+add_library(ast SHARED ${AST_SOURCES})
+
+# Build flex/bison parser
+BISON_TARGET(Parser src/frontend/parser/parser.yy ${CMAKE_CURRENT_BINARY_DIR}/parser.cpp
+             DEFINES_FILE ${CMAKE_CURRENT_BINARY_DIR}/parser.h)
+             # COMPILE_FLAGS -Wcounterexamples)
+FLEX_TARGET(Tokenizer src/frontend/parser/tokenizer.ll ${CMAKE_CURRENT_BINARY_DIR}/tokenizer.cpp)
+ADD_FLEX_BISON_DEPENDENCY(Tokenizer Parser)
+
+add_library(parser SHARED src/frontend/parser/scanner.cpp ${BISON_Parser_OUTPUTS} ${FLEX_Tokenizer_OUTPUTS})
+target_include_directories(parser PUBLIC ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_BINARY_DIR}/include/)
+
+# link against the AST library
+target_link_libraries(parser ast)
+
+# Build frontend target
+add_library(frontend SHARED
+    src/frontend/Frontend.cpp
+    src/frontend/ASTClassTable.cpp
+    src/frontend/TypeChecker.cpp)
+
+target_include_directories(ast PUBLIC include/)
+target_include_directories(core PUBLIC include/)
+target_include_directories(frontend PUBLIC include/)
+target_link_libraries(frontend core ast parser)
+
 add_subdirectory(tests/)
+add_subdirectory(tools/)

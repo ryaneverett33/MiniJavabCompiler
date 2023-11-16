@@ -5,7 +5,7 @@
 #include <cstring>
 #include <string>
 #include <stdexcept>
-#include "parserdriver.h"
+#include "minijavab/frontend/parser/parserdriver.h"
 #include "parser.h"
 %}
 

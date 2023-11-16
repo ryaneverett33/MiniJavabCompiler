@@ -1,5 +1,5 @@
-#include "MethodCallExpNode.h"
-#include "ObjectNode.h"
+#include "minijavab/frontend/ast/MethodCallExpNode.h"
+#include "minijavab/frontend/ast/ObjectNode.h"
 
 namespace MiniJavab {
 namespace Frontend {

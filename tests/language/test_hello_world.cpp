@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
-#include "frontend/ast/ast.h"
-#include "frontend/parser/scanner.h"
-#include "frontend/frontend.h"
-#include "frontend/TypeChecker.h"
+#include "minijavab/frontend/ast/ast.h"
+#include "minijavab/frontend/parser/scanner.h"
+#include "minijavab/frontend/frontend.h"
+#include "minijavab/frontend/TypeChecker.h"
 // TestDirectory fixture is defined here
 #include "common.h"
 using namespace MiniJavab::Frontend;

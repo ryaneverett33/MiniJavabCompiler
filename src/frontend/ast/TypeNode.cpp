@@ -1,4 +1,4 @@
-#include "TypeNode.h"
+#include "minijavab/frontend/ast/TypeNode.h"
 
 namespace MiniJavab {
 namespace Frontend {

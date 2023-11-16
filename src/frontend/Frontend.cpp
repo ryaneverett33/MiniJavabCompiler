@@ -1,6 +1,6 @@
-#include "frontend.h"
-#include "ast/ast.h"
-#include "parser/scanner.h"
+#include "minijavab/frontend/frontend.h"
+#include "minijavab/frontend/ast/ast.h"
+#include "minijavab/frontend/parser/scanner.h"
 
 namespace MiniJavab {
 namespace Frontend {

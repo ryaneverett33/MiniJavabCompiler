@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 #include <stdio.h>
-#include "frontend/ast/ast.h"
+#include "minijavab/frontend/ast/ast.h"
 using namespace MiniJavab::Frontend::AST;
 class ParserDriver;
 class Error;
@@ -25,7 +25,7 @@ class Error;
 %verbose
 
 %code {
-#include "parserdriver.h"
+#include "minijavab/frontend/parser/parserdriver.h"
 #include <iostream>
 #include <string>
 }

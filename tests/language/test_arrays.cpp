@@ -1,9 +1,9 @@
 #include "common.h"
 
-#include "frontend/ast/ast.h"
-#include "frontend/parser/scanner.h"
-#include "frontend/TypeChecker.h"
-#include "frontend/frontend.h"
+#include "minijavab/frontend/ast/ast.h"
+#include "minijavab/frontend/parser/scanner.h"
+#include "minijavab/frontend/TypeChecker.h"
+#include "minijavab/frontend/frontend.h"
 
 #include <gtest/gtest.h>
 

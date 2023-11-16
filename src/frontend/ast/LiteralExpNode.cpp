@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "LiteralExpNode.h"
+#include "minijavab/frontend/ast/LiteralExpNode.h"
 
 namespace MiniJavab {
 namespace Frontend {

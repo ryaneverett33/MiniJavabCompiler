@@ -1,5 +1,5 @@
-#include "VarDeclNode.h"
-#include "Node.h"
+#include "minijavab/frontend/ast/VarDeclNode.h"
+#include "minijavab/frontend/ast/Node.h"
 
 namespace MiniJavab {
 namespace Frontend {

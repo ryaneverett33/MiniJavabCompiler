@@ -1,4 +1,4 @@
-#include "TypeChecker.h"
+#include "minijavab/frontend/TypeChecker.h"
 
 namespace MiniJavab {
 namespace Frontend {

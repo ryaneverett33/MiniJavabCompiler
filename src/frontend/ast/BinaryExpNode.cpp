@@ -1,5 +1,5 @@
-#include "UnaryExpNode.h"
-#include "BinaryExpNode.h"
+#include "minijavab/frontend/ast/UnaryExpNode.h"
+#include "minijavab/frontend/ast/BinaryExpNode.h"
 
 namespace MiniJavab {
 namespace Frontend {
