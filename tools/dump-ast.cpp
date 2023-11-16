@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include "minijavab/frontend/ast/ast.h"
-#include "scanner.h"
+#include "minijavab/frontend/parser/scanner.h"
 
 using namespace MiniJavab::Frontend;
 

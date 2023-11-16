@@ -1,6 +1,6 @@
-#include "scanner.h"
+#include "minijavab/frontend/parser/scanner.h"
 #include "parser.h"
-#include "parserdriver.h"
+#include "minijavab/frontend/parser/parserdriver.h"
 #include <string>
 
 namespace MiniJavab {

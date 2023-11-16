@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include "minijavab/frontend/ast/ast.h"
-#include "scanner.h"
+#include "minijavab/frontend/parser/scanner.h"
 // TestDirectory fixture is defined here
 #include "common.h"
 using namespace MiniJavab::Frontend::Parser;

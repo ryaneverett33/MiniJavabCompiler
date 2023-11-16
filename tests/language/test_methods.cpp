@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include "minijavab/frontend/ast/ast.h"
-#include "scanner.h"
+#include "minijavab/frontend/parser/scanner.h"
 #include "minijavab/frontend/frontend.h"
 #include "minijavab/frontend/TypeChecker.h"
 // TestDirectory fixture is defined here

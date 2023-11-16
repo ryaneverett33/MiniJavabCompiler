@@ -25,7 +25,7 @@ class Error;
 %verbose
 
 %code {
-#include "parserdriver.h"
+#include "minijavab/frontend/parser/parserdriver.h"
 #include <iostream>
 #include <string>
 }
