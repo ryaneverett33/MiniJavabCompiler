@@ -25,7 +25,7 @@ class Type {
         virtual bool IsObjectType() { return Kind == TypeKind::Object; }
         virtual bool IsMethodType() { return Kind == TypeKind::Method; }
         virtual bool IsArrayType() { return Kind == TypeKind::Array; }
-        bool Equals(Type* other) {
+        virtual bool Equals(Type* other) {
             if (other == nullptr) { return false; }
             return Kind == other->Kind;
         }
@@ -55,15 +55,17 @@ class BooleanType : public Type {
 class ObjectType : public Type {
     public:
         ObjectType(std::string typeName) : Type(TypeKind::Object),
-        TypeName(typeName) {}
+            TypeName(typeName) {}
+        bool Equals(Type* other) override;
 
         std::string TypeName;
 };
 class MethodType : public Type {
     public:
         MethodType(Type* returnType, std::initializer_list<Type*> parameterTypes) : Type(TypeKind::Method),
-        ReturnType(returnType),
-        ParameterTypes(parameterTypes) {}
+            ReturnType(returnType),
+            ParameterTypes(parameterTypes) {}
+        bool Equals(Type* other) override;
 
         Type* ReturnType;
         std::vector<Type*> ParameterTypes;
@@ -71,8 +73,9 @@ class MethodType : public Type {
 class ArrayType : public Type {
     public:
         ArrayType(Type* baseType, int dimensions) : Type(TypeKind::Array),
-        BaseType(baseType),
-        Dimensions(dimensions) {}
+            BaseType(baseType),
+            Dimensions(dimensions) {}
+        bool Equals(Type* other) override;
 
         Type* BaseType;
         int Dimensions;
