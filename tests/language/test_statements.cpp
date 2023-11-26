@@ -26,3 +26,17 @@ TEST_F(LanguageTests, Statements_WhileLoop) {
     ASTClassTable* classTable = LoadClassTableFromAST(program);
     ASSERT_TRUE(TypeChecker::Check(program, classTable));
 }
+
+TEST_F(LanguageTests, Statements_errors) {
+    auto loadAndCheckFile = [](std::filesystem::path path) {
+        Parser::ScanResult* result = Parser::ParseFileToAST(path);
+        ASSERT_NE(result->Result, nullptr);
+
+        AST::ProgramNode* program = static_cast<AST::ProgramNode*>(result->Result);
+        ASTClassTable* classTable = LoadClassTableFromAST(program);
+        ASSERT_FALSE(TypeChecker::Check(program, classTable));
+    };
+    Parser::ScanResult* result = Parser::ParseFileToAST(TestDirectory / "statements/" / "errors/" / "ElseOneBracket.java");
+    ASSERT_EQ(result->Result, nullptr);
+    loadAndCheckFile(TestDirectory / "statements/" / "errors/" / "DuplicateLocalVar.java");
+}

@@ -6,15 +6,15 @@ set(TEST_SUITES
     test_hello_world.cpp
     test_comments.cpp
     test_statements.cpp
-    test_methods.cpp
-    test_arrays.cpp
+    test_objects.cpp
+    test_expressions.cpp
 )
 set(TEST_DIRECTORIES
     "hello_world"
     comments
     statements
-    methods
-    arrays)
+    objects
+    expressions)
 set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/src/Instructions.td)
 
 add_executable(language-tests
