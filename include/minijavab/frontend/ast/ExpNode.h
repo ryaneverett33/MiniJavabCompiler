@@ -1,5 +1,8 @@
 #pragma once
 #include "minijavab/frontend/ast/Node.h"
+#include "minijavab/core/Type.h"
+
+#include <optional>
 
 namespace MiniJavab {
 namespace Frontend {
@@ -84,6 +87,9 @@ class ExpNode : public Node {
 
         /// The Kind of Expression this is
         ExpKind Kind;
+
+        /// The Type of this expression deduced during typechecking
+        std::optional<Core::Type*> ExpressionType = std::nullopt;
 };
 
-}}}
+}}} // end namespace
