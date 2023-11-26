@@ -53,6 +53,10 @@ Core::Type* TypeCheckProcedure::FatalError(std::string message) {
     return nullptr;
 }
 Core::Type* TypeCheckProcedure::GetType(AST::BinaryExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
+    if (node->ExpressionType != std::nullopt) {
+        return *(node->ExpressionType);
+    }
+    
     Core::Type* lhsType = GetType(node->LeftSide, classObject, methodObject);
     Core::Type* rhsType = GetType(node->RightSide, classObject, methodObject);
     if (lhsType == nullptr) {
@@ -72,7 +76,8 @@ Core::Type* TypeCheckProcedure::GetType(AST::BinaryExpNode* const node, ASTClass
             if (!rhsType->IsBooleanType()) {
                 return FatalError("Right Hand Side must be a boolean expression");
             }
-            return lhsType;
+            node->ExpressionType = lhsType;
+            return *(node->ExpressionType);
         }
         // int|boolean -> boolean operations
         case AST::OperatorType::EqualTo:
@@ -81,7 +86,8 @@ Core::Type* TypeCheckProcedure::GetType(AST::BinaryExpNode* const node, ASTClass
                 (!lhsType->IsIntegerType() && !rhsType->IsIntegerType())) {
                 return FatalError("Both sides of the binary expression must be the same type");
             }
-            return new Core::BooleanType();
+            node->ExpressionType = new Core::BooleanType();
+            return *(node->ExpressionType);
         }
         // int -> boolean operations
         case AST::OperatorType::LessThan:
@@ -94,7 +100,8 @@ Core::Type* TypeCheckProcedure::GetType(AST::BinaryExpNode* const node, ASTClass
             if (!rhsType->IsIntegerType()) {
                 return FatalError("Right Hand Side must be a integer expression");
             }
-            return new Core::BooleanType();
+            node->ExpressionType = new Core::BooleanType();
+            return *(node->ExpressionType);
         }
         // int -> int operations
         case AST::OperatorType::Add:
@@ -107,7 +114,8 @@ Core::Type* TypeCheckProcedure::GetType(AST::BinaryExpNode* const node, ASTClass
             if (!rhsType->IsIntegerType()) {
                 return FatalError("Right Hand Side must be a integer expression");
             }
-            return lhsType;
+            node->ExpressionType = lhsType;
+            return *(node->ExpressionType);
         };
         default: {
             return FatalError("Unknown binary operator");
@@ -115,6 +123,10 @@ Core::Type* TypeCheckProcedure::GetType(AST::BinaryExpNode* const node, ASTClass
     }
 }
 Core::Type* TypeCheckProcedure::GetType(AST::IndexExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
+    if (node->ExpressionType != std::nullopt) {
+        return *(node->ExpressionType);
+    }
+   
     // check that the variable exists
     ASTVariable* variable = nullptr;
     if (ASTVariable* parameter = methodObject->GetParameter(node->Object)) {
@@ -143,37 +155,52 @@ Core::Type* TypeCheckProcedure::GetType(AST::IndexExpNode* const node, ASTClass*
 
     // if the accessor indices count matches the array dimensions, then we're accessing the base type (eg. arr[0] of int[] arr)
     if (node->Index->Expressions.size() == variableType->Dimensions) {
-        return variableType->BaseType;
+        node->ExpressionType = variableType->BaseType;
     }
     else { // else we're accessing a sub-array within the array (eg. arr[0] of int[][] arr)
-        return new Core::ArrayType(variableType->BaseType, node->Index->Expressions.size());
+        node->ExpressionType = new Core::ArrayType(variableType->BaseType, node->Index->Expressions.size());
     }
+    return *(node->ExpressionType);
 }
 Core::Type* TypeCheckProcedure::GetType(AST::LengthExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
-    // lookup the object
-    ASTVariable* parameter = findVariableOrParameter(node->Name, classObject, methodObject);
-    if (parameter == nullptr) {
-        return FatalError("Object does not exist: " + node->Name);
+    if (node->ExpressionType == std::nullopt) {
+        // lookup the object
+        ASTVariable* parameter = findVariableOrParameter(node->Name, classObject, methodObject);
+        if (parameter == nullptr) {
+            return FatalError("Object does not exist: " + node->Name);
+        }
+        if (!parameter->Type->IsArrayType()) {
+            return FatalError("Can't use the \".length\" method on a non-array type: " + node->Name);
+        }
+        node->ExpressionType = new Core::IntegerType();
     }
-    if (!parameter->Type->IsArrayType()) {
-        return FatalError("Can't use the \".length\" method on a non-array type: " + node->Name);
-    }
-    return new Core::IntegerType();
+    return *(node->ExpressionType);
 }
 Core::Type* TypeCheckProcedure::GetType(AST::LiteralExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
+    if (node->ExpressionType != std::nullopt) {
+        return *(node->ExpressionType);
+    }
+
     if (node->IsIntegerLiteral()) {
-        return new Core::IntegerType();
+        node->ExpressionType = new Core::IntegerType();
+        return *(node->ExpressionType);
     }
     else if (node->IsBooleanLiteral()) {
-        return new Core::BooleanType();
+        node->ExpressionType = new Core::BooleanType();
+        return *(node->ExpressionType);
     }
     else if (node->IsStringLiteral()) {
-        return new Core::StringType();
+        node->ExpressionType = new Core::StringType();
+        return *(node->ExpressionType);
     }
 
     assert(false && "Unrecognized literal type");
 }
 Core::Type* TypeCheckProcedure::GetType(AST::MethodCallExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
+    if (node->ExpressionType != std::nullopt) {
+        return *(node->ExpressionType);
+    }
+    
     // load the class information for the object being called
     ASTClass* calledObject = nullptr;
     if (node->Object->IsThisObject()) {
@@ -241,9 +268,13 @@ Core::Type* TypeCheckProcedure::GetType(AST::MethodCallExpNode* const node, ASTC
     }
 
     // TODO make sure the arguments passed to the method are correct
-    return calledMethodObject->ReturnType;
+    node->ExpressionType = calledMethodObject->ReturnType;
+    return *(node->ExpressionType);
 }
 Core::Type* TypeCheckProcedure::GetType(AST::ObjectExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
+    if (node->ExpressionType != std::nullopt) {
+        return *(node->ExpressionType);
+    }
     AST::ObjectNode* objectNode = node->Object;
 
     if (objectNode->IsNamedObject()) {
@@ -255,7 +286,8 @@ Core::Type* TypeCheckProcedure::GetType(AST::ObjectExpNode* const node, ASTClass
             if (classDefinition == nullptr) {
                 return FatalError("Cannot construct object of type \"" + namedObjectNode->Name + "\", class doesn't exist");
             }
-            return new Core::ObjectType(classDefinition->Name);
+            node->ExpressionType = new Core::ObjectType(classDefinition->Name);
+            return *(node->ExpressionType);
         }
         else {
             ASTVariable* variable = findVariableOrParameter(namedObjectNode->Name, classObject, methodObject);
@@ -263,27 +295,33 @@ Core::Type* TypeCheckProcedure::GetType(AST::ObjectExpNode* const node, ASTClass
             if (variable == nullptr) {
                 return FatalError("Not a valid object type: " + namedObjectNode->Name);
             }
-            return variable->Type;
+            node->ExpressionType = variable->Type;
+            return *(node->ExpressionType);
         }
     }
     else if (objectNode->IsThisObject()) {
-        return new Core::ObjectType(classObject->Name);
+        node->ExpressionType = new Core::ObjectType(classObject->Name);
+        return *(node->ExpressionType);
     }
     else if (objectNode->IsNewArray()) {
         AST::NewArrayObjectNode* newArrayNode = static_cast<AST::NewArrayObjectNode*>(objectNode);
         size_t dimensions = newArrayNode->Index->Expressions.size();
         if (newArrayNode->Type->IsBooleanType()) {
-            return new Core::ArrayType(new Core::BooleanType(), dimensions);
+            node->ExpressionType = new Core::ArrayType(new Core::BooleanType(), dimensions);
+            return *(node->ExpressionType);
         }
         else if (newArrayNode->Type->IsIntegerType()) {
-            return new Core::ArrayType(new Core::IntegerType(), dimensions);
+            node->ExpressionType = new Core::ArrayType(new Core::IntegerType(), dimensions);
+            return *(node->ExpressionType);
         }
         else if (newArrayNode->Type->IsStringType()) {
-            return new Core::ArrayType(new Core::StringType(), dimensions);
+            node->ExpressionType = new Core::ArrayType(new Core::StringType(), dimensions);
+            return *(node->ExpressionType);
         }
         else if (newArrayNode->Type->IsObjectType()) {
             AST::ObjectTypeNode* objectType = static_cast<AST::ObjectTypeNode*>(newArrayNode->Type);
-            return new Core::ArrayType(new Core::ObjectType(objectType->ObjectType), dimensions);
+            node->ExpressionType = new Core::ArrayType(new Core::ObjectType(objectType->ObjectType), dimensions);
+            return *(node->ExpressionType);
         }
         else {
             return FatalError("Cannot construct an array of this type");
