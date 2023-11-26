@@ -6,15 +6,16 @@ set(TEST_SUITES
     test_hello_world.cpp
     test_comments.cpp
     test_statements.cpp
-    test_methods.cpp
-    test_arrays.cpp
+    test_objects.cpp
+    test_expressions.cpp
 )
 set(TEST_DIRECTORIES
     "hello_world"
     comments
     statements
-    methods
-    arrays)
+    objects
+    expressions)
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/src/Instructions.td)
 
 add_executable(language-tests
     common.cpp
@@ -22,10 +23,14 @@ add_executable(language-tests
 target_link_libraries(language-tests GTest::gtest_main frontend)
 
 foreach (test_directory IN LISTS TEST_DIRECTORIES)
-    # remove the old directory if it exists
-    file(REMOVE_RECURSE ${CMAKE_CURRENT_BINARY_DIR}/${test_directory}/)
-    # copy new directory
-    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/${test_directory}/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${test_directory}/)
+    add_custom_target(copy_${test_directory} ALL
+                    # remove the old directory if it exists
+                    COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_CURRENT_BINARY_DIR}/${test_directory}
+                    # copy new directory
+                    COMMAND ${CMAKE_COMMAND} -E copy_directory
+                            ${CMAKE_CURRENT_SOURCE_DIR}/${test_directory}
+                            ${CMAKE_CURRENT_BINARY_DIR}/${test_directory}
+                    COMMENT "Copying ${test_directory} test data")
 endforeach()
 
 include(GoogleTest)
