@@ -4,7 +4,8 @@
 #include <vector>
 
 namespace MiniJavab {
-namespace Core {
+namespace Frontend {
+namespace AST {
 
 enum class TypeKind {
     Integer,
@@ -81,4 +82,4 @@ class ArrayType : public Type {
         int Dimensions;
 };
 
-}} // end namespace
+}}} // end namespace

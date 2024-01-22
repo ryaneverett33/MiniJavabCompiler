@@ -8,14 +8,14 @@ ASTVariable::ASTVariable(AST::VarDeclNode* varDecl)
     : VarDecl(varDecl)
 {
     Name = varDecl->Name;
-    Type = ConvertTypeNodeToType(varDecl->Type);
+    Type = varDecl->Type->ResolveType();
 }
 
 ASTMethod::ASTMethod(AST::MethodDeclNode* methodDecl)
     : MethodDecl(methodDecl)
 {
     Name = methodDecl->Name;
-    ReturnType = ConvertTypeNodeToType(methodDecl->Type);
+    ReturnType = methodDecl->Type->ResolveType();
 
     // load variable info by examining the MethodDeclNode's variable list
     for (AST::VarDeclNode* variableDecl: methodDecl->Variables) {

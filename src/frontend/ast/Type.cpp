@@ -1,7 +1,8 @@
-#include "minijavab/core/Type.h"
+#include "minijavab/frontend/ast/Type.h"
 
 namespace MiniJavab {
-namespace Core {
+namespace Frontend {
+namespace AST {
 
 bool ObjectType::Equals(Type* other) {
     // Verify other is an object type
@@ -52,4 +53,4 @@ bool ArrayType::Equals(Type* other) {
     return Dimensions == otherArrayType->Dimensions;
 }
 
-}} // end namespace
+}}} // end namespace

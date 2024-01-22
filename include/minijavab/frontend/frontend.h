@@ -3,7 +3,6 @@
 #include <iostream>
 #include "minijavab/frontend/ast/ast.h"
 #include "minijavab/frontend/ASTClassTable.h"
-#include "minijavab/core/Type.h"
 
 namespace MiniJavab {
 namespace Frontend {
@@ -12,12 +11,6 @@ namespace Frontend {
 // LoadClassTableFromAST()
 // CreateIRModule()
 // GetIRLinker()
-
-/// Convert an AST representation of a value type to a Core representation
-/// @param node The AST node to convert
-/// @return The Core representation of the AST node
-/// @see Core::Type
-Core::Type* ConvertTypeNodeToType(AST::TypeNode* node);
 
 // Create a Program AST tree from the fileName
 AST::Node* ParseProgramFile(std::string fileName, std::ostream& errs=std::cerr);

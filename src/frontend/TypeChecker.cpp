@@ -9,15 +9,15 @@ struct TypeCheckProcedure {
         : Table(table),
         Errs(errs) {}
 
-    Core::Type* FatalError(std::string message);
-    Core::Type* GetType(AST::BinaryExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject);
-    Core::Type* GetType(AST::IndexExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject);
-    Core::Type* GetType(AST::LengthExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject);
-    Core::Type* GetType(AST::LiteralExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject);
-    Core::Type* GetType(AST::MethodCallExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject);
-    Core::Type* GetType(AST::ObjectExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject);
-    Core::Type* GetType(AST::UnaryExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject);
-    Core::Type* GetType(AST::ExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject);
+    AST::Type* FatalError(std::string message);
+    AST::Type* GetType(AST::BinaryExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject);
+    AST::Type* GetType(AST::IndexExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject);
+    AST::Type* GetType(AST::LengthExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject);
+    AST::Type* GetType(AST::LiteralExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject);
+    AST::Type* GetType(AST::MethodCallExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject);
+    AST::Type* GetType(AST::ObjectExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject);
+    AST::Type* GetType(AST::UnaryExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject);
+    AST::Type* GetType(AST::ExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject);
     void TypeCheck(AST::AssignmentStatementNode* const node, ASTClass* const classObject, ASTMethod* const methodObject);
     void TypeCheck(AST::IfStatementNode* const node, ASTClass* const classObject, ASTMethod* const methodObject);
     void TypeCheck(AST::PrintStatementNode* const node, ASTClass* const classObject, ASTMethod* const methodObject);
@@ -47,18 +47,18 @@ ASTVariable* findVariableOrParameter(std::string name, ASTClass* const classObje
     return nullptr;
 }
 
-Core::Type* TypeCheckProcedure::FatalError(std::string message) {
+AST::Type* TypeCheckProcedure::FatalError(std::string message) {
     ValidCheck = false;
     Errs << message << "\n";
     return nullptr;
 }
-Core::Type* TypeCheckProcedure::GetType(AST::BinaryExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
+AST::Type* TypeCheckProcedure::GetType(AST::BinaryExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
     if (node->ExpressionType != std::nullopt) {
         return *(node->ExpressionType);
     }
     
-    Core::Type* lhsType = GetType(node->LeftSide, classObject, methodObject);
-    Core::Type* rhsType = GetType(node->RightSide, classObject, methodObject);
+    AST::Type* lhsType = GetType(node->LeftSide, classObject, methodObject);
+    AST::Type* rhsType = GetType(node->RightSide, classObject, methodObject);
     if (lhsType == nullptr) {
         return FatalError("Failed to get Left Hand Side type");
     }
@@ -86,7 +86,7 @@ Core::Type* TypeCheckProcedure::GetType(AST::BinaryExpNode* const node, ASTClass
                 (!lhsType->IsIntegerType() && !rhsType->IsIntegerType())) {
                 return FatalError("Both sides of the binary expression must be the same type");
             }
-            node->ExpressionType = new Core::BooleanType();
+            node->ExpressionType = new AST::BooleanType();
             return *(node->ExpressionType);
         }
         // int -> boolean operations
@@ -100,7 +100,7 @@ Core::Type* TypeCheckProcedure::GetType(AST::BinaryExpNode* const node, ASTClass
             if (!rhsType->IsIntegerType()) {
                 return FatalError("Right Hand Side must be a integer expression");
             }
-            node->ExpressionType = new Core::BooleanType();
+            node->ExpressionType = new AST::BooleanType();
             return *(node->ExpressionType);
         }
         // int -> int operations
@@ -122,7 +122,7 @@ Core::Type* TypeCheckProcedure::GetType(AST::BinaryExpNode* const node, ASTClass
         }
     }
 }
-Core::Type* TypeCheckProcedure::GetType(AST::IndexExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
+AST::Type* TypeCheckProcedure::GetType(AST::IndexExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
     if (node->ExpressionType != std::nullopt) {
         return *(node->ExpressionType);
     }
@@ -148,7 +148,7 @@ Core::Type* TypeCheckProcedure::GetType(AST::IndexExpNode* const node, ASTClass*
     }
 
     // make sure the accessor indices are <= to the type dimensions 
-    Core::ArrayType* variableType = static_cast<Core::ArrayType*>(variable->Type);
+    AST::ArrayType* variableType = static_cast<AST::ArrayType*>(variable->Type);
     if (node->Index->Expressions.size() > variableType->Dimensions) {
         return FatalError("Cannot access " + std::to_string(node->Index->Expressions.size()) + " dimensions of a " + std::to_string(variableType->Dimensions) + " dimensional array");
     }
@@ -158,11 +158,11 @@ Core::Type* TypeCheckProcedure::GetType(AST::IndexExpNode* const node, ASTClass*
         node->ExpressionType = variableType->BaseType;
     }
     else { // else we're accessing a sub-array within the array (eg. arr[0] of int[][] arr)
-        node->ExpressionType = new Core::ArrayType(variableType->BaseType, node->Index->Expressions.size());
+        node->ExpressionType = new AST::ArrayType(variableType->BaseType, node->Index->Expressions.size());
     }
     return *(node->ExpressionType);
 }
-Core::Type* TypeCheckProcedure::GetType(AST::LengthExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
+AST::Type* TypeCheckProcedure::GetType(AST::LengthExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
     if (node->ExpressionType == std::nullopt) {
         // lookup the object
         ASTVariable* parameter = findVariableOrParameter(node->Name, classObject, methodObject);
@@ -172,31 +172,31 @@ Core::Type* TypeCheckProcedure::GetType(AST::LengthExpNode* const node, ASTClass
         if (!parameter->Type->IsArrayType()) {
             return FatalError("Can't use the \".length\" method on a non-array type: " + node->Name);
         }
-        node->ExpressionType = new Core::IntegerType();
+        node->ExpressionType = new AST::IntegerType();
     }
     return *(node->ExpressionType);
 }
-Core::Type* TypeCheckProcedure::GetType(AST::LiteralExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
+AST::Type* TypeCheckProcedure::GetType(AST::LiteralExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
     if (node->ExpressionType != std::nullopt) {
         return *(node->ExpressionType);
     }
 
     if (node->IsIntegerLiteral()) {
-        node->ExpressionType = new Core::IntegerType();
+        node->ExpressionType = new AST::IntegerType();
         return *(node->ExpressionType);
     }
     else if (node->IsBooleanLiteral()) {
-        node->ExpressionType = new Core::BooleanType();
+        node->ExpressionType = new AST::BooleanType();
         return *(node->ExpressionType);
     }
     else if (node->IsStringLiteral()) {
-        node->ExpressionType = new Core::StringType();
+        node->ExpressionType = new AST::StringType();
         return *(node->ExpressionType);
     }
 
     assert(false && "Unrecognized literal type");
 }
-Core::Type* TypeCheckProcedure::GetType(AST::MethodCallExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
+AST::Type* TypeCheckProcedure::GetType(AST::MethodCallExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
     if (node->ExpressionType != std::nullopt) {
         return *(node->ExpressionType);
     }
@@ -226,7 +226,7 @@ Core::Type* TypeCheckProcedure::GetType(AST::MethodCallExpNode* const node, ASTC
                 if (!parameter->Type->IsObjectType()) {
                     return FatalError("Cannot invoke method on non-object type: " + namedCalledObject->Name);
                 }
-                Core::ObjectType* objType = dynamic_cast<Core::ObjectType*>(parameter->Type);
+                AST::ObjectType* objType = dynamic_cast<AST::ObjectType*>(parameter->Type);
                 calledObject = Table->GetClass(objType->TypeName);
                 if (calledObject == nullptr) {
                     return FatalError("Parameter has invalid type: " + namedCalledObject->Name);
@@ -236,7 +236,7 @@ Core::Type* TypeCheckProcedure::GetType(AST::MethodCallExpNode* const node, ASTC
                 if (!methodVariable->Type->IsObjectType()) {
                     return FatalError("Cannot invoke method on non-object type: " + namedCalledObject->Name);
                 }
-                Core::ObjectType* objType = dynamic_cast<Core::ObjectType*>(methodVariable->Type);
+                AST::ObjectType* objType = dynamic_cast<AST::ObjectType*>(methodVariable->Type);
                 calledObject = Table->GetClass(objType->TypeName);
                 if (calledObject == nullptr) {
                     return FatalError("Method variable has invalid type: " + namedCalledObject->Name);
@@ -246,7 +246,7 @@ Core::Type* TypeCheckProcedure::GetType(AST::MethodCallExpNode* const node, ASTC
                 if (!methodVariable->Type->IsObjectType()) {
                     return FatalError("Cannot invoke method on non-object type: " + namedCalledObject->Name);
                 }
-                Core::ObjectType* objType = dynamic_cast<Core::ObjectType*>(classVariable->Type);
+                AST::ObjectType* objType = dynamic_cast<AST::ObjectType*>(classVariable->Type);
                 calledObject = Table->GetClass(objType->TypeName);
                 if (calledObject == nullptr) {
                     return FatalError("Method variable has invalid type: " + namedCalledObject->Name);
@@ -271,7 +271,7 @@ Core::Type* TypeCheckProcedure::GetType(AST::MethodCallExpNode* const node, ASTC
     node->ExpressionType = calledMethodObject->ReturnType;
     return *(node->ExpressionType);
 }
-Core::Type* TypeCheckProcedure::GetType(AST::ObjectExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
+AST::Type* TypeCheckProcedure::GetType(AST::ObjectExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
     if (node->ExpressionType != std::nullopt) {
         return *(node->ExpressionType);
     }
@@ -286,7 +286,7 @@ Core::Type* TypeCheckProcedure::GetType(AST::ObjectExpNode* const node, ASTClass
             if (classDefinition == nullptr) {
                 return FatalError("Cannot construct object of type \"" + namedObjectNode->Name + "\", class doesn't exist");
             }
-            node->ExpressionType = new Core::ObjectType(classDefinition->Name);
+            node->ExpressionType = new AST::ObjectType(classDefinition->Name);
             return *(node->ExpressionType);
         }
         else {
@@ -300,27 +300,27 @@ Core::Type* TypeCheckProcedure::GetType(AST::ObjectExpNode* const node, ASTClass
         }
     }
     else if (objectNode->IsThisObject()) {
-        node->ExpressionType = new Core::ObjectType(classObject->Name);
+        node->ExpressionType = new AST::ObjectType(classObject->Name);
         return *(node->ExpressionType);
     }
     else if (objectNode->IsNewArray()) {
         AST::NewArrayObjectNode* newArrayNode = static_cast<AST::NewArrayObjectNode*>(objectNode);
         size_t dimensions = newArrayNode->Index->Expressions.size();
         if (newArrayNode->Type->IsBooleanType()) {
-            node->ExpressionType = new Core::ArrayType(new Core::BooleanType(), dimensions);
+            node->ExpressionType = new AST::ArrayType(new AST::BooleanType(), dimensions);
             return *(node->ExpressionType);
         }
         else if (newArrayNode->Type->IsIntegerType()) {
-            node->ExpressionType = new Core::ArrayType(new Core::IntegerType(), dimensions);
+            node->ExpressionType = new AST::ArrayType(new AST::IntegerType(), dimensions);
             return *(node->ExpressionType);
         }
         else if (newArrayNode->Type->IsStringType()) {
-            node->ExpressionType = new Core::ArrayType(new Core::StringType(), dimensions);
+            node->ExpressionType = new AST::ArrayType(new AST::StringType(), dimensions);
             return *(node->ExpressionType);
         }
         else if (newArrayNode->Type->IsObjectType()) {
             AST::ObjectTypeNode* objectType = static_cast<AST::ObjectTypeNode*>(newArrayNode->Type);
-            node->ExpressionType = new Core::ArrayType(new Core::ObjectType(objectType->ObjectType), dimensions);
+            node->ExpressionType = new AST::ArrayType(new AST::ObjectType(objectType->ObjectType), dimensions);
             return *(node->ExpressionType);
         }
         else {
@@ -331,13 +331,13 @@ Core::Type* TypeCheckProcedure::GetType(AST::ObjectExpNode* const node, ASTClass
     node->Dump();
     assert(false && "Unrecognized object expression type");
 }
-Core::Type* TypeCheckProcedure::GetType(AST::UnaryExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
+AST::Type* TypeCheckProcedure::GetType(AST::UnaryExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
     return GetType(node->Expression, classObject, methodObject);
 }
 
 void TypeCheckProcedure::TypeCheck(AST::AssignmentStatementNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
     // verify the variable exists
-    Core::Type* variableType = nullptr;
+    AST::Type* variableType = nullptr;
     if (ASTVariable* parameter = methodObject->GetParameter(node->Name)) {
         variableType = parameter->Type;
     }
@@ -353,7 +353,7 @@ void TypeCheckProcedure::TypeCheck(AST::AssignmentStatementNode* const node, AST
     }
 
     // get the type of the expression
-    Core::Type* expressionType = GetType(node->Expression, classObject, methodObject);
+    AST::Type* expressionType = GetType(node->Expression, classObject, methodObject);
     if (expressionType == nullptr) {
         FatalError("Failed to get expression type for assignment statement");
         return;
@@ -362,7 +362,7 @@ void TypeCheckProcedure::TypeCheck(AST::AssignmentStatementNode* const node, AST
     // verify the types match
     if (node->IsIndexedAssignment()) {
         // find variable type
-        Core::Type* variableType = nullptr;
+        AST::Type* variableType = nullptr;
         if (ASTVariable* parameter = methodObject->GetParameter(node->Name)) {
             variableType = parameter->Type;
         }
@@ -383,7 +383,7 @@ void TypeCheckProcedure::TypeCheck(AST::AssignmentStatementNode* const node, AST
         }
 
         // get expression type
-        Core::Type* expressionType = GetType(node->Expression, classObject, methodObject);
+        AST::Type* expressionType = GetType(node->Expression, classObject, methodObject);
         if (expressionType == nullptr) {
             FatalError("Failed to get type of assignment expression");
             return;
@@ -391,7 +391,7 @@ void TypeCheckProcedure::TypeCheck(AST::AssignmentStatementNode* const node, AST
 
         // verify types match
         // TODO verify assigning to a lower dimension in a multi dimensional array
-        Core::ArrayType* variableArrayType = static_cast<Core::ArrayType*>(variableType);
+        AST::ArrayType* variableArrayType = static_cast<AST::ArrayType*>(variableType);
         if (!expressionType->Equals(variableArrayType->BaseType)) {
             FatalError("Type mismatch");
             return;
@@ -406,7 +406,7 @@ void TypeCheckProcedure::TypeCheck(AST::AssignmentStatementNode* const node, AST
 
 void TypeCheckProcedure::TypeCheck(AST::IfStatementNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
     // type of the expression must be a boolean type
-    Core::Type* conditionalType = GetType(node->Expression, classObject, methodObject);
+    AST::Type* conditionalType = GetType(node->Expression, classObject, methodObject);
     if (conditionalType == nullptr) {
         FatalError("Failed to get type for if statement");
     }
@@ -425,7 +425,7 @@ void TypeCheckProcedure::TypeCheck(AST::PrintStatementNode* const node, ASTClass
     // we only need to check the type of Print(expression) because Print(string) is always the correct type
     if (node->IsPrintExpressionStatement()) {
         AST::PrintExpStatementNode* printExpNode = dynamic_cast<AST::PrintExpStatementNode*>(node);
-        Core::Type* expressionType = GetType(printExpNode->Expression, classObject, methodObject);
+        AST::Type* expressionType = GetType(printExpNode->Expression, classObject, methodObject);
         if (expressionType == nullptr) { 
             ValidCheck = false; 
             Errs << "Failed to get expression type\n";
@@ -440,7 +440,7 @@ void TypeCheckProcedure::TypeCheck(AST::PrintStatementNode* const node, ASTClass
 
 void TypeCheckProcedure::TypeCheck(AST::ReturnStatementNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
     // verify the type of the return expression is the same as the method body
-    Core::Type* expressionType = GetType(node->Expression, classObject, methodObject);
+    AST::Type* expressionType = GetType(node->Expression, classObject, methodObject);
     if (expressionType == nullptr) {
         FatalError("Failed to get return expression type");
     }
@@ -453,7 +453,7 @@ void TypeCheckProcedure::TypeCheck(AST::ReturnStatementNode* const node, ASTClas
 
 void TypeCheckProcedure::TypeCheck(AST::WhileStatementNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
     // verify the type of the conditional expression is a boolean
-    Core::Type* expressionType = GetType(node->Expression, classObject, methodObject);
+    AST::Type* expressionType = GetType(node->Expression, classObject, methodObject);
     if (expressionType == nullptr) {
         FatalError("Failed to get conditional expression type");
     }
@@ -467,7 +467,7 @@ void TypeCheckProcedure::TypeCheck(AST::WhileStatementNode* const node, ASTClass
     TypeCheck(node->Statement, classObject, methodObject);
 }
 
-Core::Type* TypeCheckProcedure::GetType(AST::ExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
+AST::Type* TypeCheckProcedure::GetType(AST::ExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
     if (node->IsBinaryExpression()) {
         return GetType(static_cast<AST::BinaryExpNode*>(node), classObject, methodObject);
     }
@@ -534,7 +534,7 @@ void TypeCheckProcedure::TypeCheck(AST::MethodDeclNode* const node, ASTClass* co
 
     // check if the return expression is the right type
     if (node->ReturnExp != nullptr) {
-        Core::Type* returnType = GetType(node->ReturnExp, classObject, methodObject);
+        AST::Type* returnType = GetType(node->ReturnExp, classObject, methodObject);
 
         if (returnType == nullptr) {
             Errs << "Failed to get return type\n";

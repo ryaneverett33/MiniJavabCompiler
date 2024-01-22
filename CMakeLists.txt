@@ -20,7 +20,7 @@ elseif (NOT FLEX_FOUND)
 endif()
 
 # Build Core target
-add_library(core SHARED src/core/Type.cpp)
+add_library(core SHARED src/core/blank.cpp)
 
 # Build AST target
 set (AST_SOURCES
@@ -33,6 +33,7 @@ set (AST_SOURCES
     src/frontend/ast/ClassDeclNode.cpp
     src/frontend/ast/IfStatementNode.cpp
     src/frontend/ast/MethodCallExpNode.cpp
+    src/frontend/ast/Type.cpp
 )
 add_library(ast SHARED ${AST_SOURCES})
 
