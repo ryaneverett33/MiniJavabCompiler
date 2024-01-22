@@ -5,24 +5,6 @@
 namespace MiniJavab {
 namespace Frontend {
 
-Core::Type* ConvertTypeNodeToType(AST::TypeNode* node) {
-    if (node->IsIntegerType()) { return new Core::IntegerType(); }
-    else if (node->IsVoidType()) { return new Core::VoidType(); }
-    else if (node->IsStringType()) { return new Core::StringType(); }
-    else if (node->IsBooleanType()) { return new Core::BooleanType(); }
-    else if (node->IsObjectType()) {
-        AST::ObjectTypeNode* typeNode = dynamic_cast<AST::ObjectTypeNode*>(node);
-        return new Core::ObjectType(typeNode->ObjectType);
-    }
-    else if (node->IsArrayType()) {
-        AST::ArrayTypeNode* typeNode = dynamic_cast<AST::ArrayTypeNode*>(node);
-        return new Core::ArrayType(ConvertTypeNodeToType(typeNode->BaseType), typeNode->Dimensions);
-    }
-
-    assert(false && "AST TypeNode not recognized");
-    return nullptr; // unreachable
-}
-
 AST::Node* ParseProgramFile(std::string fileName, std::ostream& errs) {
     Parser::ScanResult* result = Parser::ParseFileToAST(fileName);
     if (result->Result == nullptr) {

@@ -2,7 +2,7 @@
 #include <string>
 #include <unordered_map>
 #include "minijavab/frontend/ast/ast.h"
-#include "minijavab/core/Type.h"
+#include "minijavab/frontend/ast/Type.h"
 
 namespace MiniJavab {
 namespace Frontend {
@@ -17,7 +17,7 @@ class ASTVariable {
         std::string Name;
 
         // The Type of this variable
-        Core::Type* Type;
+        AST::Type* Type;
 
         // The AST node of the variable declaration
         AST::VarDeclNode* VarDecl;
@@ -43,7 +43,7 @@ class ASTMethod {
         std::string Name;
 
         // The type of value this method returns
-        Core::Type* ReturnType;
+        AST::Type* ReturnType;
 
         // The AST Node of the method declaration
         AST::MethodDeclNode* MethodDecl;
