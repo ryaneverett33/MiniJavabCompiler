@@ -1,6 +1,6 @@
 project(MiniJavabCompiler)
 cmake_minimum_required(VERSION 3.14)
-set (CMAKE_CXX_STANDARD 20)
+set (CMAKE_CXX_STANDARD 17)
 
 set(TEST_SUITES
     test_hello_world.cpp
@@ -15,12 +15,10 @@ set(TEST_DIRECTORIES
     statements
     objects
     expressions)
-set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/src/Instructions.td)
 
 add_executable(language-tests
-    common.cpp
     ${TEST_SUITES})
-target_link_libraries(language-tests GTest::gtest_main frontend)
+target_link_libraries(language-tests GTest::gtest_main frontend harness)
 
 foreach (test_directory IN LISTS TEST_DIRECTORIES)
     add_custom_target(copy_${test_directory} ALL

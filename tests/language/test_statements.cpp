@@ -4,7 +4,7 @@
 #include "minijavab/frontend/frontend.h"
 #include "minijavab/frontend/TypeChecker.h"
 // TestDirectory fixture is defined here
-#include "common.h"
+#include "harness/harness.h"
 using namespace MiniJavab::Frontend;
 
 // Test a program with if-else statements

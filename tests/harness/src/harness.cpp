@@ -1,4 +1,5 @@
-#include "common.h"
+#include "harness/harness.h"
+
 #include <stdexcept>
 #if defined(MACOS)
 #include <mach-o/dyld.h>

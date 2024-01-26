@@ -2,7 +2,7 @@
 #include "minijavab/frontend/ast/ast.h"
 #include "minijavab/frontend/parser/scanner.h"
 // TestDirectory fixture is defined here
-#include "common.h"
+#include "harness/harness.h"
 using namespace MiniJavab::Frontend::Parser;
 
 // Test working `Hello World` with some comments
