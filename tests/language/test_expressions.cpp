@@ -1,4 +1,4 @@
-#include "common.h"
+#include "harness/harness.h"
 
 #include "minijavab/frontend/ast/ast.h"
 #include "minijavab/frontend/parser/scanner.h"

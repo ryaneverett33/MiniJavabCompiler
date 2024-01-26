@@ -20,7 +20,7 @@ elseif (NOT FLEX_FOUND)
 endif()
 
 # Build Core target
-add_library(core SHARED src/core/blank.cpp)
+add_library(core SHARED src/core/module.cpp)
 
 # Build AST target
 set (AST_SOURCES
