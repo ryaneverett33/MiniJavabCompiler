@@ -19,6 +19,10 @@ elseif (NOT FLEX_FOUND)
     MESSAGE(FATAL_ERROR "Couldn't find flex!")
 endif()
 
+# Build cmdline target
+add_library(cmdline STATIC src/cmdline/options.cpp)
+target_include_directories(cmdline PUBLIC include/)
+
 # Build Core target
 add_library(core SHARED src/core/module.cpp)
 
@@ -60,6 +64,13 @@ target_include_directories(ast PUBLIC include/)
 target_include_directories(core PUBLIC include/)
 target_include_directories(frontend PUBLIC include/)
 target_link_libraries(frontend core ast parser)
+
+# Build compiler target
+add_executable(mjavabc
+    src/compiler/main.cpp)
+target_include_directories(mjavabc PUBLIC include/)
+
+target_link_libraries(mjavabc cmdline)
 
 add_subdirectory(tests/)
 add_subdirectory(tools/)
