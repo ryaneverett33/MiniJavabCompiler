@@ -24,7 +24,8 @@ add_library(cmdline STATIC src/cmdline/options.cpp)
 target_include_directories(cmdline PUBLIC include/)
 
 # Build Core target
-add_library(core SHARED src/core/module.cpp)
+add_library(core SHARED 
+    src/core/module.cpp)
 
 # Build AST target
 set (AST_SOURCES
@@ -58,7 +59,8 @@ target_link_libraries(parser ast)
 add_library(frontend SHARED
     src/frontend/Frontend.cpp
     src/frontend/ASTClassTable.cpp
-    src/frontend/TypeChecker.cpp)
+    src/frontend/TypeChecker.cpp
+    src/frontend/Converter.cpp)
 
 target_include_directories(ast PUBLIC include/)
 target_include_directories(core PUBLIC include/)
@@ -70,7 +72,7 @@ add_executable(mjavabc
     src/compiler/main.cpp)
 target_include_directories(mjavabc PUBLIC include/)
 
-target_link_libraries(mjavabc cmdline)
+target_link_libraries(mjavabc cmdline frontend)
 
 add_subdirectory(tests/)
 add_subdirectory(tools/)

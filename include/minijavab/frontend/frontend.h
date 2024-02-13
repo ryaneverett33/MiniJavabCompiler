@@ -1,10 +1,18 @@
 #pragma once
 #include <string>
 #include <iostream>
+#include <filesystem>
+
 #include "minijavab/frontend/ast/ast.h"
 #include "minijavab/frontend/ASTClassTable.h"
 
 namespace MiniJavab {
+namespace Core {
+namespace IR {
+
+class Module;
+}} // end namespace Core/IR
+
 namespace Frontend {
 
 // Initialize()
@@ -13,7 +21,7 @@ namespace Frontend {
 // GetIRLinker()
 
 // Create a Program AST tree from the fileName
-AST::Node* ParseProgramFile(std::string fileName, std::ostream& errs=std::cerr);
+AST::Node* ParseProgramFile(std::filesystem::path fileName, std::ostream& errs=std::cerr);
 
 // TODO: placeholder function for when we support more than programs
 /*AST::Node* ParseFileToAST(std::string fileName, std::ostream& errs=std::cerr) {
@@ -25,5 +33,7 @@ AST::Node* ParseProgramFile(std::string fileName, std::ostream& errs=std::cerr);
 /// @param tree The parsed AST to load information from
 /// @return A populated ASTClassTable object
 ASTClassTable* LoadClassTableFromAST(AST::Node* tree);
+
+Core::IR::Module* LoadProgramFile(std::filesystem::path fileName, std::ostream& errs=std::cerr);
 
 }} // end namespace

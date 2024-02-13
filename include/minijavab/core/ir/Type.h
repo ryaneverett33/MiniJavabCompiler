@@ -21,7 +21,7 @@ enum class TypeKind {
 
 class Type {
     public:
-        virtual std::string GetName() const = 0;
+        virtual std::string GetString() const = 0;
         virtual bool IsIntegerType() const { return false; }
         virtual bool IsBooleanType() const { return false; }
         virtual bool IsVoidType() const { return false; }
@@ -39,12 +39,12 @@ class Type {
 class IntegerType : public Type {
     public:
         IntegerType(uint8_t bitWidth) {
-            if (bitWidth != 1 || bitWidth != 8 || bitWidth != 32) {
+            if (bitWidth != 1 && bitWidth != 8 && bitWidth != 32) {
                 throw std::invalid_argument("Invalid bit width!");
             }
             _bitWidth = bitWidth;
         }
-        virtual std::string GetName() const override {
+        virtual std::string GetString() const override {
             return "i" + std::to_string(_bitWidth);
         }
         uint8_t GetBitWidth() {
@@ -65,7 +65,7 @@ class BooleanType : public IntegerType {
         BooleanType()
             : IntegerType(1) {}
 
-        virtual std::string GetName() const override {
+        virtual std::string GetString() const override {
             return "bool";
         }
         virtual bool IsBooleanType() const override { return true; }
@@ -77,7 +77,7 @@ class BooleanType : public IntegerType {
 
 class VoidType : public Type {
     public:
-        virtual std::string GetName() const override {
+        virtual std::string GetString() const override {
             return "void";
         }
         virtual bool IsVoidType() const override { return true; }
@@ -93,8 +93,18 @@ class StructType : public Type {
             : Name(name),
             ContainedTypes(types) {}
 
-        virtual std::string GetName() const override {
+        virtual std::string GetString() const override {
             return "%" + Name;
+        }
+        void Dump() const {
+            std::cerr << GetString() << " = type { ";
+            for (size_t i = 0; i < ContainedTypes.size(); i++) {
+                std::cerr << ContainedTypes[i]->GetString();
+                if ((i + 1) < ContainedTypes.size()) {
+                    std::cerr << ", ";
+                }
+            }
+            std::cerr << " }\n";
         }
         virtual bool IsStructType() const override { return true; }
 
@@ -109,13 +119,13 @@ class StructType : public Type {
 class VectorType : public Type {
     public:
         VectorType(Type* elementType)
-            : ElementTypes(elementType) {}
-        virtual std::string GetName() const override {
-            return "vector";
+            : ElementType(elementType) {}
+        virtual std::string GetString() const override {
+            return "vector<" + ElementType->GetString() + ">";
         }
         virtual bool IsVectorType() const override { return true; }
 
-        Type* ElementTypes;
+        Type* ElementType;
     private:
         virtual TypeKind GetTypeKind() const override {
             return TypeKind::Vector;
@@ -127,8 +137,8 @@ class PointerType : public Type {
         PointerType(Type* elementType)
             : ElementType(elementType) {}
 
-        virtual std::string GetName() const override {
-            return ElementType->GetName() + "*";
+        virtual std::string GetString() const override {
+            return ElementType->GetString() + "*";
         }
         virtual bool IsPointerType() const override { return true; }
 
@@ -145,12 +155,12 @@ class FunctionType : public Type {
             : ReturnType(returnType),
             ParameterTypes(parameterTypes) {}
 
-        virtual std::string GetName() const override {
+        virtual std::string GetString() const override {
             std::stringstream typeName;
-            typeName << ReturnType->GetName() << "(";
+            typeName << ReturnType->GetString() << "(";
 
             for (size_t i = 0; i < ParameterTypes.size(); i++) {
-                typeName << ParameterTypes[i]->GetName();
+                typeName << ParameterTypes[i]->GetString();
 
                 if ((i + 1) < ParameterTypes.size()) {
                     typeName << ", ";

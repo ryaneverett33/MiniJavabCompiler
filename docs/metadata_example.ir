@@ -2,16 +2,16 @@ module "SimpleTest.java"
 
 ;; class metadata types
 ;; class name, super class, variables, methods
-%class_t = type { vector<i32>, %class_t*, vector<%variable_t>, vector<%method_t> }
+%class_t = type { vector<i8>, %class_t*, vector<%variable_t>, vector<%method_t> }
 
-;; variable name, struct offset, type
-%variable_t = type { vector<i32>, vector<i32>, i32 }
+;; variable name, type name, struct offset
+%variable_t = type { vector<i8>, vector<i8>, i32 }
 
-;; return type, parameter types
-%method_type_t = type { vector<i32>, vector<vector<i32>> }
+;; return type, parameter type names
+%method_type_t = type { vector<i8>, vector<vector<i8>> }
 
-;; method name, method type, isOverriden, implementation
-%method_t = type { vector<i32>, %method_type_t*, bool, void* }
+;; method name, method type, isOverridden, implementation
+%method_t = type { vector<i8>, %method_type_t*, bool, void* }
 
 ;; class types
 %testCase = type { i32, bool, bool }

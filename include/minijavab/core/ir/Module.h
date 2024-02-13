@@ -19,6 +19,7 @@ class Value;
 class Module {
     public:
         Module() {}
+        Module(std::string name);
 
         /// Get all Functions in the Module
         /// @return An iterable list of functions
@@ -66,6 +67,10 @@ class Module {
         /// @return The number of Global Variables in the Module
         size_t GetNumberOfGlobalVariables() const { return _globalVariableCount; }
 
+        /// Register a new struct type within the module
+        /// @param type The struct type to register
+        void AddStructType(Core::IR::StructType* type);
+
         /// Lookup a Struct Type by its name
         /// @param name The name of the Struct Type to lookup
         /// @return The Struct Type, if it exists, else nullptr
@@ -82,7 +87,7 @@ class Module {
         std::vector<Value*> _symbolTable;
 
         /// A list of all Struct Types in the Module
-        std::vector<Type*> _structTypes;
+        std::vector<StructType*> _structTypes;
 
         /// The number of Global Variables in the Module
         size_t _globalVariableCount = 0;

@@ -10,6 +10,9 @@ namespace MiniJavab {
 namespace Core {
 namespace IR {
 
+Module::Module(std::string name)
+    : Name(name) {}
+
 void Module::AddFunction(Function* function) {
 
 }
@@ -26,7 +29,16 @@ GlobalVariable* Module::GetGlobalVariableByName(std::string name) const {
     return nullptr;
 }
 
-StructType* Module::GetStructTypeByName(std::string name) const {
+void Module::AddStructType(MiniJavab::Core::IR::StructType* type) {
+    assert(GetStructTypeByName(type->Name) == nullptr && "Struct already registered!");
+
+    _structTypes.push_back(type);
+}
+
+MiniJavab::Core::IR::StructType* Module::GetStructTypeByName(std::string name) const {
+    for (MiniJavab::Core::IR::StructType* type : _structTypes) {
+        if (type->Name == name) { return type; }
+    }
     return nullptr;
 }
 
@@ -38,11 +50,20 @@ void Module::Dump() {
         return;
     }
 
+    // Dump naming info
     std::cout << "; module";
     if (!Name.empty()) {
         std::cout << " \"" << Name << "\"";
     }
     std::cout << "\n";
+    
+    // Dump custom types
+    if (!_structTypes.empty()) {
+        std::cout << "; Types\n";
+        for (StructType* type : _structTypes) {
+            type->Dump();
+        }
+    }
 
     if (GetNumberOfGlobalVariables() > 0) {
         std::cout << "; Global Variables\n";
