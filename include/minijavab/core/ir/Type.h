@@ -30,10 +30,6 @@ class Type {
         virtual bool IsVectorType() const { return false; }
         virtual bool IsPointerType() const { return false; }
         virtual bool IsFunctionType() const { return false; }
-        /*static bool Equals(Type* a, Type* b) {
-
-        }*/
-    protected:
         virtual TypeKind GetTypeKind() const = 0;
 };
 
@@ -52,13 +48,11 @@ class IntegerType : public Type {
         uint8_t GetBitWidth() const { return _bitWidth; }
         bool IsSigned() const { return _isSigned; }
         virtual bool IsIntegerType() const override { return true; }
-    
-
-    private:
         virtual TypeKind GetTypeKind() const override {
             return TypeKind::Integer;
         }
 
+    private:
         uint8_t _bitWidth;
         bool _isSigned;
 };
@@ -72,7 +66,6 @@ class BooleanType : public IntegerType {
             return "bool";
         }
         virtual bool IsBooleanType() const override { return true; }
-    private:
         virtual TypeKind GetTypeKind() const override {
             return TypeKind::Boolean;
         }
@@ -84,7 +77,6 @@ class VoidType : public Type {
             return "void";
         }
         virtual bool IsVoidType() const override { return true; }
-    private:
         virtual TypeKind GetTypeKind() const override {
             return TypeKind::Void;
         }
@@ -110,13 +102,12 @@ class StructType : public Type {
             std::cerr << " }\n";
         }
         virtual bool IsStructType() const override { return true; }
-
-        std::string Name;
-        std::vector<Type*> ContainedTypes;
-    private:
         virtual TypeKind GetTypeKind() const override {
             return TypeKind::Struct;
         }
+
+        std::string Name;
+        std::vector<Type*> ContainedTypes;
 };
 
 class VectorType : public Type {
@@ -127,12 +118,11 @@ class VectorType : public Type {
             return "vector<" + ElementType->GetString() + ">";
         }
         virtual bool IsVectorType() const override { return true; }
-
-        Type* ElementType;
-    private:
         virtual TypeKind GetTypeKind() const override {
             return TypeKind::Vector;
         }
+
+        Type* ElementType;
 };
 
 class PointerType : public Type {
@@ -144,12 +134,11 @@ class PointerType : public Type {
             return ElementType->GetString() + "*";
         }
         virtual bool IsPointerType() const override { return true; }
-
-        Type* ElementType;
-    private:
         virtual TypeKind GetTypeKind() const override {
             return TypeKind::Pointer;
         }
+
+        Type* ElementType;
 };
 
 class FunctionType : public Type {
@@ -176,13 +165,12 @@ class FunctionType : public Type {
             return typeName.str();
         }
         bool IsFunctionType() const override { return true; }
-
-        Type* ReturnType;
-        std::vector<Type*> ParameterTypes;
-    private:
         virtual TypeKind GetTypeKind() const override {
             return TypeKind::Function;
         }
+
+        Type* ReturnType;
+        std::vector<Type*> ParameterTypes;
 };
 
 inline VectorType* StringType() {

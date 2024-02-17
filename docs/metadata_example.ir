@@ -31,12 +31,12 @@ module "SimpleTest.java"
                                         { "RunTest", 
                                             (getptr %method_type_t* @"MJAVA_METHOD_TestCase_RunTest_TYPE"),
                                             false,
-                                            @TestCase_RunTest
+                                            (getptr void* @TestCase_RunTest)
                                         },
                                         { "HasRunTest", 
                                             (getptr %method_type_t* @"MJAVA_METHOD_TestCase_HasRunTest_TYPE"),
                                             false,
-                                            @TestCase_HasRunTest
+                                            (getptr void* @TestCase_HasRunTest)
                                         },
                                     ]}
 @"MJAVA_CLASS_SimpleTest" = %class_t { "SimpleTest\00", 
@@ -46,7 +46,7 @@ module "SimpleTest.java"
                                         { "RunTest", 
                                             (getptr %method_type_t* @"MJAVA_METHOD_TestCase_RunTest_TYPE"),
                                             true,
-                                            @SimpleTest_RunTest
+                                            (getptr void* @SimpleTest_RunTest)
                                         },
                                     ]}
 

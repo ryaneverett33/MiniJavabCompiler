@@ -23,8 +23,16 @@ class IntegerConstant : public Constant {
         void Set(uint32_t value);
         void Set(int8_t value);
         void Set(int32_t value);
-    private:
+    protected:
         uint64_t _value;
+};
+
+class BooleanConstant : public IntegerConstant {
+    public:
+        BooleanConstant(bool value);
+
+        virtual void Print(std::ostream& out) const;
+        bool GetValue() const;
 };
 
 }}} // end namespace

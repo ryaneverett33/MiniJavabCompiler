@@ -102,7 +102,6 @@ IR::GlobalVariable* ASTConverter::CreateMetadataMethodType(ASTClass* parentClass
     std::vector<std::string> parameterTypeNames;
     for (auto& [name, parameter] : method->Parameters) {
         std::cout << "Parameter type: " << parameter->Type->GetName() << "\n";
-        std::cout << "IsArray?: " << (parameter->Type->IsArrayType() ? "true" : "false") << "\n";
         parameterTypeNames.push_back(parameter->Type->GetName());
     }
 
@@ -149,11 +148,72 @@ void ASTConverter::CreateClassTypes() {
 
 void ASTConverter::CreateClassMetadata() {
     CreateMetadataTypes();
+
+    // known types
+
+    IR::Type* classTType = _module->GetStructTypeByName("class_t");
+    IR::Type* variableTType = _module->GetStructTypeByName("variable_t");
+    IR::Type* methodTType = _module->GetStructTypeByName("method_t");
+    IR::Type* methodTypeTType = _module->GetStructTypeByName("method_type_t");
+
+    // vectorized types
+
+    /// vector<%variable_t>
+    IR::Type* vectorVariableType = new IR::VectorType(variableTType);
+    /// vector<%method_t>
+    IR::Type* vectorMethodType = new IR::VectorType(methodTType);
+
+    // pointer types
+
+    /// %class_t*
+    IR::Type* classPointerType = new IR::PointerType(classTType);
+    /// %method_type_t*
+    IR::Type* methodTypePointerType = new IR::PointerType(methodTypeTType);
+    /// void*
+    IR::Type* voidPointerType = new IR::PointerType(new IR::VoidType());
+
+    // helper types
+
+    IR::Type* structOffsetType = new IR::IntegerType(32, false);
     
     for (auto& [className, classDefinition] : _classTable->Classes) {
-        for (auto& [methodName, methodDefinition] : classDefinition->Methods) {
-            IR::GlobalVariable* methodType = CreateMetadataMethodType(classDefinition, methodDefinition);
+        std::vector<IR::Constant*> methodTypes;
+        std::vector<IR::Constant*> variableTypes;
+
+        // Fill out variable metadata
+        uint32_t structOffset = 0;
+        for (auto& [variableName, variableDefinition] : classDefinition->Variables) {
+            variableTypes.push_back(new IR::StructConstant(variableTType, {
+                new IR::StringConstant(variableName),
+                new IR::StringConstant(variableDefinition->Type->GetName()),
+                new IR::IntegerConstant(structOffsetType, structOffset)
+            }));
+            structOffset += 1;
         }
+        
+        // Fill out method metadata
+        for (auto& [methodName, methodDefinition] : classDefinition->Methods) {
+            // Create the method_type_t variable
+            IR::GlobalVariable* methodType = CreateMetadataMethodType(classDefinition, methodDefinition);
+            methodTypes.push_back(new IR::StructConstant(methodTType, {
+                new IR::StringConstant(methodName),
+                IR::Constant::GetNull(methodTypePointerType),
+                new IR::BooleanConstant(false),
+                IR::Constant::GetNull(voidPointerType)
+            }));
+        }
+
+        // Create the variable initializer
+        IR::StructConstant* classInitializer = new IR::StructConstant(classTType, {
+            new IR::StringConstant(className),
+            IR::Constant::GetNull(classPointerType),
+            new IR::VectorConstant(vectorVariableType, variableTypes),
+            new IR::VectorConstant(vectorMethodType, methodTypes)
+        });
+
+        // Create and add the new global variable
+        IR::GlobalVariable* classVariable = new IR::GlobalVariable("MJAVA_CLASS_" + className, classInitializer);
+        _module->AddGlobalVariable(classVariable);
     }
 }
 

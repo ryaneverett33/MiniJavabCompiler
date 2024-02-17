@@ -23,4 +23,16 @@ void IntegerConstant::Print(std::ostream& out) const {
     }
 }
 
+BooleanConstant::BooleanConstant(bool value)
+    : IntegerConstant(new IR::BooleanType(), static_cast<uint64_t>(value))
+    {}
+
+void BooleanConstant::Print(std::ostream& out) const {
+    out << std::boolalpha << GetValue();
+}
+
+bool BooleanConstant::GetValue() const {
+    return static_cast<bool>(_value);
+}
+
 }}} // end namespace
