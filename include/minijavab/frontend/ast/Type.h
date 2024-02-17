@@ -30,6 +30,9 @@ class Type {
             if (other == nullptr) { return false; }
             return Kind == other->Kind;
         }
+        TypeKind GetKind() const {
+            return Kind;
+        }
     protected:
         Type(TypeKind kind) :
             Kind(kind) {}

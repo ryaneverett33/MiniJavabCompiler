@@ -2,6 +2,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <iostream>
 
 #include "minijavab/core/ir/Type.h"
 
@@ -14,14 +15,15 @@ class Value {
     public:
         /// @todo get rid of this
         Value() {}
-        Value(Type* type)
-            : Type(type) {}
+        Value(IR::Type* type)
+            : ValueType(type) {}
 
         /// Dump this object to the console
-        virtual void Dump() const = 0;
+        void Dump() const;
+        virtual void Print(std::ostream& out = std::cerr) const = 0;
 
         /// The type of this object
-        Type* Type;
+        IR::Type* ValueType;
 };
 
 }}} // end namespace

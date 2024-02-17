@@ -25,6 +25,8 @@ target_include_directories(cmdline PUBLIC include/)
 
 # Build Core target
 add_library(core SHARED 
+    src/core/IntegerConstant.cpp
+    src/core/GlobalVariable.cpp
     src/core/module.cpp)
 
 # Build AST target

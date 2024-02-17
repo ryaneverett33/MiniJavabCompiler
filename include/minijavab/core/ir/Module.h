@@ -6,11 +6,12 @@
 
 #include "minijavab/iterator_range.h"
 
+#include "minijavab/core/ir/GlobalVariable.h"
+
 namespace MiniJavab {
 namespace Core {
 namespace IR {
 
-class GlobalVariable;
 class Function;
 class Type;
 class StructType;
@@ -36,7 +37,7 @@ class Module {
             if (_globalVariableCount == 0) {
                 return llvm::make_range(_symbolTable.end(), _symbolTable.end());
             }
-            return llvm::make_range(_symbolTable.begin(), _symbolTable.end() - _globalVariableCount);
+            return llvm::make_range(_symbolTable.begin(), _symbolTable.end() - _functionCount);
         }
 
         /// Add a new Function to the Module

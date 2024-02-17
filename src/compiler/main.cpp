@@ -43,6 +43,9 @@ int main(int argc, char** argv) {
     if (inputs.empty()) { return 1; }
 
     Core::IR::Module* mod = Frontend::LoadProgramFile(inputs[0]);
+    if (mod == nullptr) {
+        exit(2);
+    }
     mod->Dump();
 
     return 0;

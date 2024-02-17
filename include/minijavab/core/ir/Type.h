@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <initializer_list>
 #include <vector>
+#include <iostream>
 
 namespace MiniJavab {
 namespace Core {
@@ -38,7 +39,8 @@ class Type {
 
 class IntegerType : public Type {
     public:
-        IntegerType(uint8_t bitWidth) {
+        IntegerType(uint8_t bitWidth, bool isSigned=true)
+            : _isSigned(isSigned) {
             if (bitWidth != 1 && bitWidth != 8 && bitWidth != 32) {
                 throw std::invalid_argument("Invalid bit width!");
             }
@@ -47,10 +49,10 @@ class IntegerType : public Type {
         virtual std::string GetString() const override {
             return "i" + std::to_string(_bitWidth);
         }
-        uint8_t GetBitWidth() {
-            return _bitWidth;
-        }
+        uint8_t GetBitWidth() const { return _bitWidth; }
+        bool IsSigned() const { return _isSigned; }
         virtual bool IsIntegerType() const override { return true; }
+    
 
     private:
         virtual TypeKind GetTypeKind() const override {
@@ -58,6 +60,7 @@ class IntegerType : public Type {
         }
 
         uint8_t _bitWidth;
+        bool _isSigned;
 };
 
 class BooleanType : public IntegerType {
@@ -152,6 +155,9 @@ class PointerType : public Type {
 class FunctionType : public Type {
     public:
         FunctionType(Type* returnType, std::initializer_list<Type*> parameterTypes)
+            : ReturnType(returnType),
+            ParameterTypes(parameterTypes) {}
+        FunctionType(Type* returnType, std::vector<Type*> parameterTypes)
             : ReturnType(returnType),
             ParameterTypes(parameterTypes) {}
 

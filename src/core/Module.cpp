@@ -14,18 +14,38 @@ Module::Module(std::string name)
     : Name(name) {}
 
 void Module::AddFunction(Function* function) {
+    assert(GetFunctionByName(function->Name) == nullptr && "Function already registered!");
 
+    _symbolTable.push_back(function);
+    _functionCount += 1;
 }
 
 Function* Module::GetFunctionByName(std::string name) const {
+    for (size_t i = _globalVariableCount; i < _functionCount; i++) {
+        Function* function = static_cast<Function*>(_symbolTable[i]);
+        if (function->Name == name) {
+            return function;
+        }
+    }
+
     return nullptr;
 }
 
 void Module::AddGlobalVariable(GlobalVariable* variable) {
+    assert(GetGlobalVariableByName(variable->Name) == nullptr && "variable already registered!");
 
+    _symbolTable.insert(_symbolTable.begin() + _globalVariableCount, variable);
+    _globalVariableCount += 1;
 }
 
 GlobalVariable* Module::GetGlobalVariableByName(std::string name) const {
+    for (size_t i = 0; i < _globalVariableCount; i++) {
+        GlobalVariable* variable = static_cast<GlobalVariable*>(_symbolTable[i]);
+        if (variable->Name == name) {
+            return variable;
+        }
+    }
+
     return nullptr;
 }
 
