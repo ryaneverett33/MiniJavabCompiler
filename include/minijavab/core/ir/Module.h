@@ -6,19 +6,27 @@
 
 #include "minijavab/iterator_range.h"
 
+#include "minijavab/core/ir/GlobalVariable.h"
+
 namespace MiniJavab {
 namespace Core {
 namespace IR {
 
-class GlobalVariable;
 class Function;
 class Type;
 class StructType;
 class Value;
 
+/// Describes a single module in the IR. A module is a single linkable object that contains
+/// functions, global variables, and unique types. A module may encompass multiple Compile Units. 
 class Module {
     public:
+        /// Create a new unnamed module
         Module() {}
+
+        /// Create a new module with a given name
+        /// @param name The name of the new module
+        Module(std::string name);
 
         /// Get all Functions in the Module
         /// @return An iterable list of functions
@@ -35,7 +43,7 @@ class Module {
             if (_globalVariableCount == 0) {
                 return llvm::make_range(_symbolTable.end(), _symbolTable.end());
             }
-            return llvm::make_range(_symbolTable.begin(), _symbolTable.end() - _globalVariableCount);
+            return llvm::make_range(_symbolTable.begin(), _symbolTable.end() - _functionCount);
         }
 
         /// Add a new Function to the Module
@@ -66,6 +74,10 @@ class Module {
         /// @return The number of Global Variables in the Module
         size_t GetNumberOfGlobalVariables() const { return _globalVariableCount; }
 
+        /// Register a new struct type within the module
+        /// @param type The struct type to register
+        void AddStructType(Core::IR::StructType* type);
+
         /// Lookup a Struct Type by its name
         /// @param name The name of the Struct Type to lookup
         /// @return The Struct Type, if it exists, else nullptr
@@ -74,7 +86,7 @@ class Module {
         /// Dump the module definition, in text format, to stdout
         void Dump();
 
-        /// The name of the Module, if ones has been given
+        /// The name of the Module, if one has been given
         std::string Name;
     private:
         /// A list of all Global Variables and Functions in the Module.
@@ -82,7 +94,7 @@ class Module {
         std::vector<Value*> _symbolTable;
 
         /// A list of all Struct Types in the Module
-        std::vector<Type*> _structTypes;
+        std::vector<StructType*> _structTypes;
 
         /// The number of Global Variables in the Module
         size_t _globalVariableCount = 0;

@@ -2,6 +2,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <iostream>
 
 #include "minijavab/core/ir/Type.h"
 
@@ -12,16 +13,22 @@ namespace IR {
 /// Base class for objects that have a type and can be used by something else in the IR.
 class Value {
     public:
-        /// @todo get rid of this
-        Value() {}
-        Value(Type* type)
-            : Type(type) {}
+        /// Construct a value with a given type
+        /// @param type The type of the value
+        Value(IR::Type* type)
+            : ValueType(type) {}
 
-        /// Dump this object to the console
-        virtual void Dump() const = 0;
+        /// Print the textual representation of this constant to stderr
+        /// @see Value::Print()
+        void Dump() const;
+
+        /// Print the textual representation of this constant to the given stream.
+        /// Useful for chaining multiple Print() calls into one
+        /// @param out The stream to print to
+        virtual void Print(std::ostream& out = std::cerr) const = 0;
 
         /// The type of this object
-        Type* Type;
+        IR::Type* ValueType;
 };
 
 }}} // end namespace

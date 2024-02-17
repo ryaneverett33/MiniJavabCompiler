@@ -1,11 +1,15 @@
 #include "minijavab/frontend/frontend.h"
 #include "minijavab/frontend/ast/ast.h"
 #include "minijavab/frontend/parser/scanner.h"
+#include "minijavab/frontend/TypeChecker.h"
+#include "minijavab/frontend/Converter.h"
+
+#include "minijavab/core/ir/Module.h"
 
 namespace MiniJavab {
 namespace Frontend {
 
-AST::Node* ParseProgramFile(std::string fileName, std::ostream& errs) {
+AST::Node* ParseProgramFile(std::filesystem::path fileName, std::ostream& errs) {
     Parser::ScanResult* result = Parser::ParseFileToAST(fileName);
     if (result->Result == nullptr) {
         // print errors to the error stream
@@ -32,6 +36,21 @@ ASTClassTable* LoadClassTableFromAST(AST::Node* tree) {
         assert(false && "Invalid ast type");
         return nullptr; // unreachable
     }
+}
+
+Core::IR::Module* LoadProgramFile(std::filesystem::path fileName, std::ostream& errs) {
+    // Load AST
+    AST::Node* tree = ParseProgramFile(fileName, errs);
+    if (tree == nullptr) { return nullptr; }
+
+    // Load class information
+    ASTClassTable* table = LoadClassTableFromAST(tree);
+    if (table == nullptr) { return nullptr; }
+
+    // Perform typechecking
+    if (!TypeChecker::Check(static_cast<AST::ProgramNode*>(tree), table, errs)) { return nullptr; }
+
+    return ASTConverter::Convert(static_cast<AST::ProgramNode*>(tree), table, fileName.filename());
 }
 
 }} // end namespace

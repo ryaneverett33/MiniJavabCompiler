@@ -32,7 +32,7 @@ class MainMethodDeclNode : public MethodDeclNode {
     public:
         MainMethodDeclNode(std::string parameterName, StatementNode* statement)
                         : MethodDeclNode(new VoidTypeNode(), "main", 
-                                        { new VarDeclNode(new StringTypeNode(), parameterName) }, 
+                                        { new VarDeclNode(new ArrayTypeNode(new StringTypeNode(), 1), parameterName) }, 
                                         {}, { statement }, nullptr),
                         ParameterName(parameterName),
                         Statement(statement) {}
