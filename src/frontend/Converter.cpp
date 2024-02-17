@@ -5,6 +5,7 @@
 
 #include "minijavab/core/ir/Module.h"
 #include "minijavab/core/ir/IntegerConstant.h"
+#include "minijavab/core/ir/StructConstant.h"
 
 using namespace MiniJavab::Core;
 using namespace MiniJavab::Frontend;
@@ -103,7 +104,9 @@ IR::GlobalVariable* ASTConverter::CreateMetadataMethodType(ASTClass* parentClass
     }
 
     // create initializer
-    IR::IntegerConstant* initializer = new IR::IntegerConstant(returnType, 69);
+    //IR::IntegerConstant* initializer = new IR::IntegerConstant(returnType, 69);
+    IR::Type* methodTypeT = _module->GetStructTypeByName("method_type_t");
+    IR::StructConstant* initializer = new IR::StructConstant(methodTypeT, {new IR::IntegerConstant(returnType, 69), new IR::IntegerConstant(returnType, 420)});
 
     // create global variable
     std::string name = "MJAVA_METHOD_" + parentClass->Name + "_" + method->Name + "_TYPE";

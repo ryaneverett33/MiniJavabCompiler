@@ -3,6 +3,7 @@
 namespace MiniJavab {
 namespace Core {
 namespace IR {
+
 GlobalVariable::GlobalVariable(std::string name, Constant* value)
                             : Name(name),
                             Initializer(value) {}
@@ -22,4 +23,4 @@ void GlobalVariable::Print(std::ostream& out) const {
     }
 }
 
-}}}
+}}} // end namespace

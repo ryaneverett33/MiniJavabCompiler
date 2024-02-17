@@ -24,10 +24,12 @@ add_library(cmdline STATIC src/cmdline/options.cpp)
 target_include_directories(cmdline PUBLIC include/)
 
 # Build Core target
-add_library(core SHARED 
-    src/core/IntegerConstant.cpp
-    src/core/GlobalVariable.cpp
-    src/core/module.cpp)
+add_library(core SHARED
+    src/core/ir/AggregateConstant.cpp
+    src/core/ir/StructConstant.cpp
+    src/core/ir/IntegerConstant.cpp
+    src/core/ir/GlobalVariable.cpp
+    src/core/ir/module.cpp)
 
 # Build AST target
 set (AST_SOURCES
