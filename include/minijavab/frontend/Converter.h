@@ -30,16 +30,20 @@ class ASTConverter {
     protected:
         /// Creates the metadata global variables for the AST
         void CreateClassMetadata();
+
         /// Creates metadata types used during the metadata construction phase
         void CreateMetadataTypes();
+
         /// Create types for each class in the AST
         void CreateClassTypes();
+
         /// Creates the metadata variable for a method
         /// @note Types are added to @a _classTypeTable
         /// @param parentClass The class containing the method
         /// @param method The method to create a type for
         /// @return The newly created global variable that's been added to the module
         Core::IR::GlobalVariable* CreateMetadataMethod(ASTClass* parentClass, ASTMethod* method);
+
         /// Resolve an AST Type to an IR-equivalent type
         /// @param type The AST Type to resolve
         /// @return The new IR type

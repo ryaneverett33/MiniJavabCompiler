@@ -43,7 +43,7 @@ Core::IR::Module* LoadProgramFile(std::filesystem::path fileName, std::ostream& 
     AST::Node* tree = ParseProgramFile(fileName, errs);
     if (tree == nullptr) { return nullptr; }
 
-    // Load Class
+    // Load class information
     ASTClassTable* table = LoadClassTableFromAST(tree);
     if (table == nullptr) { return nullptr; }
 
