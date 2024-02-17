@@ -15,6 +15,7 @@ class Constant;
 class AggregateConstant : public Constant {
     public:
         AggregateConstant(IR::Type* type, std::initializer_list<Constant*> values, ConstantKind kind);
+        AggregateConstant(IR::Type* type, std::vector<Constant*> values, ConstantKind kind);
         Constant* GetElement(size_t elementIndex);
     protected:
         std::vector<Constant*> _values;

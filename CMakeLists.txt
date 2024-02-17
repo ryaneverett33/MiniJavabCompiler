@@ -28,6 +28,7 @@ add_library(core SHARED
     src/core/ir/AggregateConstant.cpp
     src/core/ir/StructConstant.cpp
     src/core/ir/IntegerConstant.cpp
+    src/core/ir/VectorConstant.cpp
     src/core/ir/GlobalVariable.cpp
     src/core/ir/module.cpp)
 

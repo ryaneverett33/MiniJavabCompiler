@@ -185,4 +185,8 @@ class FunctionType : public Type {
         }
 };
 
+inline VectorType* StringType() {
+    return new VectorType(new IntegerType(8));
+} 
+
 }}} // end namespace

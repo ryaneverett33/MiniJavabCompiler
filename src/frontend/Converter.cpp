@@ -5,6 +5,7 @@
 
 #include "minijavab/core/ir/Module.h"
 #include "minijavab/core/ir/IntegerConstant.h"
+#include "minijavab/core/ir/VectorConstant.h"
 #include "minijavab/core/ir/StructConstant.h"
 
 using namespace MiniJavab::Core;
@@ -98,15 +99,22 @@ void ASTConverter::CreateMetadataTypes() {
 IR::GlobalVariable* ASTConverter::CreateMetadataMethodType(ASTClass* parentClass, ASTMethod* method) {
     // Resolve types
     IR::Type* returnType = ResolveASTType(method->ReturnType);
-    std::vector<IR::Type*> parameterTypes;
+    std::vector<std::string> parameterTypeNames;
     for (auto& [name, parameter] : method->Parameters) {
-        parameterTypes.push_back(ResolveASTType(parameter->Type));
+        parameterTypeNames.push_back(parameter->Type->GetName());
+    }
+
+    // create vector constant from parameterTypeNames
+    std::vector<IR::Constant*> parameterTypes;
+    for (std::string parameterTypeName : parameterTypeNames) {
+        parameterTypes.push_back(new IR::IntegerConstant(new IR::IntegerType(8), parameterTypeName.length()));
     }
 
     // create initializer
     //IR::IntegerConstant* initializer = new IR::IntegerConstant(returnType, 69);
     IR::Type* methodTypeT = _module->GetStructTypeByName("method_type_t");
-    IR::StructConstant* initializer = new IR::StructConstant(methodTypeT, {new IR::IntegerConstant(returnType, 69), new IR::IntegerConstant(returnType, 420)});
+    IR::VectorConstant* parameterTypesConstant = new IR::VectorConstant(new IR::VectorType(IR::StringType()), parameterTypes);
+    IR::StructConstant* initializer = new IR::StructConstant(methodTypeT, {new IR::IntegerConstant(returnType, 69), parameterTypesConstant});
 
     // create global variable
     std::string name = "MJAVA_METHOD_" + parentClass->Name + "_" + method->Name + "_TYPE";

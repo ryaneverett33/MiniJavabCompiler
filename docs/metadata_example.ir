@@ -19,7 +19,7 @@ module "SimpleTest.java"
 
 ;; class metadata
 @"MJAVA_METHOD_TestCase_RunTest_TYPE" = %method_type_t { "void", [] }
-@"MJAVA_METHOD_TestCase_HasRunTest_TYPE" = %method_type_t { "bool", [] }
+@"MJAVA_METHOD_TestCase_HasRunTest_TYPE" = %method_type_t { "boolean", [] }
 @"MJAVA_CLASS_TestCase" = %class_t { "TestCase\00", 
                                     null,
                                     [

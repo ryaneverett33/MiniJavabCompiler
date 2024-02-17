@@ -10,7 +10,6 @@
 namespace MiniJavab {
 namespace Core {
 namespace IR {
-class Constant;
 
 class StructConstant : public AggregateConstant {
     public:
