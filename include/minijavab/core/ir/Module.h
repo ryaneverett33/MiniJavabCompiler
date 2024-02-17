@@ -17,9 +17,15 @@ class Type;
 class StructType;
 class Value;
 
+/// Describes a single module in the IR. A module is a single linkable object that contains
+/// functions, global variables, and unique types. A module may encompass multiple Compile Units. 
 class Module {
     public:
+        /// Create a new unnamed module
         Module() {}
+
+        /// Create a new module with a given name
+        /// @param name The name of the new module
         Module(std::string name);
 
         /// Get all Functions in the Module
@@ -80,7 +86,7 @@ class Module {
         /// Dump the module definition, in text format, to stdout
         void Dump();
 
-        /// The name of the Module, if ones has been given
+        /// The name of the Module, if one has been given
         std::string Name;
     private:
         /// A list of all Global Variables and Functions in the Module.

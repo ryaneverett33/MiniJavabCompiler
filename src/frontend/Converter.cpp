@@ -88,7 +88,7 @@ void ASTConverter::CreateMetadataTypes() {
         new IR::VectorType(variableType),
         new IR::VectorType(methodType)
     });
-    static_cast<IR::PointerType*>(classType->ContainedTypes[1])->ElementType = classType;
+    static_cast<IR::PointerType*>(classType->ElementTypes[1])->ElementType = classType;
 
     // Add types to module
     _module->AddStructType(methodTypeType);
@@ -97,7 +97,7 @@ void ASTConverter::CreateMetadataTypes() {
     _module->AddStructType(classType);
 }
 
-IR::GlobalVariable* ASTConverter::CreateMetadataMethodType(ASTClass* parentClass, ASTMethod* method) {
+IR::GlobalVariable* ASTConverter::CreateMetadataMethod(ASTClass* parentClass, ASTMethod* method) {
     // Resolve types
     std::vector<std::string> parameterTypeNames;
     for (auto& [name, parameter] : method->Parameters) {
@@ -142,7 +142,7 @@ void ASTConverter::CreateClassTypes() {
         for (auto& [_, variableDefinition] : definition->Variables) {
             variableTypes.push_back(ResolveASTType(variableDefinition->Type));
         }
-        classType->ContainedTypes = variableTypes;
+        classType->ElementTypes = variableTypes;
     }
 }
 
@@ -194,7 +194,7 @@ void ASTConverter::CreateClassMetadata() {
         // Fill out method metadata
         for (auto& [methodName, methodDefinition] : classDefinition->Methods) {
             // Create the method_type_t variable
-            IR::GlobalVariable* methodType = CreateMetadataMethodType(classDefinition, methodDefinition);
+            IR::GlobalVariable* methodType = CreateMetadataMethod(classDefinition, methodDefinition);
             methodTypes.push_back(new IR::StructConstant(methodTType, {
                 new IR::StringConstant(methodName),
                 IR::Constant::GetNull(methodTypePointerType),

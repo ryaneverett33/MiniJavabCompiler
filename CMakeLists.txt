@@ -25,6 +25,7 @@ target_include_directories(cmdline PUBLIC include/)
 
 # Build Core target
 add_library(core SHARED
+    src/core/ir/Type.cpp
     src/core/ir/AggregateConstant.cpp
     src/core/ir/StructConstant.cpp
     src/core/ir/IntegerConstant.cpp
