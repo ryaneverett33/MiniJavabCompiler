@@ -1,4 +1,5 @@
 #include "minijavab/frontend/ast/Type.h"
+#include <sstream>
 
 namespace MiniJavab {
 namespace Frontend {
@@ -51,6 +52,15 @@ bool ArrayType::Equals(Type* other) {
     }
 
     return Dimensions == otherArrayType->Dimensions;
+}
+
+std::string ArrayType::GetName() const {
+    std::stringstream builder;
+    builder << BaseType->GetName();
+    for (int i = 0; i < Dimensions; i++) {
+        builder << "[]";
+    }
+    return builder.str();
 }
 
 }}} // end namespace

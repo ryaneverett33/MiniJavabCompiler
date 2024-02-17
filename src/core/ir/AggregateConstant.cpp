@@ -15,4 +15,15 @@ Constant* AggregateConstant::GetElement(size_t elementIndex) {
     return _values.at(elementIndex);
 }
 
+void AggregateConstant::Print(std::ostream& out) const {
+    out << " { ";
+    for (size_t i = 0; i < _values.size(); i++) {
+        _values[i]->Print(out);
+        if ((i + 1) < _values.size()) {
+            out << ", ";
+        }
+    }
+    out << " }";
+}
+
 }}} // end namespace

@@ -19,16 +19,10 @@ VectorConstant::VectorConstant(Type* type, std::vector<Constant*> values)
 }
 
 void VectorConstant::Print(std::ostream& out) const {
-    IR::VectorType* structType = static_cast<IR::VectorType*>(ValueType);
+    IR::VectorType* vectorType = static_cast<IR::VectorType*>(ValueType);
     
-    out << "[ ";
-    for (size_t i = 0; i < _values.size(); i++) {
-        _values[i]->Print(out);
-        if ((i + 1) < _values.size()) {
-            out << ", ";
-        }
-    }
-    out << " ]";
+    out << "[" << _values.size() << " x " << vectorType->ElementType->GetString() << "]";
+    AggregateConstant::Print(out);
 }
 
 }}} // end namespace

@@ -87,7 +87,7 @@ class ArrayType : public Type {
             BaseType(baseType),
             Dimensions(dimensions) {}
         bool Equals(Type* other) override;
-        virtual std::string GetName() const override { return ""; }
+        virtual std::string GetName() const override;
 
         Type* BaseType;
         int Dimensions;
