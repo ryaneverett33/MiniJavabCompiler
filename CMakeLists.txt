@@ -34,6 +34,7 @@ add_library(core SHARED
     src/core/ir/Constant.cpp
     src/core/ir/PointerConstant.cpp
     src/core/ir/GlobalVariable.cpp
+    src/core/ir/Function.cpp
     src/core/ir/module.cpp)
 
 # Build AST target

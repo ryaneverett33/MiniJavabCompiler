@@ -91,6 +91,13 @@ void Module::Dump() {
             static_cast<GlobalVariable*>(value)->Dump();
         }
     }
+
+    if (GetNumberOfFunctions() > 0) {
+        std::cout << "; Functions\n";
+        for (Value* value : GetFunctions()) {
+            static_cast<Function*>(value)->Dump();
+        }
+    }
 }
 
 }}} // end namespace

@@ -13,8 +13,14 @@ class BasicBlock;
 
 class Function : public Value {
     public:
-        std::list<BasicBlock*> BasicBlocks;
+        Function(std::string name, FunctionType* type);
 
+        /// Print the textual representation of this constant to the given stream.
+        /// Useful for chaining multiple Print() calls into one
+        /// @param out The stream to print to
+        virtual void Print(std::ostream& out) const override;
+
+        std::list<BasicBlock*> BasicBlocks;
         std::string Name;
 };
 

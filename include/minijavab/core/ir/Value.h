@@ -20,7 +20,10 @@ class Value {
 
         /// Print the textual representation of this constant to stderr
         /// @see Value::Print()
-        void Dump() const;
+        void Dump() const {
+            Print(std::cerr);
+            std::cerr << "\n";
+        }
 
         /// Print the textual representation of this constant to the given stream.
         /// Useful for chaining multiple Print() calls into one
