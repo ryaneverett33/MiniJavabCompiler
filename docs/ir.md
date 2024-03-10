@@ -4,27 +4,27 @@ IR language
 
 ## Control Flow Instructions
 
-- ret <type> || ret <type> <value> -> void
+- ret <type> || ret <type> <value> || ret <type> <immediate> -> void
 - br <label> -> void
 - call <type> <function> (<typed args>) -> <function type>
 - br_if <label> -> void
 
 ## Binary Operations
 
-- add <type> <arg1>, <type> {<arg2> || <value>} -> <type>
-- sub <type> <arg1>, <type> {<arg2> || <value>} -> <type>
-- mul <type> <arg1>, <type> {<arg2> || <value>} -> <type>
-- div <type> <arg1>, <type> {<arg2> || <value>} -> <type>
-- or  <type> <arg1>, <type> {<arg2> || <value>} -> <type>
-- and <type> <arg1>, <type> {<arg2> || <value>} -> <type>
+- add <type> <value>, <type> {<value> || <immediate>} -> <type>
+- sub <type> <value>, <type> {<value> || <immediate>} -> <type>
+- mul <type> <value>, <type> {<value> || <immediate>} -> <type>
+- div <type> <value>, <type> {<value> || <immediate>} -> <type>
+- or  <type> <value>, <type> {<value> || <immediate>} -> <type>
+- and <type> <value>, <type> {<value> || <immediate>} -> <type>
 
 ## Memory Operations
 
 - alloc <type> -> <type*>
-- load <type> <arg> -> <type>
-- store <type> {<arg> || <value>}, <arg> -> void
-- getptr <type*> <arg>, {<value> || <arg>} -> <type*>
-- cmp <operator>, <arg>, {<arg> || <value>} -> bool
+- load <type> <value> -> <type>
+- store <type> {<value> || <immediate>}, <arg> -> void
+- getptr <type*> <value>, {<immediate> || <arg>} -> <type*>
+- cmp <operator>, <value>, {<value> || <immediate>} -> bool
 
 # Intrinsics
 
@@ -47,7 +47,7 @@ module "adder.java"
 func i32 @add(i32 %0, i32 %1):
 entry:
 	%2 = add i32 %0, %1
-	return i32 %2
+	ret i32 %2
 ```
 
 ```

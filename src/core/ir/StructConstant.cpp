@@ -1,5 +1,7 @@
 #include "minijavab/core/ir/StructConstant.h"
 
+#include <cassert>
+
 namespace MiniJavab {
 namespace Core {
 namespace IR {

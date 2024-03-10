@@ -1,6 +1,7 @@
 #include "minijavab/core/ir/Module.h"
 
 #include <iostream>
+#include <cassert>
 
 #include "minijavab/core/ir/Type.h"
 #include "minijavab/core/ir/GlobalVariable.h"

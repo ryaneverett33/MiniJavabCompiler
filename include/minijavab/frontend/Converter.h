@@ -40,6 +40,9 @@ class ASTConverter {
         /// Create empty function declarations for functions defined in the AST
         void CreateFunctionSignatures();
 
+        /// Lower all defined functions
+        void LowerFunctions();
+
         /// Creates the metadata variable for a method
         /// @note Types are added to @a _classTypeTable
         /// @param parentClass The class containing the method

@@ -20,6 +20,8 @@ class Function : public Value {
         /// @param out The stream to print to
         virtual void Print(std::ostream& out) const override;
 
+        void AppendBasicBlock(BasicBlock* block);
+
         std::list<BasicBlock*> BasicBlocks;
         std::string Name;
 };

@@ -1,16 +1,31 @@
 #pragma once
 #include <string>
-#include <optional>
 #include <list>
+
+#include "minijavab/core/ir/Instruction.h"
+#include "minijavab/core/ir/Function.h"
 
 namespace MiniJavab {
 namespace Core {
 namespace IR {
 
-class BasicBlock {
+class BasicBlock : public Value {
     public:
-        std::optional<std::list<BasicBlock*>::iterator> Next = std::nullopt;
-        std::optional<std::list<BasicBlock*>::iterator> Previous = std::nullopt;
+        BasicBlock();
+        BasicBlock(std::string name);
+
+        /// Print the textual representation of this constant to the given stream.
+        /// Useful for chaining multiple Print() calls into one
+        /// @param out The stream to print to
+        void Print(std::ostream& out = std::cerr) const override;
+
+        void AppendInstruction(Instruction* instruction);
+
+        std::list<BasicBlock*>::iterator Position;
+        std::list<Instruction*> Instructions;
+
+        /// The Function containing this Basic Block
+        Function* ParentFunction = nullptr;
 };
 
 }}} // end namespace

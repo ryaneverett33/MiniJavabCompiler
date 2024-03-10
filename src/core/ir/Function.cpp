@@ -1,5 +1,7 @@
 #include "minijavab/core/ir/Function.h"
 
+#include "minijavab/core/ir/BasicBlock.h"
+
 namespace MiniJavab {
 namespace Core {
 namespace IR {
@@ -20,6 +22,31 @@ void Function::Print(std::ostream& out) const {
         }
     }
     out << ")";
+
+    if (BasicBlocks.empty()) {
+        out << ";";
+    }
+    else {
+        out << "\n";
+
+        uint64_t temporaryCounter = 0;
+        for (BasicBlock* block : BasicBlocks) {
+            if (block->HasName()) { out << block->Name << ":\n"; }
+            else { out << (temporaryCounter++) << ":\n"; }
+
+            for (Instruction* inst : block->Instructions) {
+                inst->Print(out);
+                out << "\n";
+            }
+        }
+    }
+}
+
+void Function::AppendBasicBlock(BasicBlock* block) {
+    BasicBlocks.push_back(block);
+
+    block->ParentFunction = this;
+    block->Position = std::prev(BasicBlocks.end());
 }
 
 }}} // end namespace
