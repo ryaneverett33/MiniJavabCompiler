@@ -18,6 +18,9 @@ class Value {
         Value(IR::Type* type)
             : ValueType(type) {}
 
+        /// Construct a value with a given type and name
+        /// @param type The type of the value
+        /// @param name The name of the value
         Value(IR::Type* type, std::string name)
             : ValueType(type),
             Name(name) {}

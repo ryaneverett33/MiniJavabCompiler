@@ -15,6 +15,9 @@ class BasicBlock;
 /// Basic Blocks that define the instructions. 
 class Function : public Value {
     public:
+        /// Create an empty Function with a given name and type
+        /// @param name Name of the function
+        /// @param type Type of the function
         Function(std::string name, FunctionType* type);
 
         /// Print the textual representation of this constant to the given stream.
