@@ -18,9 +18,21 @@ class Value {
         Value(IR::Type* type)
             : ValueType(type) {}
 
+        /// Construct a value with a given type and name
+        /// @param type The type of the value
+        /// @param name The name of the value
+        Value(IR::Type* type, std::string name)
+            : ValueType(type),
+            Name(name) {}
+
         /// Print the textual representation of this constant to stderr
         /// @see Value::Print()
-        void Dump() const;
+        void Dump() const {
+            Print(std::cerr);
+            std::cerr << "\n";
+        }
+        
+        bool HasName() const { return !Name.empty(); }
 
         /// Print the textual representation of this constant to the given stream.
         /// Useful for chaining multiple Print() calls into one
@@ -28,7 +40,10 @@ class Value {
         virtual void Print(std::ostream& out = std::cerr) const = 0;
 
         /// The type of this object
-        IR::Type* ValueType;
+        IR::Type* ValueType = nullptr;
+
+        /// The optional name associated with this value
+        std::string Name;
 };
 
 }}} // end namespace

@@ -25,10 +25,6 @@ class Constant : public Value {
         /// @see ConstantKind
         /// @return The kind value
         ConstantKind GetKind() const { return _kind; }
-        
-        /// Print the textual representation of this constant to stderr
-        /// @see Constant::Print()
-        void Dump() const;
 
         /// Print the textual representation of this constant to the given stream.
         /// Useful for chaining multiple Print() calls into one

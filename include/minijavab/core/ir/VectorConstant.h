@@ -3,6 +3,7 @@
 #include <map>
 #include <vector>
 #include <initializer_list>
+#include <cassert>
 
 #include "minijavab/core/ir/Value.h"
 #include "minijavab/core/ir/AggregateConstant.h"

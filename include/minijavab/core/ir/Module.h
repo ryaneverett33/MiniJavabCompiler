@@ -7,12 +7,11 @@
 #include "minijavab/iterator_range.h"
 
 #include "minijavab/core/ir/GlobalVariable.h"
+#include "minijavab/core/ir/Function.h"
 
 namespace MiniJavab {
 namespace Core {
 namespace IR {
-
-class Function;
 class Type;
 class StructType;
 class Value;

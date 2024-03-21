@@ -2,6 +2,7 @@
 
 #include "minijavab/frontend/ast/ast.h"
 #include "minijavab/frontend/ast/Type.h"
+#include "minijavab/frontend/InstructionLowering.h"
 
 #include "minijavab/core/ir/Module.h"
 #include "minijavab/core/ir/IntegerConstant.h"
@@ -35,6 +36,7 @@ IR::Type* ASTConverter::ResolveASTType(AST::Type* type) {
             return _classTypeTable.find(objectType->TypeName)->second;
         }
         case AST::TypeKind::Method: {
+            // todo this isn't used?
             AST::MethodType* methodType = static_cast<AST::MethodType*>(type);
             std::vector<IR::Type*> parameterTypes;
             for (AST::Type* parameterType : methodType->ParameterTypes) {
@@ -186,7 +188,7 @@ void ASTConverter::CreateClassMetadata() {
             variableTypes.push_back(new IR::StructConstant(variableTType, {
                 new IR::StringConstant(variableName),
                 new IR::StringConstant(variableDefinition->Type->GetName()),
-                new IR::IntegerConstant(structOffsetType, structOffset)
+                new IR::IntegerConstant(structOffsetType, new IR::Immediate(structOffsetType, structOffset))
             }));
             structOffset += 1;
         }
@@ -217,9 +219,47 @@ void ASTConverter::CreateClassMetadata() {
     }
 }
 
+void ASTConverter::CreateFunctionSignatures() {
+    for (auto& [className, classDefinition] : _classTable->Classes) {
+        for (auto& [methodName, methodDefinition] : classDefinition->Methods) {
+            std::string functionName = className + "_" + methodName;
+
+            // Resolve parameter types
+            std::vector<IR::Type*> parameterTypes;
+            for (auto& [parameterName, parameterDefinition] : methodDefinition->Parameters) {
+                parameterTypes.push_back(ResolveASTType(parameterDefinition->Type));
+            }
+
+            // Create function type
+            IR::FunctionType* functionType = new IR::FunctionType(ResolveASTType(methodDefinition->ReturnType), parameterTypes);
+
+            // Create function and add it to the module
+            IR::Function* function = new IR::Function(functionName, functionType);
+            _module->AddFunction(function);
+        }
+    }
+}
+
+void ASTConverter::LowerFunctions() {
+    InstructionLowering* instructionLowering = new InstructionLowering(this);
+
+    for (auto& [className, classDefinition] : _classTable->Classes) {
+        for (auto& [methodName, methodDefinition] : classDefinition->Methods) {
+            std::string functionName = className + "_" + methodName;
+
+            IR::Function* function = _module->GetFunctionByName(functionName);
+            instructionLowering->LowerFunction(methodDefinition, function);
+        }
+    }
+}
+
 Core::IR::Module* ASTConverter::Convert(AST::ProgramNode* program, ASTClassTable* table, std::string fileName) {
     ASTConverter converter(table, fileName);
     converter.CreateClassTypes();
+    converter.CreateFunctionSignatures();
+    converter.LowerFunctions();
+
+    // Create metadata last after all types and functions have been created
     converter.CreateClassMetadata();
     
     return converter._module;

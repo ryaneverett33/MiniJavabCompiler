@@ -10,6 +10,7 @@
 %code requires {
 #include <string>
 #include <vector>
+#include <cassert>
 #include <stdio.h>
 #include "minijavab/frontend/ast/ast.h"
 using namespace MiniJavab::Frontend::AST;

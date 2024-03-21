@@ -34,7 +34,12 @@ add_library(core SHARED
     src/core/ir/Constant.cpp
     src/core/ir/PointerConstant.cpp
     src/core/ir/GlobalVariable.cpp
-    src/core/ir/module.cpp)
+    src/core/ir/Function.cpp
+    src/core/ir/BasicBlock.cpp
+    src/core/ir/Module.cpp
+    src/core/ir/Immediate.cpp
+    src/core/ir/Instruction.cpp
+    src/core/ir/IRBuilder.cpp)
 
 # Build AST target
 set (AST_SOURCES
@@ -69,7 +74,8 @@ add_library(frontend SHARED
     src/frontend/Frontend.cpp
     src/frontend/ASTClassTable.cpp
     src/frontend/TypeChecker.cpp
-    src/frontend/Converter.cpp)
+    src/frontend/Converter.cpp
+    src/frontend/InstructionLowering.cpp)
 
 target_include_directories(ast PUBLIC include/)
 target_include_directories(core PUBLIC include/)

@@ -1,5 +1,7 @@
 #include "minijavab/frontend/TypeChecker.h"
 
+#include <cassert>
+
 namespace MiniJavab {
 namespace Frontend {
 namespace TypeChecker {

@@ -1,6 +1,7 @@
 #include "minijavab/core/ir/Module.h"
 
 #include <iostream>
+#include <cassert>
 
 #include "minijavab/core/ir/Type.h"
 #include "minijavab/core/ir/GlobalVariable.h"
@@ -89,6 +90,13 @@ void Module::Dump() {
         std::cout << "; Global Variables\n";
         for (Value* value : GetGlobalVariables()) {
             static_cast<GlobalVariable*>(value)->Dump();
+        }
+    }
+
+    if (GetNumberOfFunctions() > 0) {
+        std::cout << "; Functions\n";
+        for (Value* value : GetFunctions()) {
+            static_cast<Function*>(value)->Dump();
         }
     }
 }

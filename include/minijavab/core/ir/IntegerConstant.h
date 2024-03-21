@@ -5,6 +5,7 @@
 
 #include "minijavab/core/ir/Value.h"
 #include "minijavab/core/ir/Constant.h"
+#include "minijavab/core/ir/Immediate.h"
 
 namespace MiniJavab {
 namespace Core {
@@ -16,29 +17,12 @@ class IntegerConstant : public Constant {
         /// Create a new integer constant
         /// @param type The integer type
         /// @param value The value (will be casted accordingly)
-        IntegerConstant(IR::Type* type, uint64_t value);
+        IntegerConstant(IR::Type* type, Immediate* value);
 
-        virtual void Print(std::ostream& out) const;
-        
-        // todo
-        uint8_t GetU8() const;
-        // todo
-        uint32_t GetU32() const;
-        // todo
-        int8_t GetI8() const;
-        // todo
-        int32_t GetI32() const;
-        // todo
-        void Set(uint8_t value);
-        // todo
-        void Set(uint32_t value);
-        // todo
-        void Set(int8_t value);
-        // todo
-        void Set(int32_t value);
-    protected:
-        /// The raw uncasted integer value
-        uint64_t _value;
+        virtual void Print(std::ostream& out) const override;
+
+        /// The constant value
+        Immediate* Value;
 };
 
 /// Describes a constant boolean value
@@ -48,11 +32,7 @@ class BooleanConstant : public IntegerConstant {
         /// @param value The boolean value
         BooleanConstant(bool value);
 
-        virtual void Print(std::ostream& out) const;
-
-        /// Get the value of the constant
-        /// @return The underlying value
-        bool GetValue() const;
+        void Print(std::ostream& out) const override;
 };
 
 }}} // end namespace
