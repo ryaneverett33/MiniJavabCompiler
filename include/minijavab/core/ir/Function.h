@@ -11,6 +11,8 @@ namespace IR {
 
 class BasicBlock;
 
+/// Represents a locally defined function within the IR. A function contains a list of
+/// Basic Blocks that define the instructions. 
 class Function : public Value {
     public:
         Function(std::string name, FunctionType* type);
@@ -20,9 +22,18 @@ class Function : public Value {
         /// @param out The stream to print to
         virtual void Print(std::ostream& out) const override;
 
+        /// @todo is this needed?
         void AppendBasicBlock(BasicBlock* block);
 
+        /// Helper function for creating a new Basic Block and appending it to the function
+        /// @param name Name of the basic block to create
+        /// @return The newly created, and inserted, basic block
+        BasicBlock* CreateBlock(std::string name);
+
+        /// The list of Basic Blocks in this function
         std::list<BasicBlock*> BasicBlocks;
+
+        /// The name of this function
         std::string Name;
 };
 

@@ -38,7 +38,8 @@ add_library(core SHARED
     src/core/ir/BasicBlock.cpp
     src/core/ir/Module.cpp
     src/core/ir/Immediate.cpp
-    src/core/ir/Instruction.cpp)
+    src/core/ir/Instruction.cpp
+    src/core/ir/IRBuilder.cpp)
 
 # Build AST target
 set (AST_SOURCES

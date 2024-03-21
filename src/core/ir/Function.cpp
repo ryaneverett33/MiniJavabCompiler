@@ -35,6 +35,7 @@ void Function::Print(std::ostream& out) const {
             else { out << (temporaryCounter++) << ":\n"; }
 
             for (Instruction* inst : block->Instructions) {
+                out << "\t";
                 inst->Print(out);
                 out << "\n";
             }
@@ -47,6 +48,13 @@ void Function::AppendBasicBlock(BasicBlock* block) {
 
     block->ParentFunction = this;
     block->Position = std::prev(BasicBlocks.end());
+}
+
+BasicBlock* Function::CreateBlock(std::string name) {
+    BasicBlock* block = new BasicBlock(name);
+    AppendBasicBlock(block);
+
+    return block;
 }
 
 }}} // end namespace
