@@ -1,6 +1,7 @@
 #include "minijavab/core/ir/IRBuilder.h"
 
 #include "minijavab/core/ir/Instructions/Ret.h"
+#include "minijavab/core/ir/Instructions/Alloc.h"
 
 namespace MiniJavab {
 namespace Core {
@@ -14,10 +15,17 @@ void IRBuilder::SetBlock(BasicBlock* block) {
 }
 
 Value* IRBuilder::CreateRet(Value* value) {
-    Instruction* retInstruction = new RetInstruction();
-    _block->AppendInstruction(retInstruction);
+    Instruction* instruction = new RetInstruction();
+    _block->AppendInstruction(instruction);
 
-    return retInstruction;
-} 
+    return instruction;
+}
+
+Value* IRBuilder::CreateAlloc(IR::Type* localType, std::string name) {
+    Instruction* instruction = new AllocInstruction(localType, name);
+    _block->AppendInstruction(instruction);
+
+    return instruction;
+}
 
 }}} // end namespace

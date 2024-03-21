@@ -76,6 +76,8 @@ inline std::string GetInstructionName(const Opcode opcode) {
         case Opcode::RetImmediate:
         case Opcode::RetValue:
             return "ret";
+        case Opcode::Alloc:
+            return "alloc";
         default:
             assert(false && "Instruction not added yet!");
     }

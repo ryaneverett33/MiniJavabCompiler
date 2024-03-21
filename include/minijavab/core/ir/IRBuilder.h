@@ -26,6 +26,8 @@ class IRBuilder {
         /// @return The newly created Return Instruction
         Value* CreateRet(Value* value=nullptr);
 
+        Value* CreateAlloc(IR::Type* localType, std::string name);
+
     private:
         /// The Basic Block to insert newly created instructions into
         BasicBlock* _block = nullptr;

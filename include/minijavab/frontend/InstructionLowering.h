@@ -1,11 +1,14 @@
 #pragma once
 #include "minijavab/frontend/frontend.h"
 
+#include <map>
+
 namespace MiniJavab {
 namespace Core {
 namespace IR {
     class Function;
     class Value;
+    class IRBuilder;
 }} // end Core::IR namespace
 
 namespace Frontend {
@@ -28,6 +31,8 @@ class InstructionLowering {
         FunctionSymbolEntry* copiedSymbol = nullptr;
     };
 
+    using FunctionSymbolTable = std::map<std::string, FunctionSymbolEntry*>;
+
     public:
         /// Construct an InstructionLowering object associated with a Converter object
         /// @param converter The Converter object constructing this object
@@ -37,6 +42,8 @@ class InstructionLowering {
         /// @param methodDefinition The AST definition of the function
         /// @param function The empty destination IR function
         void LowerFunction(ASTMethod* methodDefinition, Core::IR::Function* function);
+
+        FunctionSymbolTable CreateLocalVariables(ASTMethod* methodDefinition, Core::IR::IRBuilder& builder);
 
     private:
         /// A reference to the main Converter object
