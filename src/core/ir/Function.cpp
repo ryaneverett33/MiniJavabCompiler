@@ -8,16 +8,24 @@ namespace IR {
 
 Function::Function(std::string name, FunctionType* type)
     : Value(type),
-    Name(name) {}
+    Name(name) {
+    // Construct the parameter list
+    _parameterList.resize(type->ParameterTypes.size());
+    for (size_t i = 0; i < type->ParameterTypes.size(); i++)
+    {
+        _parameterList[i] = new Parameter(type->ParameterTypes[i], i);
+    }
+}
 
 void Function::Print(std::ostream& out) const {
     FunctionType* functionType = static_cast<FunctionType*>(ValueType);
 
     out << functionType->ReturnType->GetString() << " " << Name << " (";
-    for (size_t i = 0; i < functionType->ParameterTypes.size(); i++) {
-        out << functionType->ParameterTypes[i]->GetString();
+    for (size_t i = 0; i < _parameterList.size(); i++) {
+        const Parameter* parameter = _parameterList[i];
 
-        if ((i + 1) < functionType->ParameterTypes.size()) {
+        parameter->Print(out);
+        if ((i + 1) < _parameterList.size()) {
             out << ", ";
         }
     }
@@ -55,6 +63,27 @@ BasicBlock* Function::CreateBlock(std::string name) {
     AppendBasicBlock(block);
 
     return block;
+}
+
+std::vector<Parameter*> Function::GetParameters() const {
+    return _parameterList;
+}
+
+Parameter* Function::GetParameterByName(std::string name) const {
+    for (Parameter* parameter: _parameterList) {
+        if (parameter->HasName() && parameter->Name == name) {
+            return parameter;
+        }
+    }
+    return nullptr;
+}
+
+Parameter* Function::GetParameterByIndex(size_t index) const {
+    if (index < _parameterList.size()) {
+        return _parameterList[index];
+    }
+
+    return nullptr;
 }
 
 }}} // end namespace

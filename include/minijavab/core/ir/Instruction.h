@@ -18,7 +18,7 @@ class Instruction : public Value {
         /// Print the textual representation of this constant to the given stream.
         /// Useful for chaining multiple Print() calls into one
         /// @param out The stream to print to
-        void Print(std::ostream& out = std::cerr) const;
+        virtual void Print(std::ostream& out = std::cerr) const;
 
         /// Whether or not this instruction returns a value for immediate usage
         /// @returns True if this instruction returns a value, else False

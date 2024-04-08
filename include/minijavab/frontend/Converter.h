@@ -27,6 +27,11 @@ class ASTConverter {
         /// @param fileName The original filename the AST was generated from (used for module naming)
         /// @return The IR form if successfully converted, nullptr otherwise
         static Core::IR::Module* Convert(AST::ProgramNode* program, ASTClassTable* table, std::string fileName);
+
+        /// Resolve an AST Type to an IR-equivalent type
+        /// @param type The AST Type to resolve
+        /// @return The new IR type
+        Core::IR::Type* ResolveASTType(Frontend::AST::Type* type);
     protected:
         /// Creates the metadata global variables for the AST
         void CreateClassMetadata();
@@ -49,11 +54,6 @@ class ASTConverter {
         /// @param method The method to create a type for
         /// @return The newly created global variable that's been added to the module
         Core::IR::GlobalVariable* CreateMetadataMethod(ASTClass* parentClass, ASTMethod* method);
-
-        /// Resolve an AST Type to an IR-equivalent type
-        /// @param type The AST Type to resolve
-        /// @return The new IR type
-        Core::IR::Type* ResolveASTType(Frontend::AST::Type* type);
     private:
         ASTConverter(ASTClassTable* table, std::string fileName);
 
