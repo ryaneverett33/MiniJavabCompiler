@@ -226,8 +226,12 @@ void ASTConverter::CreateFunctionSignatures() {
 
             // Resolve parameter types
             std::vector<IR::Type*> parameterTypes;
+            std::vector<std::string> parameterNames;
+            parameterTypes.reserve(methodDefinition->Parameters.size());
+            parameterNames.reserve(methodDefinition->Parameters.size());
             for (auto& [parameterName, parameterDefinition] : methodDefinition->Parameters) {
                 parameterTypes.push_back(ResolveASTType(parameterDefinition->Type));
+                parameterNames.push_back(parameterName);
             }
 
             // Create function type
@@ -236,6 +240,11 @@ void ASTConverter::CreateFunctionSignatures() {
             // Create function and add it to the module
             IR::Function* function = new IR::Function(functionName, functionType);
             _module->AddFunction(function);
+
+            // Assign parameter names
+            for (IR::Parameter* functionParameter : function->GetParameters()) {
+                functionParameter->Name = parameterNames[functionParameter->GetIndex()];
+            }
         }
     }
 }

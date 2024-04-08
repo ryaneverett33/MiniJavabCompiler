@@ -57,8 +57,11 @@ module "printIfTrue.java"
 @".str.1" = vector<i32> "Test Passed!\00"
 @".str.2" = vector<i32> "Test Failed!\00"
 
-func void @printIfTrue(%testClass* %0):
+func void @printIfTrue(%testClass* %self):
 entry:
+	%self.local = alloc %testClass*
+	store %testClass* %self, %testClass** %self.local
+	%0 = load %testClass* %self.local
 	%1 = getptr bool* %0, 1
 	%2 = load bool %1
 	%3 = cmp eq, %2, true

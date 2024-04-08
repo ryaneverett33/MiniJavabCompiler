@@ -20,9 +20,14 @@ InstructionLowering::FunctionSymbolTable InstructionLowering::CreateLocalVariabl
 
     // Create local variables for each passed-in parameter
     for (auto& [parameterName, parameter] : methodDefinition->Parameters) {
+        IR::Parameter* functionParameter = builder.Block->ParentFunction->GetParameterByName(parameterName);
+
         // Create a new local variable as a copy of the passed-in parameter
         IR::Value* localVariable = builder.CreateAlloc(_converter->ResolveASTType(parameter->Type),
                                                             parameterName + ".local");
+        
+        // Store the passed-in parameter into the local variable
+        builder.CreateStore(functionParameter, localVariable);
 
         // Create two symbol table entries, one for the passed-in parameter and one for the copy
         FunctionSymbolEntry* localEntry = new FunctionSymbolEntry {
@@ -32,7 +37,7 @@ InstructionLowering::FunctionSymbolTable InstructionLowering::CreateLocalVariabl
         };
 
         FunctionSymbolEntry* parameterEntry = new FunctionSymbolEntry {
-            /*Value*/ nullptr,  // TODO: Get the parameter as a value somehow
+            /*Value*/ functionParameter,
             /*isParameter*/ true,
             /*copiedSymbol*/ localEntry
         };

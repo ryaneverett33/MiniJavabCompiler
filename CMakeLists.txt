@@ -24,7 +24,8 @@ add_library(cmdline STATIC src/cmdline/options.cpp)
 target_include_directories(cmdline PUBLIC include/)
 
 set(INSTRUCTIONS
-    src/core/ir/Instructions/Alloc.cpp)
+    src/core/ir/Instructions/Alloc.cpp
+    src/core/ir/Instructions/Store.cpp)
 
 # Build Core target
 add_library(core SHARED
@@ -43,6 +44,7 @@ add_library(core SHARED
     src/core/ir/Immediate.cpp
     src/core/ir/Instruction.cpp
     src/core/ir/IRBuilder.cpp
+    src/core/ir/Parameter.cpp
     ${INSTRUCTIONS})
 
 # Build AST target

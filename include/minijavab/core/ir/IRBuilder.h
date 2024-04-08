@@ -17,20 +17,28 @@ class IRBuilder {
         /// @param block The Basic Block
         IRBuilder(BasicBlock* block);
 
-        /// Update the underlying Basic Block to insert instructions into
-        /// @param block The new basic block
-        void SetBlock(BasicBlock* block);
-
         /// Create a Return Instruction
         /// @see RetInstruction::RetInstruction()
         /// @return The newly created Return Instruction
         Value* CreateRet(Value* value=nullptr);
 
+        /// Create a Allocation Instruction
+        /// @see AllocInstruction::AllocInstruction()
+        /// @return The newly created Allocation Instruction
         Value* CreateAlloc(IR::Type* localType, std::string name);
 
-    private:
+        /// Create a Store Instruction
+        /// @see StoreInstruction::StoreInstruction()
+        /// @return The newly created Store Instruction
+        Value* CreateStore(Value* object, Value* pointer);
+
+        /// Wrapper function for inserting a created instruction into the block
+        /// @see BasicBlock::AppendInstruction
+        /// @param instruction The instruction to insert
+        void Insert(Instruction* instruction);
+
         /// The Basic Block to insert newly created instructions into
-        BasicBlock* _block = nullptr;
+        BasicBlock* Block = nullptr;
 };
 
 }}} // end namespace

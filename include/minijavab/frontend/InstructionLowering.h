@@ -43,6 +43,10 @@ class InstructionLowering {
         /// @param function The empty destination IR function
         void LowerFunction(ASTMethod* methodDefinition, Core::IR::Function* function);
 
+        /// Create any local variables needed for the function and save parameter values
+        /// @param methodDefinition The AST definition of the function
+        /// @param builder The IRBuilder
+        /// @return A symbol table for local variables/parameters used by this function
         FunctionSymbolTable CreateLocalVariables(ASTMethod* methodDefinition, Core::IR::IRBuilder& builder);
 
     private:

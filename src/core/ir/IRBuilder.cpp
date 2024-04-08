@@ -2,30 +2,38 @@
 
 #include "minijavab/core/ir/Instructions/Ret.h"
 #include "minijavab/core/ir/Instructions/Alloc.h"
+#include "minijavab/core/ir/Instructions/Store.h"
 
 namespace MiniJavab {
 namespace Core {
 namespace IR {
 
 IRBuilder::IRBuilder(BasicBlock* block)
-    : _block(block) {}
-
-void IRBuilder::SetBlock(BasicBlock* block) {
-    _block = block;
-}
+    : Block(block) {}
 
 Value* IRBuilder::CreateRet(Value* value) {
     Instruction* instruction = new RetInstruction();
-    _block->AppendInstruction(instruction);
+    Insert(instruction);
 
     return instruction;
 }
 
 Value* IRBuilder::CreateAlloc(IR::Type* localType, std::string name) {
     Instruction* instruction = new AllocInstruction(localType, name);
-    _block->AppendInstruction(instruction);
+    Insert(instruction);
 
     return instruction;
+}
+
+Value* IRBuilder::CreateStore(Value* object, Value* pointer) {
+    Instruction* instruction = new StoreInstruction(object, pointer);
+    Insert(instruction);
+
+    return instruction;
+}
+
+void IRBuilder::Insert(Instruction* instruction) {
+    Block->AppendInstruction(instruction);
 }
 
 }}} // end namespace

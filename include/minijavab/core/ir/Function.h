@@ -4,6 +4,7 @@
 #include <list>
 
 #include "minijavab/core/ir/Value.h"
+#include "minijavab/core/ir/Parameter.h"
 
 namespace MiniJavab {
 namespace Core {
@@ -33,11 +34,28 @@ class Function : public Value {
         /// @return The newly created, and inserted, basic block
         BasicBlock* CreateBlock(std::string name);
 
+        /// Get the list of parameters used by this function
+        /// @return A copy of the list of function parameters
+        std::vector<Parameter*> GetParameters() const;
+
+        /// Lookup a function parameter by known name
+        /// @see GetParameters()
+        /// @return The parameter if it exists, else nullptr
+        Parameter* GetParameterByName(std::string name) const;
+
+        /// Lookup a function parameter by known index
+        /// @see GetParameters()
+        /// @return the Parameter if it exists, else nullptr
+        Parameter* GetParameterByIndex(size_t index) const;
+
         /// The list of Basic Blocks in this function
         std::list<BasicBlock*> BasicBlocks;
 
         /// The name of this function
         std::string Name;
+    private:
+        /// List of parameters passed to this function
+        std::vector<Parameter*> _parameterList;
 };
 
 }}} // end namespace

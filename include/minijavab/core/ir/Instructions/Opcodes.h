@@ -55,10 +55,8 @@ enum class Opcode {
     Alloc,
     /// Load from a local variable
     Load,
-    /// Store a value into a local variable
-    StoreValue,
-    /// Store an immediate into a local variable
-    StoreImmediate,
+    /// Store a value into memory
+    Store,
     /// Get a pointer to a value
     GetPtrValue,
     /// Get a pointer with an immediate value
@@ -78,6 +76,8 @@ inline std::string GetInstructionName(const Opcode opcode) {
             return "ret";
         case Opcode::Alloc:
             return "alloc";
+        case Opcode::Store:
+            return "store";
         default:
             assert(false && "Instruction not added yet!");
     }
