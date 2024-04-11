@@ -1,5 +1,8 @@
 #include "minijavab/core/ir/Instructions/Store.h"
 
+#include "minijavab/core/ir/ValuePrinter.h"
+#include "minijavab/core/ir/PrinterImpl.h"
+
 #include <cassert>
 
 namespace MiniJavab {
@@ -17,12 +20,17 @@ StoreInstruction::StoreInstruction(Value* object, Value* pointer)
 }
 
 void StoreInstruction::Print(std::ostream& out) const {
+    PrinterImpl printer = ValuePrinter::Get();
     Instruction::Print(out);
 
     out << " ";
-    _object->Print(out);
+    //_object->Print(out);
+    printer.Print(out, _object);
+    //printer.Print(out, _object);
     out << ", ";
-    _pointer->Print(out);
+    printer.Print(out, _pointer);
+    //printer.Print(out, _pointer);
+    //_pointer->Print(out);
 }
 
 }}} // end namespace
