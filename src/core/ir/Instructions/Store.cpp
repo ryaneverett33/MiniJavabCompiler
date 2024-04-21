@@ -24,13 +24,9 @@ void StoreInstruction::Print(std::ostream& out) const {
     Instruction::Print(out);
 
     out << " ";
-    //_object->Print(out);
     printer.Print(out, _object);
-    //printer.Print(out, _object);
     out << ", ";
     printer.Print(out, _pointer);
-    //printer.Print(out, _pointer);
-    //_pointer->Print(out);
 }
 
 }}} // end namespace

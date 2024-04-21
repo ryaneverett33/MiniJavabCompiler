@@ -29,15 +29,14 @@ void ValuePrinter::implWasDestroyed() {
     }
 }
 
-void ValuePrinter::Print(std::ostream& out, const Value* value) {
-    std::string valueName;
-    
+std::string ValuePrinter::getName(const Value* value) {
     // search for the value in the map
     std::unordered_map<const Value*, std::string>::iterator searchResult = _valueMap.find(value);
     if (searchResult != _valueMap.end()) {
-        valueName = searchResult->second;
+        return searchResult->second;
     }
     else {
+        std::string valueName;
         if (value->HasName()) {
             valueName = value->Name;
         }
@@ -47,31 +46,17 @@ void ValuePrinter::Print(std::ostream& out, const Value* value) {
         }
 
         _valueMap.insert({value, valueName});
+        return valueName;
     }
+}
 
+void ValuePrinter::Print(std::ostream& out, const Value* value) {
+    std::string valueName = getName(value);
     out << value->ValueType->GetString() << " %" << valueName;
 }
 
 void ValuePrinter::PrintNoType(std::ostream& out, const Value* value) {
-    std::string valueName;
-    
-    // search for the value in the map
-    std::unordered_map<const Value*, std::string>::iterator searchResult = _valueMap.find(value);
-    if (searchResult != _valueMap.end()) {
-        valueName = searchResult->second;
-    }
-    else {
-        if (value->HasName()) {
-            valueName = value->Name;
-        }
-        else {
-            valueName = std::to_string(_temporaryCount);
-            _temporaryCount += 1;
-        }
-
-        _valueMap.insert({value, valueName});
-    }
-
+    std::string valueName = getName(value);
     out << "%" << valueName;
 }
 
