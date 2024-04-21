@@ -1,6 +1,8 @@
 #include "minijavab/core/ir/Function.h"
 
 #include "minijavab/core/ir/BasicBlock.h"
+#include "minijavab/core/ir/ValuePrinter.h"
+#include "minijavab/core/ir/PrinterImpl.h"
 
 namespace MiniJavab {
 namespace Core {
@@ -18,6 +20,7 @@ Function::Function(std::string name, FunctionType* type)
 }
 
 void Function::Print(std::ostream& out) const {
+    PrinterImpl printer = ValuePrinter::Initialize();
     FunctionType* functionType = static_cast<FunctionType*>(ValueType);
 
     out << functionType->ReturnType->GetString() << " " << Name << " (";
@@ -39,8 +42,8 @@ void Function::Print(std::ostream& out) const {
 
         uint64_t temporaryCounter = 0;
         for (BasicBlock* block : BasicBlocks) {
-            if (block->HasName()) { out << block->Name << ":\n"; }
-            else { out << (temporaryCounter++) << ":\n"; }
+            printer.PrintNoType(out, block);
+            out << ":\n";
 
             for (Instruction* inst : block->Instructions) {
                 out << "\t";

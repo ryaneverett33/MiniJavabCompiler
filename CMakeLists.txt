@@ -45,6 +45,8 @@ add_library(core SHARED
     src/core/ir/Instruction.cpp
     src/core/ir/IRBuilder.cpp
     src/core/ir/Parameter.cpp
+    src/core/ir/ValuePrinter.cpp
+    src/core/ir/PrinterImpl.cpp
     ${INSTRUCTIONS})
 
 # Build AST target

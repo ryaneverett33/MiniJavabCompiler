@@ -1,5 +1,8 @@
 #include "minijavab/core/ir/Parameter.h"
 
+#include "minijavab/core/ir/ValuePrinter.h"
+#include "minijavab/core/ir/PrinterImpl.h"
+
 namespace MiniJavab {
 namespace Core {
 namespace IR {
@@ -17,7 +20,8 @@ size_t Parameter::GetIndex() const {
 }
 
 void Parameter::Print(std::ostream& out) const {
-    out << ValueType->GetString() << " %" << (HasName() ? Name : (std::to_string(_index)));
+    PrinterImpl printer = ValuePrinter::Get();
+    printer.Print(out, this);
 }
 
 }}} // end namespace
