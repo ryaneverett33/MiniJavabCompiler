@@ -30,21 +30,24 @@ void ValuePrinter::implWasDestroyed() {
 }
 
 std::string ValuePrinter::getName(const Value* value) {
-    // search for the value in the map
+    // search for the value in the map and return it if it exists
     std::unordered_map<const Value*, std::string>::iterator searchResult = _valueMap.find(value);
     if (searchResult != _valueMap.end()) {
         return searchResult->second;
     }
     else {
+        // if the value doesn't exist in the map, figure out its name and add it
         std::string valueName;
         if (value->HasName()) {
             valueName = value->Name;
         }
         else {
+            // If the value is unnamed, assign it a temporary id
             valueName = std::to_string(_temporaryCount);
             _temporaryCount += 1;
         }
 
+        // insert the value and its name into the map and then return the name
         _valueMap.insert({value, valueName});
         return valueName;
     }
