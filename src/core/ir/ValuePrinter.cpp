@@ -2,6 +2,7 @@
 
 #include "minijavab/core/ir/PrinterImpl.h"
 #include "minijavab/core/ir/Value.h"
+#include "minijavab/core/ir/Immediate.h"
 
 namespace MiniJavab {
 namespace Core {
@@ -53,14 +54,20 @@ std::string ValuePrinter::getName(const Value* value) {
     }
 }
 
-void ValuePrinter::Print(std::ostream& out, const Value* value) {
-    std::string valueName = getName(value);
-    out << value->ValueType->GetString() << " %" << valueName;
+void ValuePrinter::PrintNoType(std::ostream& out, const Value* value) {
+    if (const Immediate* immediate = dynamic_cast<const Immediate*>(value)) {
+        out << "";
+        value->Print(out);
+    }
+    else {
+        std::string valueName = getName(value);
+        out << "%" << valueName;
+    }
 }
 
-void ValuePrinter::PrintNoType(std::ostream& out, const Value* value) {
-    std::string valueName = getName(value);
-    out << "%" << valueName;
+void ValuePrinter::Print(std::ostream& out, const Value* value) {
+    out << value->ValueType->GetString() << " ";
+    PrintNoType(out, value);
 }
 
 }}} // end namespace

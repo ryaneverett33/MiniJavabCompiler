@@ -78,6 +78,8 @@ inline std::string GetInstructionName(const Opcode opcode) {
             return "alloc";
         case Opcode::Store:
             return "store";
+        case Opcode::Load:
+            return "load";
         default:
             assert(false && "Instruction not added yet!");
     }

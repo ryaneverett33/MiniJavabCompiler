@@ -25,7 +25,8 @@ target_include_directories(cmdline PUBLIC include/)
 
 set(INSTRUCTIONS
     src/core/ir/Instructions/Alloc.cpp
-    src/core/ir/Instructions/Store.cpp)
+    src/core/ir/Instructions/Store.cpp
+    src/core/ir/Instructions/Load.cpp)
 
 # Build Core target
 add_library(core SHARED

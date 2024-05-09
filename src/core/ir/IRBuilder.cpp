@@ -3,6 +3,7 @@
 #include "minijavab/core/ir/Instructions/Ret.h"
 #include "minijavab/core/ir/Instructions/Alloc.h"
 #include "minijavab/core/ir/Instructions/Store.h"
+#include "minijavab/core/ir/Instructions/Load.h"
 
 namespace MiniJavab {
 namespace Core {
@@ -27,6 +28,13 @@ Value* IRBuilder::CreateAlloc(IR::Type* localType, std::string name) {
 
 Value* IRBuilder::CreateStore(Value* object, Value* pointer) {
     Instruction* instruction = new StoreInstruction(object, pointer);
+    Insert(instruction);
+
+    return instruction;
+}
+
+Value* IRBuilder::CreateLoad(IR::Type* type, IR::Value* pointer) {
+    Instruction* instruction = new LoadInstruction(type, pointer);
     Insert(instruction);
 
     return instruction;

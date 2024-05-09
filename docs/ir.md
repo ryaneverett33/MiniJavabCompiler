@@ -64,7 +64,7 @@ entry:
 	%0 = load %testClass* %self.local
 	%1 = getptr bool* %0, 1
 	%2 = load bool %1
-	%3 = cmp eq, %2, true
+	%3 = cmp eq, bool %2, bool true
 	br_if %label1
 	br %label2
 label1:

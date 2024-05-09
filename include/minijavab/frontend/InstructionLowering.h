@@ -43,15 +43,36 @@ class InstructionLowering {
         /// @param function The empty destination IR function
         void LowerFunction(ASTMethod* methodDefinition, Core::IR::Function* function);
 
+        void LowerStatement(AST::StatementNode* statement);
+        void LowerStatement(AST::AssignmentStatementNode* statement);
+        void LowerStatement(AST::IfStatementNode* statement);
+        void LowerStatement(AST::NestedStatementsNode* statement);
+        void LowerStatement(AST::PrintStatementNode* statement);
+        void LowerStatement(AST::ReturnStatementNode* statement);
+        void LowerStatement(AST::WhileStatementNode* statement);
+
+        Core::IR::Value* LowerExpression(AST::ExpNode* expression);
+        Core::IR::Value* LowerExpression(AST::LiteralExpNode* expression);
+        Core::IR::Value* LowerExpression(AST::BinaryExpNode* expression);
+        Core::IR::Value* LowerExpression(AST::ObjectExpNode* expression);
+
         /// Create any local variables needed for the function and save parameter values
         /// @param methodDefinition The AST definition of the function
-        /// @param builder The IRBuilder
         /// @return A symbol table for local variables/parameters used by this function
-        FunctionSymbolTable CreateLocalVariables(ASTMethod* methodDefinition, Core::IR::IRBuilder& builder);
+        FunctionSymbolTable CreateLocalVariables(ASTMethod* methodDefinition);
 
     private:
         /// A reference to the main Converter object
         ASTConverter* _converter = nullptr;
+
+        /// A reference to current Instruction Builder object. Set by LowerFunction()
+        Core::IR::IRBuilder* _builder = nullptr;
+
+        /// A reference to the current AST method definition that's being lowered
+        ASTMethod* _methodDefinition = nullptr;
+
+        /// A reference to the current symbol table for the function being lowered
+        FunctionSymbolTable* _functionSymbolTable = nullptr;
 };
 
 }} // end namespace

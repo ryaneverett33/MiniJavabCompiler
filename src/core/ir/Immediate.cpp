@@ -8,8 +8,7 @@ Immediate::Immediate(IR::Type* type, uint64_t value)
     : Value(type),
     _value(value) {}
 
-void Immediate::Print(std::ostream& out) const
-{
+void Immediate::Print(std::ostream& out) const {
     std::cout << _value;
 }
 

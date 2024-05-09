@@ -28,7 +28,7 @@ IR::Type* ASTConverter::ResolveASTType(AST::Type* type) {
         case AST::TypeKind::Void:
             return new IR::VoidType();
         case AST::TypeKind::String:
-            return new IR::VectorType(new IR::IntegerType(8));
+            return IR::StringType();
         case AST::TypeKind::Boolean:
             return new IR::BooleanType();
         case AST::TypeKind::Object: {

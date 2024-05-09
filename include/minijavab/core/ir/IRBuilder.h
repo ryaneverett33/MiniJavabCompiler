@@ -32,6 +32,11 @@ class IRBuilder {
         /// @return The newly created Store Instruction
         Value* CreateStore(Value* object, Value* pointer);
 
+        /// Create a Load Instruction
+        /// @see LoadInstruction::LoadInstruction()
+        /// @return The newly created Load Instruction
+        Value* CreateLoad(IR::Type* type, IR::Value* pointer);
+
         /// Wrapper function for inserting a created instruction into the block
         /// @see BasicBlock::AppendInstruction
         /// @param instruction The instruction to insert
