@@ -28,8 +28,8 @@ IR language
 
 # Intrinsics
 
-- mj.println vector<i32>* <arg> -> void
-- mj.factorial <arg> -> i32
+- mj.println.str vector<i32>* <arg> -> void
+- mj.println.int i32 <arg> -> void
 
 # Types
 

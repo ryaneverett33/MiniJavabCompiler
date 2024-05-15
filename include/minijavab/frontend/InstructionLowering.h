@@ -68,6 +68,9 @@ class InstructionLowering {
         /// A reference to current Instruction Builder object. Set by LowerFunction()
         Core::IR::IRBuilder* _builder = nullptr;
 
+        /// A reference to the current function being lowered. Set By LowerFunction()
+        Core::IR::Function* _function = nullptr;
+
         /// A reference to the current AST method definition that's being lowered
         ASTMethod* _methodDefinition = nullptr;
 

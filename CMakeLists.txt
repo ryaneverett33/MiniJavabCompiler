@@ -26,7 +26,9 @@ target_include_directories(cmdline PUBLIC include/)
 set(INSTRUCTIONS
     src/core/ir/Instructions/Alloc.cpp
     src/core/ir/Instructions/Store.cpp
-    src/core/ir/Instructions/Load.cpp)
+    src/core/ir/Instructions/Load.cpp
+    src/core/ir/Instructions/GetPtr.cpp
+    src/core/ir/Instructions/Call.cpp)
 
 # Build Core target
 add_library(core SHARED
@@ -40,6 +42,7 @@ add_library(core SHARED
     src/core/ir/PointerConstant.cpp
     src/core/ir/GlobalVariable.cpp
     src/core/ir/Function.cpp
+    src/core/ir/IntrinsicFunction.cpp
     src/core/ir/BasicBlock.cpp
     src/core/ir/Module.cpp
     src/core/ir/Immediate.cpp

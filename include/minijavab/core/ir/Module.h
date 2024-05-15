@@ -8,6 +8,7 @@
 
 #include "minijavab/core/ir/GlobalVariable.h"
 #include "minijavab/core/ir/Function.h"
+#include "minijavab/core/ir/IntrinsicFunction.h"
 
 namespace MiniJavab {
 namespace Core {
@@ -15,6 +16,9 @@ namespace IR {
 class Type;
 class StructType;
 class Value;
+
+const std::string MJ_PRINTLN_STR_INTRINSIC = "mj.println.str";
+const std::string MJ_PRINTLN_INT_INTRINSIC = "mj.println.int";
 
 /// Describes a single module in the IR. A module is a single linkable object that contains
 /// functions, global variables, and unique types. A module may encompass multiple Compile Units. 
@@ -55,6 +59,10 @@ class Module {
         /// @return The Function, if it exists, else nullptr
         Function* GetFunctionByName(std::string name) const;
 
+        /// Lookup an intrinsic function. If the intrinsic doesn't exist, an exception will be thrown
+        /// @return The intrinsic function
+        IntrinsicFunction* GetIntrinsic(std::string name);
+
         /// Get the number of Functions in the Module
         /// @return The number of Functions in the Module
         size_t GetNumberOfFunctions() const { return _functionCount; }
@@ -63,6 +71,11 @@ class Module {
         /// @todo what happens if the Global Variable name already exists?
         /// @param variable Global Variable to add
         void AddGlobalVariable(GlobalVariable* variable);
+
+        /// Add a new anonymous string value to the Module and return it for use
+        /// @param value The string to initialize the constant with
+        /// @return The new String Constant Global Variable
+        GlobalVariable* AddStringConstant(std::string value);
 
         /// Lookup a Global Variable by its name
         /// @param name The name of the Global Variable to lookup
@@ -88,6 +101,11 @@ class Module {
         /// The name of the Module, if one has been given
         std::string Name;
     private:
+        /// Helper function for inserting functions into the symbol table. Callers must verify
+        /// that the function can be inserted before calling
+        /// @param function Function to add
+        void addFunctionHelper(Function* function);
+
         /// A list of all Global Variables and Functions in the Module.
         /// Ordered by Global Variables, then Functions.
         std::vector<Value*> _symbolTable;
@@ -100,6 +118,9 @@ class Module {
 
         /// The number of Functions in the Module
         size_t _functionCount = 0;
+
+        /// The number of anonymous string constants in this module
+        size_t _stringConstantCount = 0;
 };
 
 }}} // end namespace

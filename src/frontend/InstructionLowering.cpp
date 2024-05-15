@@ -4,7 +4,7 @@
 #include "minijavab/frontend/Converter.h"
 #include "minijavab/frontend/ASTClassTable.h"
 
-#include "minijavab/core/ir/Function.h"
+#include "minijavab/core/ir/Module.h"
 #include "minijavab/core/ir/BasicBlock.h"
 #include "minijavab/core/ir/IRBuilder.h"
 #include "minijavab/core/ir/IntegerConstant.h"
@@ -141,7 +141,22 @@ void InstructionLowering::LowerStatement(AST::NestedStatementsNode* statement) {
     assert(false && "nested lowering ot implemented yet");
 }
 void InstructionLowering::LowerStatement(AST::PrintStatementNode* statement) {
-    assert(false && "print statement lowering ot implemented yet");
+    if (statement->IsPrintStringStatement()) {
+        AST::PrintStringStatementNode* stringStatement = static_cast<AST::PrintStringStatementNode*>(statement);
+
+        // Create a new global variable storing the string to print
+        IR::Module* mod = _function->GetContainingModule();
+        IR::GlobalVariable* constant = mod->AddStringConstant(stringStatement->String);
+
+        // Call the print intrinsic with a pointer to the global string
+        IR::Value* stringPointer = _builder->CreateGetPtr(constant);
+        IR::Function* printFunction = mod->GetIntrinsic(IR::MJ_PRINTLN_STR_INTRINSIC);
+        _builder->CreateCall(printFunction, {stringPointer});
+    }
+    else {
+        AST::PrintExpStatementNode* expStatement = static_cast<AST::PrintExpStatementNode*>(statement);
+        assert(false && "print expression statement lowering not implemented yet");
+    }
 }
 void InstructionLowering::LowerStatement(AST::ReturnStatementNode* statement) {
     assert(false && "return statement lowering ot implemented yet");
@@ -175,6 +190,7 @@ void InstructionLowering::LowerStatement(AST::StatementNode* statement) {
 
 void InstructionLowering::LowerFunction(ASTMethod* methodDefinition, Core::IR::Function* function) {
     _methodDefinition = methodDefinition;
+    _function = function;
 
     // Create entry block and an IR Builder to use it
     IR::BasicBlock* entryBlock = function->CreateBlock("entry");
@@ -191,6 +207,12 @@ void InstructionLowering::LowerFunction(ASTMethod* methodDefinition, Core::IR::F
     if (methodDefinition->MethodDecl->ReturnExp != nullptr) {
         methodDefinition->MethodDecl->ReturnExp->Dump();
     }
+
+    // clear state variables
+    _methodDefinition = nullptr;
+    _function = nullptr;
+    _builder = nullptr;
+    _functionSymbolTable = nullptr;
 }
 
 

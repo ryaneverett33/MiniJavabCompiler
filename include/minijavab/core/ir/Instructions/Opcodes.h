@@ -80,6 +80,11 @@ inline std::string GetInstructionName(const Opcode opcode) {
             return "store";
         case Opcode::Load:
             return "load";
+        case Opcode::GetPtrImmediate:
+        case Opcode::GetPtrValue:
+            return "getptr";
+        case Opcode::Call:
+            return "call";
         default:
             assert(false && "Instruction not added yet!");
     }

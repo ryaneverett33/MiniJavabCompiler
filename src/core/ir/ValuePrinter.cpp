@@ -66,7 +66,13 @@ void ValuePrinter::PrintNoType(std::ostream& out, const Value* value) {
 }
 
 void ValuePrinter::Print(std::ostream& out, const Value* value) {
-    out << value->ValueType->GetString() << " ";
+    if (value->ValueType->IsFunctionType()) {
+        FunctionType* functionType = static_cast<FunctionType*>(value->ValueType);
+        out << functionType->ReturnType->GetString() << " ";
+    }
+    else {
+        out << value->ValueType->GetString() << " ";
+    }
     PrintNoType(out, value);
 }
 

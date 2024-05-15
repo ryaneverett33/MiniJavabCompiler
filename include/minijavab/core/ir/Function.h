@@ -11,6 +11,7 @@ namespace Core {
 namespace IR {
 
 class BasicBlock;
+class Module;
 
 /// Represents a locally defined function within the IR. A function contains a list of
 /// Basic Blocks that define the instructions. 
@@ -27,12 +28,17 @@ class Function : public Value {
         virtual void Print(std::ostream& out) const override;
 
         /// @todo is this needed?
-        void AppendBasicBlock(BasicBlock* block);
+        virtual void AppendBasicBlock(BasicBlock* block);
 
         /// Helper function for creating a new Basic Block and appending it to the function
         /// @param name Name of the basic block to create
         /// @return The newly created, and inserted, basic block
-        BasicBlock* CreateBlock(std::string name);
+        virtual BasicBlock* CreateBlock(std::string name);
+
+        /// Get the module containing this function
+        /// @return The module where this function is defined, nullptr if the function
+        /// doesn't exist in a module yet
+        Module* GetContainingModule() const;
 
         /// Get the list of parameters used by this function
         /// @return A copy of the list of function parameters
@@ -48,14 +54,26 @@ class Function : public Value {
         /// @return the Parameter if it exists, else nullptr
         Parameter* GetParameterByIndex(size_t index) const;
 
-        /// The list of Basic Blocks in this function
-        std::list<BasicBlock*> BasicBlocks;
+        /// Get a list of basic blocks associated with this function
+        /// @return A mutable reference to the list of basic blocks
+        virtual std::list<BasicBlock*>* GetBlocks();
 
-        /// The name of this function
-        std::string Name;
+        /// Whether or not this function provides an implementation. Non-defined
+        /// functions may defined in an external module or provided by external tooling.
+        /// @return True if this function is defined and has instructions attached to it,
+        /// False otherwise
+        virtual bool IsDefined() const;
     private:
+        /// The list of Basic Blocks in this function
+        std::list<BasicBlock*> _basicBlocks;
+
+        /// The module containing this function. Set by the containing module itself
+        Module* _containingModule;
+
         /// List of parameters passed to this function
         std::vector<Parameter*> _parameterList;
+
+        friend class Module;
 };
 
 }}} // end namespace

@@ -7,6 +7,7 @@
 namespace MiniJavab {
 namespace Core {
 namespace IR {
+class GlobalVariable;
 
 /// An IRBuilder is a helper object for easily creating and inserting instructions
 /// into a Basic Block. Instructions created through an IRBuilder are automatically
@@ -36,6 +37,18 @@ class IRBuilder {
         /// @see LoadInstruction::LoadInstruction()
         /// @return The newly created Load Instruction
         Value* CreateLoad(IR::Type* type, IR::Value* pointer);
+
+        /// Create a Getptr Instruction
+        /// @see GetPtrInstruction::GetPtrInstruction()
+        /// @return The newly created Getptr Instruction
+        Value* CreateGetPtr(IR::GlobalVariable* variable);
+
+        //Value* CreateGetPtr(IR::Type* type, uint32_t immediate);
+
+        /// Create a Call Instruction
+        /// @see CallInstruction::CallInstruction()
+        /// @return The newly created Call Instruction
+        Value* CreateCall(IR::Function* function, std::vector<IR::Value*> arguments);
 
         /// Wrapper function for inserting a created instruction into the block
         /// @see BasicBlock::AppendInstruction

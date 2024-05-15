@@ -9,8 +9,7 @@ namespace Core {
 namespace IR {
 
 Function::Function(std::string name, FunctionType* type)
-    : Value(type),
-    Name(name) {
+    : Value(type, name) {
     // Construct the parameter list
     _parameterList.resize(type->ParameterTypes.size());
     for (size_t i = 0; i < type->ParameterTypes.size(); i++)
@@ -34,14 +33,14 @@ void Function::Print(std::ostream& out) const {
     }
     out << ")";
 
-    if (BasicBlocks.empty()) {
+    if (!IsDefined()) {
         out << ";";
     }
     else {
         out << "\n";
 
         uint64_t temporaryCounter = 0;
-        for (BasicBlock* block : BasicBlocks) {
+        for (BasicBlock* block : _basicBlocks) {
             printer.PrintNoType(out, block);
             out << ":\n";
 
@@ -55,10 +54,10 @@ void Function::Print(std::ostream& out) const {
 }
 
 void Function::AppendBasicBlock(BasicBlock* block) {
-    BasicBlocks.push_back(block);
+    _basicBlocks.push_back(block);
 
     block->ParentFunction = this;
-    block->Position = std::prev(BasicBlocks.end());
+    block->Position = std::prev(_basicBlocks.end());
 }
 
 BasicBlock* Function::CreateBlock(std::string name) {
@@ -87,6 +86,18 @@ Parameter* Function::GetParameterByIndex(size_t index) const {
     }
 
     return nullptr;
+}
+
+std::list<BasicBlock*>* Function::GetBlocks() {
+    return &(_basicBlocks);
+}
+
+bool Function::IsDefined() const {
+    return !_basicBlocks.empty();
+}
+
+Module* Function::GetContainingModule() const {
+    return _containingModule;
 }
 
 }}} // end namespace
