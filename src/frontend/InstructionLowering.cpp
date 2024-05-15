@@ -141,11 +141,12 @@ void InstructionLowering::LowerStatement(AST::NestedStatementsNode* statement) {
     assert(false && "nested lowering ot implemented yet");
 }
 void InstructionLowering::LowerStatement(AST::PrintStatementNode* statement) {
+    IR::Module* mod = _function->GetContainingModule();
+
     if (statement->IsPrintStringStatement()) {
         AST::PrintStringStatementNode* stringStatement = static_cast<AST::PrintStringStatementNode*>(statement);
 
         // Create a new global variable storing the string to print
-        IR::Module* mod = _function->GetContainingModule();
         IR::GlobalVariable* constant = mod->AddStringConstant(stringStatement->String);
 
         // Call the print intrinsic with a pointer to the global string
@@ -155,7 +156,11 @@ void InstructionLowering::LowerStatement(AST::PrintStatementNode* statement) {
     }
     else {
         AST::PrintExpStatementNode* expStatement = static_cast<AST::PrintExpStatementNode*>(statement);
-        assert(false && "print expression statement lowering not implemented yet");
+
+        // Lower the expression and call the print intrinsic
+        IR::Value* immediate = LowerExpression(expStatement->Expression);
+        IR::Function* printFunction = mod->GetIntrinsic(IR::MJ_PRINTLN_INT_INTRINSIC);
+        _builder->CreateCall(printFunction, {immediate});
     }
 }
 void InstructionLowering::LowerStatement(AST::ReturnStatementNode* statement) {
