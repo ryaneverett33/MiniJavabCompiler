@@ -12,17 +12,18 @@ RetInstruction::RetInstruction()
     {}
 
 RetInstruction::RetInstruction(IR::Value* returnValue)
-    : Instruction(Opcode::RetImmediate, nullptr),
+    : Instruction(Opcode::UNKNOWN, nullptr),
     _returnValue(returnValue) {
     assert(returnValue != nullptr);
 
+    _opcode = returnValue->IsImmediate() ? Opcode::RetImmediate : Opcode::RetValue;
     ValueType = returnValue->ValueType;
 }
 
 void RetInstruction::Print(std::ostream& out) const {
     Instruction::Print(out);
 
-    if (_opcode == Opcode::RetImmediate) {
+    if (_opcode == Opcode::RetValue || _opcode == Opcode::RetImmediate) {
         PrinterImpl printer = ValuePrinter::Get();
         out << " ";
         printer.Print(out, _returnValue);

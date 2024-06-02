@@ -51,4 +51,20 @@ bool Immediate::IsImmediate() const {
     return true;
 }
 
+void Immediate::Set(uint8_t value) {
+    _value = cast::GetAsU64<uint8_t>(value);
+}
+void Immediate::Set(uint32_t value) {
+    _value = cast::GetAsU64<uint32_t>(value);
+}
+void Immediate::Set(int8_t value) {
+    _value = cast::GetAsU64<int8_t>(value);
+}
+void Immediate::Set(int32_t value) {
+    _value = cast::GetAsU64<int32_t>(value);
+}
+void Immediate::Set(bool value) {
+    _value = cast::GetAsU64<bool>(value);
+}
+
 }}} // end namespace

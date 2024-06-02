@@ -19,14 +19,11 @@ class Immediate: public Value {
         int8_t GetI8() const;
         int32_t GetI32() const;
         bool GetBoolean() const;
-        // todo
         void Set(uint8_t value);
-        // todo
         void Set(uint32_t value);
-        // todo
         void Set(int8_t value);
-        // todo
         void Set(int32_t value);
+        void Set(bool value);
 
     protected:
         /// The raw uncasted integer value

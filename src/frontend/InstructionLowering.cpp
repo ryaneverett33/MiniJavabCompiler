@@ -3,6 +3,7 @@
 #include "minijavab/frontend/PrimitiveTypes.h"
 #include "minijavab/frontend/Converter.h"
 #include "minijavab/frontend/ASTClassTable.h"
+#include "minijavab/frontend/ImmediateFolder.h"
 
 #include "minijavab/core/ir/Module.h"
 #include "minijavab/core/ir/BasicBlock.h"
@@ -81,6 +82,10 @@ IR::Value* InstructionLowering::LowerExpression(AST::LiteralExpNode* expression)
 }
 
 IR::Value* InstructionLowering::LowerExpression(AST::BinaryExpNode* expression) {
+    if (ImmediateFolder::CanFold(expression)) {
+        return ImmediateFolder::Fold(expression);
+    }
+
     IR::Value* leftHandSide = LowerExpression(expression->LeftSide);
     IR::Value* rightHandSide = LowerExpression(expression->RightSide);
 
@@ -113,6 +118,10 @@ IR::Value* InstructionLowering::LowerExpression(AST::ObjectExpNode* expression) 
 }
 
 IR::Value* InstructionLowering::LowerExpression(AST::UnaryExpNode* expression) {
+    if (ImmediateFolder::CanFold(expression)) {
+        return ImmediateFolder::Fold(expression);
+    }
+
     IR::Value* loweredExpression = LowerExpression(expression->Expression);
 
     switch (expression->Operator) {

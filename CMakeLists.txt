@@ -70,8 +70,7 @@ set (AST_SOURCES
     src/frontend/ast/ClassDeclNode.cpp
     src/frontend/ast/IfStatementNode.cpp
     src/frontend/ast/MethodCallExpNode.cpp
-    src/frontend/ast/Type.cpp
-)
+    src/frontend/ast/Type.cpp)
 add_library(ast SHARED ${AST_SOURCES})
 
 # Build flex/bison parser
@@ -93,7 +92,8 @@ add_library(frontend SHARED
     src/frontend/ASTClassTable.cpp
     src/frontend/TypeChecker.cpp
     src/frontend/Converter.cpp
-    src/frontend/InstructionLowering.cpp)
+    src/frontend/InstructionLowering.cpp
+    src/frontend/ImmediateFolder.cpp)
 
 target_include_directories(ast PUBLIC include/)
 target_include_directories(core PUBLIC include/)
