@@ -17,6 +17,7 @@ IR language
 - div <type> <value>, <type> {<value> || <immediate>} -> <type>
 - or  <type> <value>, <type> {<value> || <immediate>} -> <type>
 - and <type> <value>, <type> {<value> || <immediate>} -> <type>
+- xor <type> <value>, <type> {<value> || <immediate>} -> <type>
 
 ## Memory Operations
 

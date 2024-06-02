@@ -39,6 +39,11 @@ class Value {
         /// @param out The stream to print to
         virtual void Print(std::ostream& out = std::cerr) const = 0;
 
+        /// Whether or not this value is an immediate value
+        /// @see IR::Immediate
+        /// @return True if it's an immediate value, false otherwise
+        virtual bool IsImmediate() const { return false; }
+
         /// The type of this object
         IR::Type* ValueType = nullptr;
 

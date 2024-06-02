@@ -55,6 +55,7 @@ class InstructionLowering {
         Core::IR::Value* LowerExpression(AST::LiteralExpNode* expression);
         Core::IR::Value* LowerExpression(AST::BinaryExpNode* expression);
         Core::IR::Value* LowerExpression(AST::ObjectExpNode* expression);
+        Core::IR::Value* LowerExpression(AST::UnaryExpNode* expression);
 
         /// Create any local variables needed for the function and save parameter values
         /// @param methodDefinition The AST definition of the function

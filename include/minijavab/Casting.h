@@ -5,6 +5,11 @@ namespace MiniJavab {
 namespace cast {
 
 template <typename T>
+uint32_t GetAsU8(T value) {
+    uint8_t* ptr = reinterpret_cast<uint8_t*>(const_cast<T*>(&value));
+    return *ptr;
+}
+template <typename T>
 uint32_t GetAsU32(T value) {
     uint32_t* ptr = reinterpret_cast<uint32_t*>(const_cast<T*>(&value));
     return *ptr;
@@ -22,6 +27,11 @@ float GetAsF32(T value) {
 template <typename T>
 double GetAsF64(T value) {
     double* ptr = reinterpret_cast<double*>(const_cast<T*>(&value));
+    return *ptr;
+}
+template <typename T>
+int32_t GetAsI8(T value) {
+    int8_t* ptr = reinterpret_cast<int8_t*>(const_cast<T*>(&value));
     return *ptr;
 }
 template <typename T>

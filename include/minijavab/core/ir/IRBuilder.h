@@ -50,6 +50,16 @@ class IRBuilder {
         /// @return The newly created Call Instruction
         Value* CreateCall(IR::Function* function, std::vector<IR::Value*> arguments);
 
+        /// Create a Mul Instruction
+        /// @see MulInstruction::MulInstruction()
+        /// @return The newly created Mul Instruction
+        Value* CreateMul(IR::Value* multiplicand, IR::Value* operand);
+
+        /// Create an XOR Instruction
+        /// @see XORInstruction::XORInstruction()
+        /// @return The newly created XOR Instruction
+        Value* CreateXOR(IR::Value* x, IR::Value* y);
+
         /// Wrapper function for inserting a created instruction into the block
         /// @see BasicBlock::AppendInstruction
         /// @param instruction The instruction to insert

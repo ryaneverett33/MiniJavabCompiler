@@ -106,6 +106,39 @@ IR::Value* InstructionLowering::LowerExpression(AST::ObjectExpNode* expression) 
     assert(false && "object expression not supported yet");
 }
 
+IR::Value* InstructionLowering::LowerExpression(AST::UnaryExpNode* expression) {
+    IR::Value* loweredExpression = LowerExpression(expression->Expression);
+
+    switch (expression->Operator) {
+        case AST::OperatorType::Add:
+            // +{int} is a nop operation
+            return loweredExpression;
+        case AST::OperatorType::Subtract: {
+            // multiply the resultant expression by -1
+            IR::IntegerType* valueType = static_cast<IR::IntegerType*>(loweredExpression->ValueType);
+            IR::Immediate* negativeOne = new IR::Immediate(valueType, -1);
+            
+            return _builder->CreateMul(loweredExpression, negativeOne);
+        }
+        case AST::OperatorType::BooleanNot: {
+            IR::Immediate* oneValue = nullptr;
+            if (loweredExpression->ValueType->IsBooleanType()) {
+                oneValue = new IR::Immediate(new IR::BooleanType(), true);
+                return _builder->CreateXOR(loweredExpression, oneValue);
+            }
+            else {
+                // TODO remove this and clean up the parsing
+                assert(false && "this isn't allowed");
+                // XOR 
+                // oneValue = IR::Immediate::ExtendValue(static_cast<IR::IntegerType*>(loweredExpression->ValueType), 1);
+            }
+        }
+        default:
+            assert(false && "unrecognized unary operator");
+    }
+    return nullptr;
+}
+
 IR::Value* InstructionLowering::LowerExpression(AST::ExpNode* expression) {
     switch (expression->Kind) {
         case AST::ExpKind::Literal:
@@ -114,6 +147,8 @@ IR::Value* InstructionLowering::LowerExpression(AST::ExpNode* expression) {
             return LowerExpression(static_cast<AST::BinaryExpNode*>(expression));
         case AST::ExpKind::Object:
             return LowerExpression(static_cast<AST::ObjectExpNode*>(expression));
+        case AST::ExpKind::Unary:
+            return LowerExpression(static_cast<AST::UnaryExpNode*>(expression));
         default:
             _builder->Block->ParentFunction->Dump();
             assert(false && "expression lowering not implemented yet");

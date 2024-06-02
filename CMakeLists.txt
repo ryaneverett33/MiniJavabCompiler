@@ -28,7 +28,9 @@ set(INSTRUCTIONS
     src/core/ir/Instructions/Store.cpp
     src/core/ir/Instructions/Load.cpp
     src/core/ir/Instructions/GetPtr.cpp
-    src/core/ir/Instructions/Call.cpp)
+    src/core/ir/Instructions/Call.cpp
+    src/core/ir/Instructions/Mul.cpp
+    src/core/ir/Instructions/XOR.cpp)
 
 # Build Core target
 add_library(core SHARED

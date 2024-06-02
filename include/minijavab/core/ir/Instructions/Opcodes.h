@@ -8,6 +8,7 @@ namespace Core {
 namespace IR {
 
 enum class Opcode {
+    UNKNOWN,
     // Control Flow Instructions
 
     /// Return without value
@@ -48,6 +49,10 @@ enum class Opcode {
     AndValueValue,
     /// Boolean AND a value and an immediate
     AndValueImmediate,
+    /// XOR Instruction with a value and another value
+    XORValueValue,
+    /// XOR Instruction with a value and an immediate
+    XORValueImmediate,
 
     // Memory operations
 
@@ -85,6 +90,12 @@ inline std::string GetInstructionName(const Opcode opcode) {
             return "getptr";
         case Opcode::Call:
             return "call";
+        case Opcode::MulValueImmediate:
+        case Opcode::MulValueValue:
+            return "mul";
+        case Opcode::XORValueImmediate:
+        case Opcode::XORValueValue:
+            return "xor";
         default:
             assert(false && "Instruction not added yet!");
     }

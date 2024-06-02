@@ -12,13 +12,11 @@ class Immediate: public Value {
 
         void Print(std::ostream& out) const override;
 
-        // todo
+        bool IsImmediate() const override;
+
         uint8_t GetU8() const;
-        // todo
         uint32_t GetU32() const;
-        // todo
         int8_t GetI8() const;
-        // todo
         int32_t GetI32() const;
         // todo
         bool GetBoolean() const { return true; }

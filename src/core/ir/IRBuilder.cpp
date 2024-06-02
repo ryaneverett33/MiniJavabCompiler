@@ -6,6 +6,8 @@
 #include "minijavab/core/ir/Instructions/Load.h"
 #include "minijavab/core/ir/Instructions/GetPtr.h"
 #include "minijavab/core/ir/Instructions/Call.h"
+#include "minijavab/core/ir/Instructions/Mul.h"
+#include "minijavab/core/ir/Instructions/XOR.h"
 
 namespace MiniJavab {
 namespace Core {
@@ -51,6 +53,20 @@ Value* IRBuilder::CreateGetPtr(IR::GlobalVariable* variable) {
 
 Value* IRBuilder::CreateCall(IR::Function* function, std::vector<IR::Value*> arguments) {
     Instruction* instruction = new CallInstruction(function, arguments);
+    Insert(instruction);
+
+    return instruction;
+}
+
+Value* IRBuilder::CreateMul(IR::Value* multiplicand, IR::Value* operand) {
+    Instruction* instruction = new MulInstruction(multiplicand, operand);
+    Insert(instruction);
+
+    return instruction;
+}
+
+Value* IRBuilder::CreateXOR(IR::Value* x, IR::Value* y) {
+    Instruction* instruction = new XORInstruction(x, y);
     Insert(instruction);
 
     return instruction;
