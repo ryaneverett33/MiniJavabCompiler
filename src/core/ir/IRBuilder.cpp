@@ -8,6 +8,9 @@
 #include "minijavab/core/ir/Instructions/Call.h"
 #include "minijavab/core/ir/Instructions/Mul.h"
 #include "minijavab/core/ir/Instructions/XOR.h"
+#include "minijavab/core/ir/Instructions/Add.h"
+#include "minijavab/core/ir/Instructions/Sub.h"
+#include "minijavab/core/ir/Instructions/Div.h"
 
 namespace MiniJavab {
 namespace Core {
@@ -16,8 +19,15 @@ namespace IR {
 IRBuilder::IRBuilder(BasicBlock* block)
     : Block(block) {}
 
-Value* IRBuilder::CreateRet(Value* value) {
+Value* IRBuilder::CreateRet() {
     Instruction* instruction = new RetInstruction();
+    Insert(instruction);
+
+    return instruction;
+}
+
+Value* IRBuilder::CreateRet(Value* value) {
+    Instruction* instruction = new RetInstruction(value);
     Insert(instruction);
 
     return instruction;
@@ -67,6 +77,27 @@ Value* IRBuilder::CreateMul(IR::Value* multiplicand, IR::Value* operand) {
 
 Value* IRBuilder::CreateXOR(IR::Value* x, IR::Value* y) {
     Instruction* instruction = new XORInstruction(x, y);
+    Insert(instruction);
+
+    return instruction;
+}
+
+Value* IRBuilder::CreateAdd(IR::Value* augend, IR::Value* addend) {
+    Instruction* instruction = new AddInstruction(augend, addend);
+    Insert(instruction);
+
+    return instruction;
+}
+
+Value* IRBuilder::CreateSub(IR::Value* minuend, IR::Value* subtrahend) {
+    Instruction* instruction = new SubInstruction(minuend, subtrahend);
+    Insert(instruction);
+
+    return instruction;
+}
+
+Value* IRBuilder::CreateDiv(IR::Value* dividend, IR::Value* divisor) {
+    Instruction* instruction = new DivInstruction(dividend, divisor);
     Insert(instruction);
 
     return instruction;

@@ -96,6 +96,15 @@ inline std::string GetInstructionName(const Opcode opcode) {
         case Opcode::XORValueImmediate:
         case Opcode::XORValueValue:
             return "xor";
+        case Opcode::AddValueImmediate:
+        case Opcode::AddValueValue:
+            return "add";
+        case Opcode::SubValueImmediate:
+        case Opcode::SubValueValue:
+            return "sub";
+        case Opcode::DivValueImmediate:
+        case Opcode::DivValueValue:
+            return "div";
         default:
             assert(false && "Instruction not added yet!");
     }

@@ -25,8 +25,7 @@ This document describes the typing rules for the MiniJava♭ programming languag
 |----------|---------|-----------|
 | `+`      | Integer | Integer   |
 | `-`      | Integer | Integer   |
-| `!`      | Integer | Integer   |
-|          | Boolean | Boolean   |
+| `!`      | Boolean | Boolean   |
 
 ### Examples
 

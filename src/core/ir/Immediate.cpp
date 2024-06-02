@@ -43,6 +43,10 @@ int32_t Immediate::GetI32() const {
     return cast::GetAsI32<uint64_t>(_value);
 }
 
+bool Immediate::GetBoolean() const {
+    return cast::GetAsBool<uint64_t>(_value);
+}
+
 bool Immediate::IsImmediate() const {
     return true;
 }

@@ -6,7 +6,7 @@ namespace MiniJavab {
 namespace Core {
 namespace IR {
 
-/// Represents an mul instruction
+/// Represents a mul instruction
 class MulInstruction : public Instruction {
     public:
         /// Constructs a mul instruction
@@ -21,7 +21,10 @@ class MulInstruction : public Instruction {
         /// @param out The stream to print to
         void Print(std::ostream& out = std::cerr) const override;
     private:
+        /// The value to be multiplied
         Value* _multiplicand;
+
+        /// The value to multiply the multiplicand by
         Value* _multiplier;
 };
 

@@ -51,6 +51,8 @@ class InstructionLowering {
         void LowerStatement(AST::ReturnStatementNode* statement);
         void LowerStatement(AST::WhileStatementNode* statement);
 
+        Core::IR::Value* LowerReturnExpression(AST::ExpNode* expression);
+
         Core::IR::Value* LowerExpression(AST::ExpNode* expression);
         Core::IR::Value* LowerExpression(AST::LiteralExpNode* expression);
         Core::IR::Value* LowerExpression(AST::BinaryExpNode* expression);

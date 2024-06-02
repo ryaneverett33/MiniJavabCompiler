@@ -18,8 +18,7 @@ class Immediate: public Value {
         uint32_t GetU32() const;
         int8_t GetI8() const;
         int32_t GetI32() const;
-        // todo
-        bool GetBoolean() const { return true; }
+        bool GetBoolean() const;
         // todo
         void Set(uint8_t value);
         // todo

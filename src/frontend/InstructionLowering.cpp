@@ -83,9 +83,15 @@ IR::Value* InstructionLowering::LowerExpression(AST::LiteralExpNode* expression)
 IR::Value* InstructionLowering::LowerExpression(AST::BinaryExpNode* expression) {
     IR::Value* leftHandSide = LowerExpression(expression->LeftSide);
     IR::Value* rightHandSide = LowerExpression(expression->RightSide);
-    
-    _builder->Block->ParentFunction->Dump();
-    assert(false ** "binary expression lowering not implemented yet");
+
+    switch (expression->Operator) {
+        case AST::OperatorType::Add: {
+            return _builder->CreateAdd(leftHandSide, rightHandSide);
+        }
+        default:
+            _builder->Block->ParentFunction->Dump();
+            assert(false ** "binary expression lowering not implemented yet");
+    }
 }
 
 IR::Value* InstructionLowering::LowerExpression(AST::ObjectExpNode* expression) {
@@ -121,17 +127,12 @@ IR::Value* InstructionLowering::LowerExpression(AST::UnaryExpNode* expression) {
             return _builder->CreateMul(loweredExpression, negativeOne);
         }
         case AST::OperatorType::BooleanNot: {
-            IR::Immediate* oneValue = nullptr;
-            if (loweredExpression->ValueType->IsBooleanType()) {
-                oneValue = new IR::Immediate(new IR::BooleanType(), true);
-                return _builder->CreateXOR(loweredExpression, oneValue);
-            }
-            else {
-                // TODO remove this and clean up the parsing
-                assert(false && "this isn't allowed");
-                // XOR 
-                // oneValue = IR::Immediate::ExtendValue(static_cast<IR::IntegerType*>(loweredExpression->ValueType), 1);
-            }
+            // We can perform the NOT operation by always XORing true
+            // false XOR false = false 
+            // false XOR true = true
+            // true XOR false = true
+            // true XOR true = false
+            return _builder->CreateXOR(loweredExpression, new IR::Immediate(new IR::BooleanType(), true));
         }
         default:
             assert(false && "unrecognized unary operator");
@@ -153,6 +154,14 @@ IR::Value* InstructionLowering::LowerExpression(AST::ExpNode* expression) {
             _builder->Block->ParentFunction->Dump();
             assert(false && "expression lowering not implemented yet");
     }
+}
+
+IR::Value* InstructionLowering::LowerReturnExpression(AST::ExpNode* expression) {
+    IR::Value* loweredExpression = expression != nullptr ? LowerExpression(expression) : nullptr;
+    if (expression != nullptr) {
+        return _builder->CreateRet(loweredExpression);
+    }
+    return _builder->CreateRet();
 }
 
 void InstructionLowering::LowerStatement(AST::AssignmentStatementNode* statement) {
@@ -244,9 +253,7 @@ void InstructionLowering::LowerFunction(ASTMethod* methodDefinition, Core::IR::F
     for (AST::StatementNode* statement : methodDefinition->MethodDecl->Statements) {
         LowerStatement(statement);
     }
-    if (methodDefinition->MethodDecl->ReturnExp != nullptr) {
-        methodDefinition->MethodDecl->ReturnExp->Dump();
-    }
+    LowerReturnExpression(methodDefinition->MethodDecl->ReturnExp);
 
     // clear state variables
     _methodDefinition = nullptr;

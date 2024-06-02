@@ -21,7 +21,12 @@ class IRBuilder {
         /// Create a Return Instruction
         /// @see RetInstruction::RetInstruction()
         /// @return The newly created Return Instruction
-        Value* CreateRet(Value* value=nullptr);
+        Value* CreateRet();
+
+        /// Create a Return Instruction
+        /// @see RetInstruction::RetInstruction(IR::Value*)
+        /// @return The newly created Return Instruction
+        Value* CreateRet(Value* value);
 
         /// Create a Allocation Instruction
         /// @see AllocInstruction::AllocInstruction()
@@ -59,6 +64,21 @@ class IRBuilder {
         /// @see XORInstruction::XORInstruction()
         /// @return The newly created XOR Instruction
         Value* CreateXOR(IR::Value* x, IR::Value* y);
+
+        /// Create an Add Instruction
+        /// @see AddInstruction::AddInstruction()
+        /// @return The newly created Add Instruction
+        Value* CreateAdd(IR::Value* augend, IR::Value* addend);
+
+        /// Create a Sub Instruction
+        /// @see SubInstruction::SubInstruction()
+        /// @return The newly created Sub Instruction
+        Value* CreateSub(IR::Value* minuend, IR::Value* subtrahend);
+
+        /// Create a Div Instruction
+        /// @see DivInstruction::DivInstruction()
+        /// @return The newly created Div Instruction
+        Value* CreateDiv(IR::Value* dividend, IR::Value* divisor);
 
         /// Wrapper function for inserting a created instruction into the block
         /// @see BasicBlock::AppendInstruction

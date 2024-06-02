@@ -334,7 +334,28 @@ AST::Type* TypeCheckProcedure::GetType(AST::ObjectExpNode* const node, ASTClass*
     assert(false && "Unrecognized object expression type");
 }
 AST::Type* TypeCheckProcedure::GetType(AST::UnaryExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
-    return GetType(node->Expression, classObject, methodObject);
+    AST::Type* type = GetType(node->Expression, classObject, methodObject);
+    switch (node->Operator) {
+        case AST::OperatorType::Add:
+            if (!type->IsIntegerType()) {
+                return FatalError("Unary Add operations only accept integers");
+            }
+            break;
+        case AST::OperatorType::Subtract:
+            if (!type->IsIntegerType()) {
+                return FatalError("Unary Subtract operations only accept integers");
+            }
+            break;
+        case AST::OperatorType::BooleanNot: {
+            if (!type->IsBooleanType()) {
+                return FatalError("Not operations only accept booleans");
+            }
+            break;
+        }
+        default:
+            return FatalError("Unknown unary operator");
+    }
+    return type;
 }
 
 void TypeCheckProcedure::TypeCheck(AST::AssignmentStatementNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
