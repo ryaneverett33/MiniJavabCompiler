@@ -93,8 +93,15 @@ IntrinsicFunction* Module::GetIntrinsic(std::string name) {
     // Check if the intrinsic has already been registered
     // If it has already been registered, return it
     // If it hasn't been registered, register it and then return it
-    if (name != MJ_PRINTLN_STR_INTRINSIC && name != MJ_PRINTLN_INT_INTRINSIC) {
+    if (name != MJ_PRINTLN_STR_INTRINSIC && 
+        name != MJ_PRINTLN_INT_INTRINSIC &&
+        name != MJ_NEW_INTRINSIC &&
+        name != MJ_DELETE_INTRINSIC) {
         throw std::invalid_argument("Unknown intrinsic!");
+    }
+
+    if (name == MJ_NEW_INTRINSIC || name == MJ_DELETE_INTRINSIC) {
+        throw std::invalid_argument("Used GetTypedIntrinsic to retrieve typed intrinsics");
     }
 
     // Check if the intrinsic has already been registered
@@ -122,6 +129,39 @@ IntrinsicFunction* Module::GetIntrinsic(std::string name) {
 
         addFunctionHelper(intrinsic);
         return intrinsic;
+    }
+
+    // if we get here, then a new intrinsic needs to be added or something horribly bad has happened
+    assert(false && "unreachable");
+}
+
+IntrinsicFunction* Module::GetTypedIntrinsic(std::string name, Type* type) {
+    if (name != MJ_NEW_INTRINSIC && name != MJ_DELETE_INTRINSIC) {
+        throw std::invalid_argument("Unknown typed intrinsic");
+    }
+
+    if (name == MJ_NEW_INTRINSIC) {
+
+        assert(type->IsStructType() && "mj.new intrinsic requires a StructType");
+        StructType* structType = static_cast<StructType*>(type);
+
+        // Check if the intrinsic already exists and return it if it does
+        std::string intrinsicName = MJ_NEW_INTRINSIC + "_" + structType->Name;
+        Function* function = GetFunctionByName(intrinsicName);
+        if (function != nullptr) {
+            return static_cast<IntrinsicFunction*>(function);
+        }
+
+        // Intrinsic doesn't already exist, add it
+        IntrinsicFunction* intrinsic = new IntrinsicFunction(intrinsicName, new FunctionType(
+            new PointerType(type), {}
+        ));
+
+        addFunctionHelper(intrinsic);
+        return intrinsic;
+    }
+    else if (name == MJ_DELETE_INTRINSIC) {
+        assert(false && "not implemented yet");
     }
 
     // if we get here, then a new intrinsic needs to be added or something horribly bad has happened

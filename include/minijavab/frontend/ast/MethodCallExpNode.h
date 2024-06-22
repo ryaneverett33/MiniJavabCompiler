@@ -5,7 +5,10 @@
 
 namespace MiniJavab {
 namespace Frontend {
+class ASTMethod;
+
 namespace AST {
+
 
 class MethodCallExpNode : public ExpNode {
     public:
@@ -25,6 +28,9 @@ class MethodCallExpNode : public ExpNode {
         ObjectNode* Object;
         std::string Method;
         std::vector<ExpNode*> Expressions;
+
+        /// The method that's being called
+        ASTMethod* CalledMethod = nullptr;
 };
 
 }}} // end namespace 

@@ -19,6 +19,8 @@ class Value;
 
 const std::string MJ_PRINTLN_STR_INTRINSIC = "mj.println.str";
 const std::string MJ_PRINTLN_INT_INTRINSIC = "mj.println.int";
+const std::string MJ_NEW_INTRINSIC = "mj.new";
+const std::string MJ_DELETE_INTRINSIC = "mj.delete";
 
 /// Describes a single module in the IR. A module is a single linkable object that contains
 /// functions, global variables, and unique types. A module may encompass multiple Compile Units. 
@@ -62,6 +64,13 @@ class Module {
         /// Lookup an intrinsic function. If the intrinsic doesn't exist, an exception will be thrown
         /// @return The intrinsic function
         IntrinsicFunction* GetIntrinsic(std::string name);
+
+        /// Lookup a typed intrinsic function. A type intrinsic function is a unique stub-based intrinsic
+        /// that uses typing information. If the intrinsic doesn't exist, an exception will be thrown
+        /// @param name The intrinsic function
+        /// @param type The type info associated with the intrinsic
+        /// @return The intrinsic function
+        IntrinsicFunction* GetTypedIntrinsic(std::string name, Type* type);
 
         /// Get the number of Functions in the Module
         /// @return The number of Functions in the Module

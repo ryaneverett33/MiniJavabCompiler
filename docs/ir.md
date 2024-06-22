@@ -31,6 +31,8 @@ IR language
 
 - mj.println.str vector<i32>* <arg> -> void
 - mj.println.int i32 <arg> -> void
+- mj.new <type> -> type*
+- mj.delete <value> -> void
 
 # Types
 
@@ -60,6 +62,7 @@ module "printIfTrue.java"
 
 func void @printIfTrue(%testClass* %self):
 entry:
+	%0 = mj.new %testClass
 	%self.local = alloc %testClass*
 	store %testClass* %self, %testClass** %self.local
 	%0 = load %testClass* %self.local

@@ -11,8 +11,9 @@ ASTVariable::ASTVariable(AST::VarDeclNode* varDecl)
     Type = varDecl->Type->ResolveType();
 }
 
-ASTMethod::ASTMethod(AST::MethodDeclNode* methodDecl)
-    : MethodDecl(methodDecl)
+ASTMethod::ASTMethod(AST::MethodDeclNode* methodDecl, ASTClass* parentClass)
+    : MethodDecl(methodDecl),
+    ParentClass(parentClass)
 {
     Name = methodDecl->Name;
     ReturnType = methodDecl->Type->ResolveType();
@@ -56,9 +57,8 @@ ASTClass::ASTClass(AST::ClassDeclNode* classDecl)
         _baseClassName = classDecl->BaseClass;
     }
 
-    // 
     for (AST::MethodDeclNode* methodDecl: ClassDecl->Methods) {
-        ASTMethod* method = new ASTMethod(methodDecl);
+        ASTMethod* method = new ASTMethod(methodDecl, this);
         Methods.insert({method->Name, method});
     }
     for (AST::VarDeclNode* variableDecl: ClassDecl->Variables) {

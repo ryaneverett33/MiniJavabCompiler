@@ -65,6 +65,40 @@ InstructionLowering::FunctionSymbolTable InstructionLowering::CreateLocalVariabl
     return functionSymbolTable;
 }
 
+IR::Value* InstructionLowering::LowerObject(AST::ObjectNode* object) {
+    assert(object->IsNamedObject() && "only named object expressions supported");
+
+    if (object->IsNamedObject()) {
+        AST::NamedObjectNode* namedObject = static_cast<AST::NamedObjectNode*>(object);
+        if (namedObject->IsNewObject()) {
+            IR::Module* mod = _function->GetContainingModule();
+
+            // look up the class type of the symbol being created
+            IR::StructType* classType = _converter->LookupClassType(namedObject->Name);
+            assert(classType && "Failed to find class information");
+
+            // call the intrinsic to create the new object
+            IR::Function* newIntrinsic = mod->GetTypedIntrinsic(IR::MJ_NEW_INTRINSIC, classType);
+            return _builder->CreateCall(newIntrinsic, {});
+        }
+        else {
+            // look up the symbol being referenced
+            // TODO: symbol finding needs to be redone
+            IR::Value* symbol;
+            FunctionSymbolTable::iterator search = _functionSymbolTable->find(namedObject->Name);
+            if (search != _functionSymbolTable->end()) {
+                symbol = (search->second->isParameter ? search->second->copiedSymbol->Value : search->second->Value);
+            }
+
+            // load the symbol
+            return _builder->CreateLoad(static_cast<IR::PointerType*>(symbol->ValueType)->ElementType, symbol);
+        }
+
+        assert(!namedObject->IsNewObject() && "not supported yet");
+    }
+    assert(false && "object expression not supported yet");
+}
+
 IR::Value* InstructionLowering::LowerExpression(AST::LiteralExpNode* expression) {
     if (expression->IsIntegerLiteral()) {
         AST::IntegerLiteralExpNode* integerLiteralNode = static_cast<AST::IntegerLiteralExpNode*>(expression);
@@ -100,21 +134,7 @@ IR::Value* InstructionLowering::LowerExpression(AST::BinaryExpNode* expression) 
 }
 
 IR::Value* InstructionLowering::LowerExpression(AST::ObjectExpNode* expression) {
-    assert(expression->Object->IsNamedObject() && "only named object expressions supported");
-
-    if (expression->Object->IsNamedObject()) {
-        AST::NamedObjectNode* namedObject = static_cast<AST::NamedObjectNode*>(expression->Object);
-        // look up the symbol being assigned to
-        // TODO: symbol finding needs to be redone
-        IR::Value* symbol;
-        FunctionSymbolTable::iterator search = _functionSymbolTable->find(namedObject->Name);
-        if (search != _functionSymbolTable->end()) {
-            symbol = (search->second->isParameter ? search->second->copiedSymbol->Value : search->second->Value);
-        }
-
-        return _builder->CreateLoad(static_cast<IR::PointerType*>(symbol->ValueType)->ElementType, symbol);
-    }
-    assert(false && "object expression not supported yet");
+    return LowerObject(expression->Object);
 }
 
 IR::Value* InstructionLowering::LowerExpression(AST::UnaryExpNode* expression) {
@@ -149,6 +169,30 @@ IR::Value* InstructionLowering::LowerExpression(AST::UnaryExpNode* expression) {
     return nullptr;
 }
 
+IR::Value* InstructionLowering::LowerExpression(AST::MethodCallExpNode* expression) {
+    IR::Module* mod = _function->GetContainingModule();
+
+    // Get the object we're calling
+    IR::Value* loadedObject = LowerObject(expression->Object);
+
+    // Set up the arguments for the call
+    std::vector<IR::Value*> arguments(1 + expression->Expressions.size());
+    // The first argument is always the object we're calling
+    arguments[0] = loadedObject;
+
+    for (size_t i = 0; i < expression->Expressions.size(); i++) {
+        arguments[i + 1] = LowerExpression(expression->Expressions[i]);
+    }
+
+    // Lookup the method to call
+    // todo: stow this away during AST parsing
+    ASTMethod* methodSymbol = expression->CalledMethod; 
+    IR::Function* calledFunction = mod->GetFunctionByName(methodSymbol->ParentClass->Name + "_" + methodSymbol->Name);
+
+    // finally create the call with our arguments
+    return _builder->CreateCall(calledFunction, arguments);
+}
+
 IR::Value* InstructionLowering::LowerExpression(AST::ExpNode* expression) {
     switch (expression->Kind) {
         case AST::ExpKind::Literal:
@@ -159,6 +203,8 @@ IR::Value* InstructionLowering::LowerExpression(AST::ExpNode* expression) {
             return LowerExpression(static_cast<AST::ObjectExpNode*>(expression));
         case AST::ExpKind::Unary:
             return LowerExpression(static_cast<AST::UnaryExpNode*>(expression));
+        case AST::ExpKind::MethodCall:
+            return LowerExpression(static_cast<AST::MethodCallExpNode*>(expression));
         default:
             _builder->Block->ParentFunction->Dump();
             assert(false && "expression lowering not implemented yet");

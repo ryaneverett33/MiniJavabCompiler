@@ -58,11 +58,17 @@ class InstructionLowering {
         Core::IR::Value* LowerExpression(AST::BinaryExpNode* expression);
         Core::IR::Value* LowerExpression(AST::ObjectExpNode* expression);
         Core::IR::Value* LowerExpression(AST::UnaryExpNode* expression);
+        Core::IR::Value* LowerExpression(AST::MethodCallExpNode* expression);
 
         /// Create any local variables needed for the function and save parameter values
         /// @param methodDefinition The AST definition of the function
         /// @return A symbol table for local variables/parameters used by this function
         FunctionSymbolTable CreateLocalVariables(ASTMethod* methodDefinition);
+
+        /// Lower an object reference to IR
+        /// @param object The object reference
+        /// @return The IR for the reference
+        Core::IR::Value* LowerObject(AST::ObjectNode* object);
 
     private:
         /// A reference to the main Converter object

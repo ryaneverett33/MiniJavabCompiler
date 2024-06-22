@@ -268,6 +268,7 @@ AST::Type* TypeCheckProcedure::GetType(AST::MethodCallExpNode* const node, ASTCl
     if (calledMethodObject == nullptr) {
         return FatalError("Method does not exist: " + node->Method);
     }
+    node->CalledMethod = calledMethodObject;
 
     // TODO make sure the arguments passed to the method are correct
     node->ExpressionType = calledMethodObject->ReturnType;

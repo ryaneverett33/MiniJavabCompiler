@@ -3,6 +3,7 @@
 #include "minijavab/frontend/ast/ast.h"
 #include "minijavab/frontend/ast/Type.h"
 #include "minijavab/frontend/InstructionLowering.h"
+#include "minijavab/frontend/PrimitiveTypes.h"
 
 #include "minijavab/core/ir/Module.h"
 #include "minijavab/core/ir/IntegerConstant.h"
@@ -24,16 +25,16 @@ ASTConverter::ASTConverter(ASTClassTable* table, std::string fileName)
 IR::Type* ASTConverter::ResolveASTType(AST::Type* type) {
     switch (type->GetKind()) {
         case AST::TypeKind::Integer:
-            return new IR::IntegerType(32);
+            return PrimitiveTypes::Int();
         case AST::TypeKind::Void:
             return new IR::VoidType();
         case AST::TypeKind::String:
             return IR::StringType();
         case AST::TypeKind::Boolean:
-            return new IR::BooleanType();
+            return PrimitiveTypes::Boolean();
         case AST::TypeKind::Object: {
             AST::ObjectType* objectType = static_cast<AST::ObjectType*>(type);
-            return _classTypeTable.find(objectType->TypeName)->second;
+            return PrimitiveTypes::ClassType(_classTypeTable.find(objectType->TypeName)->second);
         }
         case AST::TypeKind::Method: {
             // todo this isn't used?
@@ -148,6 +149,14 @@ void ASTConverter::CreateClassTypes() {
     }
 }
 
+Core::IR::StructType* ASTConverter::LookupClassType(std::string className) {
+    std::unordered_map<std::string, Core::IR::StructType*>::iterator result = _classTypeTable.find(className);
+    if (result != _classTypeTable.end()) {
+        return result->second;
+    }
+    return nullptr;
+}
+
 void ASTConverter::CreateClassMetadata() {
     CreateMetadataTypes();
 
@@ -229,6 +238,17 @@ void ASTConverter::CreateFunctionSignatures() {
             std::vector<std::string> parameterNames;
             parameterTypes.reserve(methodDefinition->Parameters.size());
             parameterNames.reserve(methodDefinition->Parameters.size());
+
+            // Resolve the "this" variable
+            if (!methodDefinition->MethodDecl->IsMainMethod()) {
+                parameterTypes.reserve(1 + parameterTypes.capacity());
+                parameterNames.reserve(1 + parameterNames.capacity());
+
+                parameterTypes.push_back(PrimitiveTypes::ClassType(_classTypeTable.find(className)->second));
+                parameterNames.push_back("this");
+            }
+
+            // The rest of the parameters are given by the method signature
             for (auto& [parameterName, parameterDefinition] : methodDefinition->Parameters) {
                 parameterTypes.push_back(ResolveASTType(parameterDefinition->Type));
                 parameterNames.push_back(parameterName);

@@ -32,6 +32,11 @@ class ASTConverter {
         /// @param type The AST Type to resolve
         /// @return The new IR type
         Core::IR::Type* ResolveASTType(Frontend::AST::Type* type);
+
+        /// Lookup an IR type for a given class
+        /// @param className The class name to lookup
+        /// @return The IR type or nullptr if the class is unknown
+        Core::IR::StructType* LookupClassType(std::string className);
     protected:
         /// Creates the metadata global variables for the AST
         void CreateClassMetadata();
