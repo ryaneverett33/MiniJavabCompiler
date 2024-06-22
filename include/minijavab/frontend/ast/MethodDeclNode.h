@@ -16,6 +16,7 @@ class MethodDeclNode : public Node {
         MethodDeclNode(TypeNode* type, std::string name, std::vector<VarDeclNode*> parameters, 
                         std::vector<VarDeclNode*> variables, std::vector<StatementNode*> statements, ExpNode* returnExp);
         void Str(std::ostream& out) override;
+        virtual bool IsMainMethod() const { return false; }
 
         TypeNode* Type;
         std::string Name;
@@ -36,6 +37,7 @@ class MainMethodDeclNode : public MethodDeclNode {
                                         {}, { statement }, nullptr),
                         ParameterName(parameterName),
                         Statement(statement) {}
+        bool IsMainMethod() const override { return true; }
 
         std::string ParameterName;
         StatementNode* Statement;

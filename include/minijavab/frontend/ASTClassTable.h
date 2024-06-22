@@ -8,6 +8,9 @@ namespace MiniJavab {
 namespace Frontend {
 
 class ASTClassTable;
+class ASTVariable;
+class ASTMethod;
+class ASTClass;
 
 class ASTVariable {
     public:
@@ -25,7 +28,7 @@ class ASTVariable {
 
 class ASTMethod {
     public:
-        ASTMethod(AST::MethodDeclNode* methodDecl);
+        ASTMethod(AST::MethodDeclNode* methodDecl, ASTClass* parentClass);
 
         /// Lookup a local method variable by it's name. Local method variables are scoped to the method
         /// and are not valid in a class context.
@@ -47,6 +50,9 @@ class ASTMethod {
 
         // The AST Node of the method declaration
         AST::MethodDeclNode* MethodDecl;
+
+        /// The class containing this method
+        ASTClass* ParentClass;
 
         // All defined variables in the method stored by Name
         std::unordered_map<std::string, ASTVariable*> Variables;

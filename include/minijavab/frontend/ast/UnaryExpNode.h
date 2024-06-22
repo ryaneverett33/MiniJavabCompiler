@@ -13,7 +13,11 @@ class UnaryExpNode : public ExpNode {
             Expression->Str(out);
         }
   
+        /// The expression operation type
+        /// @note Only Add, Subtract, and BooleanNot are valid
         OperatorType Operator;
+
+        /// The expression to perform the operation on
         ExpNode* Expression;
 };
 

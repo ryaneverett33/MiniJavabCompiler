@@ -25,7 +25,16 @@ target_include_directories(cmdline PUBLIC include/)
 
 set(INSTRUCTIONS
     src/core/ir/Instructions/Alloc.cpp
-    src/core/ir/Instructions/Store.cpp)
+    src/core/ir/Instructions/Store.cpp
+    src/core/ir/Instructions/Load.cpp
+    src/core/ir/Instructions/GetPtr.cpp
+    src/core/ir/Instructions/Call.cpp
+    src/core/ir/Instructions/Mul.cpp
+    src/core/ir/Instructions/XOR.cpp
+    src/core/ir/Instructions/Add.cpp
+    src/core/ir/Instructions/Sub.cpp
+    src/core/ir/Instructions/Div.cpp
+    src/core/ir/Instructions/Ret.cpp)
 
 # Build Core target
 add_library(core SHARED
@@ -39,6 +48,7 @@ add_library(core SHARED
     src/core/ir/PointerConstant.cpp
     src/core/ir/GlobalVariable.cpp
     src/core/ir/Function.cpp
+    src/core/ir/IntrinsicFunction.cpp
     src/core/ir/BasicBlock.cpp
     src/core/ir/Module.cpp
     src/core/ir/Immediate.cpp
@@ -60,8 +70,7 @@ set (AST_SOURCES
     src/frontend/ast/ClassDeclNode.cpp
     src/frontend/ast/IfStatementNode.cpp
     src/frontend/ast/MethodCallExpNode.cpp
-    src/frontend/ast/Type.cpp
-)
+    src/frontend/ast/Type.cpp)
 add_library(ast SHARED ${AST_SOURCES})
 
 # Build flex/bison parser
@@ -83,7 +92,8 @@ add_library(frontend SHARED
     src/frontend/ASTClassTable.cpp
     src/frontend/TypeChecker.cpp
     src/frontend/Converter.cpp
-    src/frontend/InstructionLowering.cpp)
+    src/frontend/InstructionLowering.cpp
+    src/frontend/ImmediateFolder.cpp)
 
 target_include_directories(ast PUBLIC include/)
 target_include_directories(core PUBLIC include/)

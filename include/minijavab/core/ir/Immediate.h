@@ -12,24 +12,18 @@ class Immediate: public Value {
 
         void Print(std::ostream& out) const override;
 
-        // todo
+        bool IsImmediate() const override;
+
         uint8_t GetU8() const;
-        // todo
         uint32_t GetU32() const;
-        // todo
         int8_t GetI8() const;
-        // todo
         int32_t GetI32() const;
-        // todo
-        bool GetBoolean() const { return true; }
-        // todo
+        bool GetBoolean() const;
         void Set(uint8_t value);
-        // todo
         void Set(uint32_t value);
-        // todo
         void Set(int8_t value);
-        // todo
         void Set(int32_t value);
+        void Set(bool value);
 
     protected:
         /// The raw uncasted integer value

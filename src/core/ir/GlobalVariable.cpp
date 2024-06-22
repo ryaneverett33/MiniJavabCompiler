@@ -5,8 +5,7 @@ namespace Core {
 namespace IR {
 
 GlobalVariable::GlobalVariable(std::string name, Constant* initializer)
-                            : Value(initializer != nullptr ? initializer->ValueType : nullptr),
-                            Name(name),
+                            : Value(initializer != nullptr ? initializer->ValueType : nullptr, name),
                             Initializer(initializer) {}
 
 void GlobalVariable::Print(std::ostream& out) const {

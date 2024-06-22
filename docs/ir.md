@@ -17,6 +17,7 @@ IR language
 - div <type> <value>, <type> {<value> || <immediate>} -> <type>
 - or  <type> <value>, <type> {<value> || <immediate>} -> <type>
 - and <type> <value>, <type> {<value> || <immediate>} -> <type>
+- xor <type> <value>, <type> {<value> || <immediate>} -> <type>
 
 ## Memory Operations
 
@@ -28,8 +29,10 @@ IR language
 
 # Intrinsics
 
-- mj.println vector<i32>* <arg> -> void
-- mj.factorial <arg> -> i32
+- mj.println.str vector<i32>* <arg> -> void
+- mj.println.int i32 <arg> -> void
+- mj.new <type> -> type*
+- mj.delete <value> -> void
 
 # Types
 
@@ -59,12 +62,13 @@ module "printIfTrue.java"
 
 func void @printIfTrue(%testClass* %self):
 entry:
+	%0 = mj.new %testClass
 	%self.local = alloc %testClass*
 	store %testClass* %self, %testClass** %self.local
 	%0 = load %testClass* %self.local
 	%1 = getptr bool* %0, 1
 	%2 = load bool %1
-	%3 = cmp eq, %2, true
+	%3 = cmp eq, bool %2, bool true
 	br_if %label1
 	br %label2
 label1:

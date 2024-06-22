@@ -25,8 +25,7 @@ This document describes the typing rules for the MiniJava♭ programming languag
 |----------|---------|-----------|
 | `+`      | Integer | Integer   |
 | `-`      | Integer | Integer   |
-| `!`      | Integer | Integer   |
-|          | Boolean | Boolean   |
+| `!`      | Boolean | Boolean   |
 
 ### Examples
 
@@ -44,11 +43,11 @@ This document describes the typing rules for the MiniJava♭ programming languag
 | `&&`     | Boolean | Boolean | Boolean   |
 | `\|\|`   | Boolean | Boolean | Boolean   |
 | `!=`     | Boolean | Boolean | Boolean   |
-|          | Integer | Integer | Integer   |
-| `<=`     | Integer | Integer | Integer   |
-| `>=`     | Integer | Integer | Integer   |
-| `<`      | Integer | Integer | Integer   |
-| `>`      | Integer | Integer | Integer   |
+|          | Integer | Integer | Boolean   |
+| `<=`     | Integer | Integer | Boolean   |
+| `>=`     | Integer | Integer | Boolean   |
+| `<`      | Integer | Integer | Boolean   |
+| `>`      | Integer | Integer | Boolean   |
 | `+`      | Integer | Integer | Integer   |
 | `-`      | Integer | Integer | Integer   |
 | `*`      | Integer | Integer | Integer   |

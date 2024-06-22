@@ -8,13 +8,13 @@ namespace MiniJavab {
 namespace Core {
 namespace IR {
 
-/// Represents an Allocation Instruction for allocating space for a local variable
-class AllocInstruction : public Instruction {
+/// Represents a load Instruction for loading memory from a pointer
+class LoadInstruction : public Instruction {
     public:
-        /// Create an alloc instruction that allocates space for a given type
-        /// @param localType The type to allocate space for/the local variable type
-        /// @param name The name of the yielded value/local variable
-        AllocInstruction(IR::Type* localType, std::string name);
+        /// Create a load instruction that loads memory of a given type from a pointer
+        /// @param type The type of the memory to load
+        /// @param pointer The pointer to the memory to load
+        LoadInstruction(IR::Type* type, IR::Value* pointer);
 
         bool YieldsValue() const override { return true; }
 
@@ -22,6 +22,9 @@ class AllocInstruction : public Instruction {
         /// Useful for chaining multiple Print() calls into one
         /// @param out The stream to print to
         void Print(std::ostream& out = std::cerr) const override;
+
+    private:
+        IR::Value* _pointer;
 };
 
 }}} // end namespace

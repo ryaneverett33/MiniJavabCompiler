@@ -13,7 +13,7 @@ enum class OperatorType {
     Subtract,
     Multiply,
     Divide,
-    Factorial,
+    BooleanNot,
     BooleanAnd,
     BooleanOr,
     LessThan,
@@ -55,7 +55,7 @@ class ExpNode : public Node {
                     return "*";
                 case OperatorType::Divide:
                     return "/";
-                case OperatorType::Factorial:
+                case OperatorType::BooleanNot:
                     return "!";
                 case OperatorType::BooleanAnd:
                     return "&&";

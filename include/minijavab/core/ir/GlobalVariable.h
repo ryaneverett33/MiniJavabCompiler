@@ -24,9 +24,6 @@ class GlobalVariable : public Value {
         /// @param out The stream to print to
         void Print(std::ostream& out = std::cerr) const;
 
-        /// The unique name of this variable
-        std::string Name;
-
         /// The constant value to initialize this variable with
         Constant* Initializer;
 };

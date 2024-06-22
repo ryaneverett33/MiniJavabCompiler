@@ -37,6 +37,7 @@ std::string BooleanType::GetString() const {
     return "bool";
 }
 bool BooleanType::IsBooleanType() const { return true; }
+bool BooleanType::IsIntegerType() const { return false; }
 TypeKind BooleanType::GetTypeKind() const {
     return TypeKind::Boolean;
 }

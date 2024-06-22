@@ -86,6 +86,7 @@ class BooleanType : public IntegerType {
 
         virtual std::string GetString() const override;
         virtual bool IsBooleanType() const override;
+        virtual bool IsIntegerType() const override;
         virtual TypeKind GetTypeKind() const override;
 };
 
