@@ -7,6 +7,8 @@
 
 namespace MiniJavab {
 namespace Frontend {
+class ASTClass;
+
 namespace AST {
 
 class ClassDeclNode : public Node {
@@ -21,6 +23,9 @@ class ClassDeclNode : public Node {
         std::vector<MethodDeclNode*> Methods;
 
         void Str(std::ostream& out) override;
+
+        /// The symbol table information describing this class
+        ASTClass* ClassInfo = nullptr;
 };
 
 }}} // end namespace

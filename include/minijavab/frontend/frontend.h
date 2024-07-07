@@ -31,8 +31,9 @@ AST::Node* ParseProgramFile(std::filesystem::path fileName, std::ostream& errs=s
 
 /// Loads class information for a parsed AST
 /// @param tree The parsed AST to load information from
+/// @param errs An output stream for reporting error messages
 /// @return A populated ASTClassTable object
-ASTClassTable* LoadClassTableFromAST(AST::Node* tree);
+ASTClassTable* LoadClassTableFromAST(AST::Node* tree, std::ostream& errs=std::cerr);
 
 Core::IR::Module* LoadProgramFile(std::filesystem::path fileName, std::ostream& errs=std::cerr);
 

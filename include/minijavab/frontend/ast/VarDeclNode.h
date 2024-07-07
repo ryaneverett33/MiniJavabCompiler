@@ -4,6 +4,8 @@
 
 namespace MiniJavab {
 namespace Frontend {
+class ASTVariable;
+
 namespace AST {
 
 class VarDeclNode : public Node {
@@ -14,6 +16,9 @@ class VarDeclNode : public Node {
 
         TypeNode* Type;
         std::string Name;
+
+        /// A reference to the variable in the symbol table
+        ASTVariable* VariableInfo = nullptr;
 };
 
 }}} // end namespace

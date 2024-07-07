@@ -5,6 +5,8 @@
 
 namespace MiniJavab {
 namespace Frontend {
+class ASTVariable;
+
 namespace AST {
 
 class LengthExpNode : public ExpNode {
@@ -29,6 +31,9 @@ class LengthExpNode : public ExpNode {
 
         std::string Name;
         IndexNode* Index;
+
+        /// The object being referenced
+        ASTVariable* ObjectInfo = nullptr;
 };
 
 }}} // end namespace 

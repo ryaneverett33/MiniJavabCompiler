@@ -5,6 +5,8 @@
 
 namespace MiniJavab {
 namespace Frontend {
+class ASTVariable;
+
 namespace AST {
 
 class AssignmentStatementNode : public StatementNode {
@@ -22,6 +24,9 @@ class AssignmentStatementNode : public StatementNode {
 
         std::string Name;
         ExpNode* Expression;
+
+        /// The variable we're assigning the result of expression to
+        ASTVariable* AssignedVariable = nullptr;
 };
 class AssignmentIndexStatementNode : public AssignmentStatementNode {
     public:

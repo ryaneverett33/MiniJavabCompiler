@@ -224,12 +224,12 @@ statement: "{" statementlist[list] "}" { $$ = new NestedStatementsNode($list); }
       | "{" "}" { $$ = new NestedStatementsNode({});}
       | IF "(" exp ")" statement[ifState] ELSE statement[elseState] { $$ = new IfStatementNode($exp, $ifState, $elseState); }
       | WHILE "(" exp ")" statement[state] { $$ = new WhileStatementNode($exp, $state); }
-      | PRINTLN "(" exp ")" ";" { $$ = new PrintExpStatementNode($exp, true); }
-      | PRINTLN "(" STRING_LITERAL[string] ")" ";" { $$ = new PrintStringStatementNode($string, true); }
-      | PRINT "(" exp ")" ";" { $$ = new PrintExpStatementNode($exp); }
-      | PRINT "(" STRING_LITERAL[string] ")" ";" { $$ = new PrintStringStatementNode($string); }
+      | PRINTLN "(" exp ")" ";" { $$ = new PrintStatementNode($exp, true); }
+      | PRINT "(" exp ")" ";" { $$ = new PrintStatementNode($exp); }
       | ID "=" exp ";" { $$ = new AssignmentStatementNode($ID, $exp); }
       | ID index "=" exp ";" { $$ = new AssignmentIndexStatementNode($ID, $index, $exp); }
+      | objectb[object] "." ID[method] "(" explist ")" ";" { $$ = new MethodCallStatementNode(new MethodCallExpNode($object, $method, $explist)); }
+      | ID[object] "." ID[method] "(" explist ")" ";" { $$ = new MethodCallStatementNode(new MethodCallExpNode($object, $method, $explist)); }
       | RETURN exp ";" { $$ = new ReturnStatementNode($exp);}
       ;
 

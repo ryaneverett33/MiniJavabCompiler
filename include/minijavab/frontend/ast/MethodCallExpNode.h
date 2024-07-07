@@ -25,8 +25,13 @@ class MethodCallExpNode : public ExpNode {
             Expressions(expressions) {}
         void Str(std::ostream& out) override;
 
+        /// The object whose method is being called
         ObjectNode* Object;
+
+        /// The name of the method being called
         std::string Method;
+
+        /// Parameters to pass to the method invocation
         std::vector<ExpNode*> Expressions;
 
         /// The method that's being called

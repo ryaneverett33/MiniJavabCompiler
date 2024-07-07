@@ -6,6 +6,8 @@
 
 namespace MiniJavab {
 namespace Frontend {
+class ASTVariable;
+
 namespace AST {
 
 class NewObjectNode : public NamedObjectNode {
@@ -16,6 +18,9 @@ class NewObjectNode : public NamedObjectNode {
             out << "new " << Name << "()";
         }
         virtual bool IsNewObject() override { return true; }
+
+        /// Class Info about the object being created
+        ASTClass* ObjectInfo = nullptr;
 };
 
 class NewArrayObjectNode : public ObjectNode {
@@ -33,6 +38,9 @@ class NewArrayObjectNode : public ObjectNode {
 
         TypeNode* Type;
         IndexNode* Index;
+
+        /// Class Info about the object being created
+        ASTClass* ObjectInfo = nullptr;
 };
 
 }}} // end namespace 

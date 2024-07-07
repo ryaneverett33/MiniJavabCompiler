@@ -6,6 +6,8 @@
 
 namespace MiniJavab {
 namespace Frontend {
+class ASTMethod;
+
 namespace AST {
 
 enum class OperatorType {
@@ -90,6 +92,9 @@ class ExpNode : public Node {
 
         /// The Type of this expression deduced during typechecking
         std::optional<AST::Type*> ExpressionType = std::nullopt;
+
+        /// The method that contains this expression
+        ASTMethod* ParentMethod = nullptr;
 };
 
 }}} // end namespace

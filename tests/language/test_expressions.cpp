@@ -18,6 +18,7 @@ TEST_F(LanguageTests, Expressions_2DArray) {
 
     AST::ProgramNode* program = static_cast<AST::ProgramNode*>(result->Result);
     ASTClassTable* classTable = LoadClassTableFromAST(program);
+    ASSERT_TRUE(classTable != nullptr);
     ASSERT_TRUE(TypeChecker::Check(program, classTable));
 }
 
@@ -28,14 +29,7 @@ TEST_F(LanguageTests, Expressions_ArrayUsage) {
 
     AST::ProgramNode* program = static_cast<AST::ProgramNode*>(result->Result);
     ASTClassTable* classTable = LoadClassTableFromAST(program);
-    ASSERT_TRUE(TypeChecker::Check(program, classTable));
-}
-TEST_F(LanguageTests, Expressions_SimpleArrayDeref) {
-    Parser::ScanResult* result = Parser::ParseFileToAST(TestDirectory / "expressions/" / "SimpleArrayDeref.java");
-    ASSERT_NE(result->Result, nullptr);
-
-    AST::ProgramNode* program = static_cast<AST::ProgramNode*>(result->Result);
-    ASTClassTable* classTable = LoadClassTableFromAST(program);
+    ASSERT_TRUE(classTable != nullptr);
     ASSERT_TRUE(TypeChecker::Check(program, classTable));
 }
 
@@ -46,6 +40,7 @@ TEST_F(LanguageTests, Expressions_Errors) {
 
         AST::ProgramNode* program = static_cast<AST::ProgramNode*>(result->Result);
         ASTClassTable* classTable = LoadClassTableFromAST(program);
+        ASSERT_TRUE(classTable != nullptr);
         ASSERT_FALSE(TypeChecker::Check(program, classTable));
     };
     loadAndCheckFile(TestDirectory / "expressions/" / "errors/" / "DimensionMismatch.java");

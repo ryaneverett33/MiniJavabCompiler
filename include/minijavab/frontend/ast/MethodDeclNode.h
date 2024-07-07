@@ -9,6 +9,8 @@
 
 namespace MiniJavab {
 namespace Frontend {
+class ASTMethod;
+
 namespace AST {
 
 class MethodDeclNode : public Node {
@@ -23,6 +25,9 @@ class MethodDeclNode : public Node {
         std::vector<VarDeclNode*> Parameters;
         std::vector<VarDeclNode*> Variables;
         std::vector<StatementNode*> Statements;
+
+        /// The symbol table information describing this method
+        ASTMethod* MethodInfo = nullptr;
 
         /// The value expression being returned by this method.
         /// @note Void-type functions (like `main`) don't have return expressions, so this will be nullptr
