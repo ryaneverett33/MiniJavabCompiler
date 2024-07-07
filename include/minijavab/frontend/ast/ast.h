@@ -25,3 +25,4 @@
 #include "minijavab/frontend/ast/PrintStatementNode.h"
 #include "minijavab/frontend/ast/ReturnStatementNode.h"
 #include "minijavab/frontend/ast/AssignmentStatementNode.h"
+#include "minijavab/frontend/ast/MethodCallStatementNode.h"

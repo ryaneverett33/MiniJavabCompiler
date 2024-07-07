@@ -241,12 +241,16 @@ void InstructionLowering::LowerStatement(AST::NestedStatementsNode* statement) {
 }
 void InstructionLowering::LowerStatement(AST::PrintStatementNode* statement) {
     IR::Module* mod = _function->GetContainingModule();
+    AST::LiteralExpNode* literalExpression = nullptr;
+    if (statement->Expression->IsLiteralExpression()) {
+        literalExpression = static_cast<AST::LiteralExpNode*>(statement->Expression);
+    }
 
-    if (statement->IsPrintStringStatement()) {
-        AST::PrintStringStatementNode* stringStatement = static_cast<AST::PrintStringStatementNode*>(statement);
+    if (statement->Expression->IsLiteralExpression() && literalExpression->IsStringLiteral()) {
+        AST::StringLiteralExpNode* stringLiteral = static_cast<AST::StringLiteralExpNode*>(literalExpression);
 
         // Create a new global variable storing the string to print
-        IR::GlobalVariable* constant = mod->AddStringConstant(stringStatement->String);
+        IR::GlobalVariable* constant = mod->AddStringConstant(stringLiteral->Value);
 
         // Call the print intrinsic with a pointer to the global string
         IR::Value* stringPointer = _builder->CreateGetPtr(constant);
@@ -254,10 +258,8 @@ void InstructionLowering::LowerStatement(AST::PrintStatementNode* statement) {
         _builder->CreateCall(printFunction, {stringPointer});
     }
     else {
-        AST::PrintExpStatementNode* expStatement = static_cast<AST::PrintExpStatementNode*>(statement);
-
         // Lower the expression and call the print intrinsic
-        IR::Value* immediate = LowerExpression(expStatement->Expression);
+        IR::Value* immediate = LowerExpression(statement->Expression);
         IR::Function* printFunction = mod->GetIntrinsic(IR::MJ_PRINTLN_INT_INTRINSIC);
         _builder->CreateCall(printFunction, {immediate});
     }

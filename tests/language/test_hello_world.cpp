@@ -14,5 +14,6 @@ TEST_F(LanguageTests, HelloWorld) {
 
     AST::ProgramNode* program = static_cast<AST::ProgramNode*>(result->Result);
     ASTClassTable* classTable = LoadClassTableFromAST(program);
+    ASSERT_TRUE(classTable != nullptr);
     ASSERT_TRUE(TypeChecker::Check(program, classTable));
 }

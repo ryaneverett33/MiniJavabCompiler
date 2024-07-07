@@ -20,6 +20,10 @@ int main(int argc, char** argv) {
 
     // load the symbol information for typechecking
     Frontend::ASTClassTable* classTable = Frontend::LoadClassTableFromAST(tree);
+    if (classTable == nullptr) {
+        std::cerr << "Program failed to load class table\n";
+        return 2;
+    }
 
     // Perform typechecking
     if (Frontend::TypeChecker::Check(dynamic_cast<Frontend::AST::ProgramNode*>(tree), classTable)) {

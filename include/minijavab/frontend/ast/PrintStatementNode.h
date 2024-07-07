@@ -8,12 +8,25 @@ namespace AST {
 
 class PrintStatementNode : public StatementNode {
     public:
-        PrintStatementNode(bool newLine=false)
-        : StatementNode(StatementKind::Print),
-        NewLine(newLine) {}
-        virtual bool IsPrintStringStatement() { return false; }
-        virtual bool IsPrintExpressionStatement() { return false; }
+        PrintStatementNode(ExpNode* expression, bool newLine=false)
+            : StatementNode(StatementKind::Print),
+            Expression(expression),
+            NewLine(newLine) {}
 
+        void Str(std::ostream& out) override {
+            if (NewLine) {
+                out << "System.out.println";
+            }
+            else {
+                out << "System.out.print";
+            }
+
+            out << "(";
+            Expression->Str(out);
+            out << ");";
+        }
+
+        ExpNode* Expression;
         bool NewLine;
     protected:
         void MethodStr(std::ostream& out) {
@@ -24,38 +37,6 @@ class PrintStatementNode : public StatementNode {
                 out << "System.out.print";
             }
         }
-};
-
-class PrintStringStatementNode : public PrintStatementNode {
-    public:
-        PrintStringStatementNode(std::string string, bool newLine=false)
-        : PrintStatementNode(newLine),
-        String(string) {}
-        
-        void Str(std::ostream& out) override {
-            PrintStatementNode::MethodStr(out);
-            out << "(" << "\"" << String << "\";";
-        }
-        bool IsPrintStringStatement() override { return true; }
-
-        std::string String;
-};
-
-class PrintExpStatementNode : public PrintStatementNode {
-    public:
-        PrintExpStatementNode(ExpNode* expression, bool newLine=false)
-        : PrintStatementNode(newLine),
-        Expression(expression) {}
-
-        void Str(std::ostream& out) override {
-            PrintStatementNode::MethodStr(out);
-            out << "(";
-            Expression->Str(out);
-            out << ");";
-        }
-        bool IsPrintExpressionStatement() override { return true; }
-
-        ExpNode* Expression;
 };
 
 }}} // end namespace

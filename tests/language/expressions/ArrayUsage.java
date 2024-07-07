@@ -11,6 +11,7 @@ class Runner {
         returner r;
         int[] arr;
         boolean[] hello;
+
         a = new arguments();
         r = new returner();
         arr = new int[5];

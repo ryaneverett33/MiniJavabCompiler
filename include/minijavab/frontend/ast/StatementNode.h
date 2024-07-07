@@ -5,6 +5,8 @@
 
 namespace MiniJavab {
 namespace Frontend {
+class ASTMethod;
+
 namespace AST {
 
 enum class StatementKind {
@@ -13,7 +15,8 @@ enum class StatementKind {
     Nested,
     Print,
     Return,
-    While
+    While,
+    MethodCall
 };
 
 class StatementNode : public Node {
@@ -29,8 +32,12 @@ class StatementNode : public Node {
         bool IsPrintStatement() { return Kind == StatementKind::Print; }
         bool IsReturnStatement() { return Kind == StatementKind::Return; }
         bool IsWhileStatement() { return Kind == StatementKind::While; }
+        bool IsMethodCallStatement() { return Kind == StatementKind::MethodCall;}
 
         StatementKind Kind;
+
+        /// The method containing this statement
+        ASTMethod* ParentMethod = nullptr;
 };
 
 }}} // end namespace

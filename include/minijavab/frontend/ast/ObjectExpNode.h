@@ -14,6 +14,7 @@ class ObjectExpNode : public ExpNode {
             Object(object) {}
         void Str(std::ostream& out) override { Object->Str(out); }
 
+        /// The object being referenced
         ObjectNode* Object;
 };
 

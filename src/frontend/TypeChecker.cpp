@@ -29,6 +29,17 @@ struct TypeCheckProcedure {
     void TypeCheck(AST::MethodDeclNode* const node, ASTClass* const classObject);
     void TypeCheck(AST::ClassDeclNode* const node);
 
+    void Resolve(AST::AssignmentStatementNode* const node);
+
+    void Resolve(AST::LengthExpNode* const node);
+    void Resolve(AST::IndexExpNode* const node);
+    void Resolve(AST::MethodCallExpNode* const node);
+    void Resolve(AST::ObjectExpNode* const node);
+
+    void Resolve(AST::ExpNode* const node, ASTMethod* const parentMethod);
+    void Resolve(AST::StatementNode* const node, ASTMethod* const parentMethod);
+    void Resolve(AST::ClassDeclNode* const node);
+
     void Error(std::string message);
 
     ASTClassTable* const Table;
@@ -49,11 +60,283 @@ ASTVariable* findVariableOrParameter(std::string name, ASTClass* const classObje
     return nullptr;
 }
 
+ASTVariable* findVariableSymbol(std::string name, ASTMethod* const containingMethod) {
+    // check for symbol existence by parameter, variable, class variable
+    if (ASTVariable* parameter = containingMethod->GetParameter(name)) {
+        return parameter;
+    }
+    else if (ASTVariable* functionVariable = containingMethod->GetVariable(name)) {
+        return functionVariable;
+    }
+    else if (ASTVariable* classVariable = containingMethod->ParentClass->GetVariable(name)) {
+        return classVariable;
+    }
+    return nullptr;
+}
+
+
+
 AST::Type* TypeCheckProcedure::FatalError(std::string message) {
     ValidCheck = false;
     Errs << message << "\n";
     return nullptr;
 }
+
+void TypeCheckProcedure::Resolve(AST::LengthExpNode* const node) {    
+    ASTVariable* symbol = findVariableSymbol(node->Name, node->ParentMethod);
+    if (symbol == nullptr) {
+        FatalError("cannot find symbol: '" + node->Name + "'");
+        return;
+    }
+
+    node->ObjectInfo = symbol;
+}
+
+void TypeCheckProcedure::Resolve(AST::IndexExpNode* const node) {
+    ASTVariable* symbol = findVariableSymbol(node->Object, node->ParentMethod);
+    if (symbol == nullptr) {
+        FatalError("cannot find symbol: '" + node->Object + "'");
+        return;
+    }
+
+    node->ObjectInfo = symbol;
+}
+
+void TypeCheckProcedure::Resolve(AST::MethodCallExpNode* const node) {
+    ASTClass* objectClass = node->Object->ClassInfo;
+
+    // Resolve the class information of the symbol we're calling (if it hasn't already been found)
+    if (objectClass == nullptr) {
+        if (node->Object->IsThisObject()) {
+            objectClass = node->ParentMethod->ParentClass;
+        }
+        else if (node->Object->IsNamedObject()) {
+            AST::NamedObjectNode* namedObject = static_cast<AST::NamedObjectNode*>(node->Object);
+            if (node->Object->ClassInfo == nullptr) {
+                if (namedObject->IsNewObject()) {
+                    AST::NewObjectNode* newObject = static_cast<AST::NewObjectNode*>(namedObject);
+                    newObject->ClassInfo = Table->GetClass(newObject->Name);
+                    if (newObject->ClassInfo == nullptr) {
+                        FatalError("cannot find class: '" + newObject->Name + "'");;
+                        return;
+                    }
+
+                    objectClass = newObject->ClassInfo;
+                }
+                else {
+                    ASTVariable* objectSymbol = findVariableSymbol(namedObject->Name, node->ParentMethod);
+                    if (objectSymbol == nullptr) {
+                        FatalError("cannot find symbol: '" + namedObject->Name + "'");
+                        return;
+                    }
+
+                    if (!objectSymbol->IsObjectType()) {
+                        FatalError("cannot find symbol: method '" + node->Method + '"');
+                        return;
+                    }
+
+                    objectClass = objectSymbol->ClassInfo;
+                    namedObject->Symbol = objectSymbol;
+                }
+            }
+        }
+        else {
+            FatalError("cannot invoke method on an array type");
+            return;
+        }
+    }
+
+    // Store away the class info of the symbol if it hasn't already been found
+    if (node->Object->ClassInfo == nullptr) {
+        node->Object->ClassInfo = objectClass;
+    }
+
+    // Find the method being called and stash it away
+    node->CalledMethod = objectClass->GetMethod(node->Method);
+    if (node->CalledMethod == nullptr) {
+        FatalError("cannot find symbol: method '" + node->Method + "'");
+        return;
+    }
+}
+
+void TypeCheckProcedure::Resolve(AST::ObjectExpNode* const node) {
+    if (node->Object->IsThisObject()) {
+        AST::ThisObjectNode* thisObject = static_cast<AST::ThisObjectNode*>(node->Object);
+        if (thisObject->ClassInfo == nullptr) {
+            thisObject->ClassInfo = node->ParentMethod->ParentClass;
+        }
+    }
+    else if (node->Object->IsNamedObject()) {
+        AST::NamedObjectNode* namedObject = static_cast<AST::NamedObjectNode*>(node->Object);
+
+        if (namedObject->ClassInfo == nullptr) {
+            // NOTE: same logic as MethodCall resolution
+            if (namedObject->IsNewObject()) {
+                AST::NewObjectNode* newObject = static_cast<AST::NewObjectNode*>(namedObject);
+                newObject->ClassInfo = Table->GetClass(namedObject->Name);
+                if (newObject->ClassInfo == nullptr) {
+                    FatalError("cannot find class: '" + newObject->Name + "'");;
+                    return;
+                }
+            }
+            else {
+                ASTVariable* objectSymbol = findVariableSymbol(namedObject->Name, node->ParentMethod);
+                if (objectSymbol == nullptr) {
+                    FatalError("cannot find symbol: '" + namedObject->Name + "'");
+                    return;
+                }
+
+                namedObject->ClassInfo = objectSymbol->ParentClass;
+                namedObject->Symbol = objectSymbol;
+            }
+        }
+    }
+    else if (node->Object->IsNewArray()) {
+        // do nothing, there is nothing to resolve
+    }
+}
+
+void TypeCheckProcedure::Resolve(AST::ExpNode* const node, ASTMethod* const parentMethod) {
+    node->ParentMethod = parentMethod;
+
+    switch (node->Kind) {
+        case AST::ExpKind::Binary: {
+            AST::BinaryExpNode* binaryExpression = static_cast<AST::BinaryExpNode*>(node);
+            Resolve(binaryExpression->LeftSide, parentMethod);
+            Resolve(binaryExpression->RightSide, parentMethod);
+            break;
+        }
+        case AST::ExpKind::Index: {
+            Resolve(static_cast<AST::IndexExpNode*>(node));
+            break;
+        }
+        case AST::ExpKind::LengthMethod: {
+            Resolve(static_cast<AST::LengthExpNode*>(node));
+            break;
+        }
+
+        case AST::ExpKind::MethodCall: {
+            Resolve(static_cast<AST::MethodCallExpNode*>(node));
+            break;
+        }
+        case AST::ExpKind::Nested: {
+            AST::NestedExpNode* nestedExpression = static_cast<AST::NestedExpNode*>(node);
+            Resolve(nestedExpression->Expression, parentMethod);
+            break;
+        }
+        case AST::ExpKind::Object: {
+            Resolve(static_cast<AST::ObjectExpNode*>(node));
+            break;
+        }
+        case AST::ExpKind::Unary: {
+            AST::UnaryExpNode* unaryExpression = static_cast<AST::UnaryExpNode*>(node);
+            Resolve(unaryExpression->Expression, parentMethod);
+            break;
+        }
+        case AST::ExpKind::Literal:
+            // do nothing
+            break;
+        default:
+            assert(false && "unknown expression kind for symbol resolution");
+    }
+}
+
+void TypeCheckProcedure::Resolve(AST::AssignmentStatementNode* const node) {
+    Resolve(node->Expression, node->ParentMethod);
+    
+    ASTVariable* symbol = findVariableSymbol(node->Name, node->ParentMethod);
+    if (symbol == nullptr) {
+        FatalError("cannot find symbol: '" + node->Name + "'");
+        return;
+    }
+
+    node->AssignedVariable = symbol;
+}
+
+void TypeCheckProcedure::Resolve(AST::StatementNode* const node, ASTMethod* const parentMethod) {
+    node->ParentMethod = parentMethod;
+    switch (node->Kind) {
+        case AST::StatementKind::Assignment:
+            Resolve(static_cast<AST::AssignmentStatementNode*>(node));
+            break;
+        case AST::StatementKind::If: {
+            AST::IfStatementNode* const ifNode = static_cast<AST::IfStatementNode*>(node);
+            Resolve(ifNode->IfStatement, parentMethod);
+            Resolve(ifNode->ElseStatement, parentMethod);
+            Resolve(ifNode->Expression, parentMethod);
+            break;
+        }
+        case AST::StatementKind::Nested: {
+            AST::NestedStatementsNode* const nestedStatements = static_cast<AST::NestedStatementsNode*>(node);
+            for (AST::StatementNode* nestedStatement : nestedStatements->Statements) {
+                Resolve(nestedStatement, parentMethod);
+            }
+            break;
+        }
+        case AST::StatementKind::Print: {
+            AST::PrintStatementNode* printStatement = static_cast<AST::PrintStatementNode*>(node);
+            Resolve(printStatement->Expression, parentMethod);
+            break;
+        }
+        case AST::StatementKind::Return: {
+            AST::ReturnStatementNode* const returnStatement = static_cast<AST::ReturnStatementNode*>(node);
+            Resolve(returnStatement->Expression, parentMethod);
+            break;
+        }
+        case AST::StatementKind::While: {
+            AST::WhileStatementNode* const whileStatement = static_cast<AST::WhileStatementNode*>(node);
+            Resolve(whileStatement->Statement, parentMethod);
+            Resolve(whileStatement->Expression, parentMethod);
+            break;
+        }
+        case AST::StatementKind::MethodCall: {
+            AST::MethodCallStatementNode* const methodCall = static_cast<AST::MethodCallStatementNode*>(node);
+            Resolve(methodCall->CallExpression, parentMethod);
+            break;
+        }
+        default:
+            assert(false && "unknown statement kind for symbol resolution!");
+    }
+}
+
+void TypeCheckProcedure::Resolve(AST::ClassDeclNode* const node) {
+    ASTClass* classInfo = Table->GetClass(node->Name);
+    assert(classInfo != nullptr && "Corrupted Symbol Table, can't find class");
+
+    // Assign class info for the class
+    node->ClassInfo = classInfo;
+
+    // Assign variable info for each variable
+    for (AST::VarDeclNode* const classVariable: node->Variables) {
+        classVariable->VariableInfo = classInfo->GetVariable(classVariable->Name);
+        assert(classVariable->VariableInfo != nullptr && "Corrupted Symbol Table, can't find class variable");
+    }
+
+    // Assign method info for each method and then perform resolution for references within the method
+    for (AST::MethodDeclNode* const classMethod: node->Methods) {
+        classMethod->MethodInfo = classInfo->GetMethod(classMethod->Name);
+        assert(classMethod->MethodInfo != nullptr && "Corrupted Symbol Table, can't find class method");
+
+        // Assign variable information for each parameter and declared variable
+        for (AST::VarDeclNode* const methodParameter: classMethod->Parameters) {
+            methodParameter->VariableInfo = classMethod->MethodInfo->GetParameter(methodParameter->Name);
+            assert(methodParameter->VariableInfo != nullptr && "Corrupted Symbol Table, can't find method parameter");
+        } 
+        for (AST::VarDeclNode* const methodVariable: classMethod->Variables) {
+            methodVariable->VariableInfo = classMethod->MethodInfo->GetVariable(methodVariable->Name);
+            assert(methodVariable->VariableInfo != nullptr && "Corrupted Symbol Table, can't find method variable");
+        }
+
+        // Perform symbol resolution for each statement and return expression
+        for (AST::StatementNode* const statement: classMethod->Statements) {
+            Resolve(statement, classMethod->MethodInfo);
+        }
+        if (classMethod->ReturnExp != nullptr) {
+            Resolve(classMethod->ReturnExp, classMethod->MethodInfo);
+        }
+    }
+}
+
 AST::Type* TypeCheckProcedure::GetType(AST::BinaryExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
     if (node->ExpressionType != std::nullopt) {
         return *(node->ExpressionType);
@@ -129,20 +412,7 @@ AST::Type* TypeCheckProcedure::GetType(AST::IndexExpNode* const node, ASTClass* 
         return *(node->ExpressionType);
     }
    
-    // check that the variable exists
-    ASTVariable* variable = nullptr;
-    if (ASTVariable* parameter = methodObject->GetParameter(node->Object)) {
-        variable = parameter;
-    }
-    else if (ASTVariable* methodVariable = methodObject->GetVariable(node->Object)) {
-        variable = methodVariable;
-    }
-    else if (ASTVariable* objectVariable = classObject->GetVariable(node->Object)) {
-        variable = objectVariable;
-    }
-    else {
-        return FatalError("Variable doesn't exist: " + node->Object);
-    }
+    ASTVariable* variable = node->ObjectInfo;
 
     // make sure the variable is an array type
     if (!variable->Type->IsArrayType()) {
@@ -166,11 +436,7 @@ AST::Type* TypeCheckProcedure::GetType(AST::IndexExpNode* const node, ASTClass* 
 }
 AST::Type* TypeCheckProcedure::GetType(AST::LengthExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
     if (node->ExpressionType == std::nullopt) {
-        // lookup the object
-        ASTVariable* parameter = findVariableOrParameter(node->Name, classObject, methodObject);
-        if (parameter == nullptr) {
-            return FatalError("Object does not exist: " + node->Name);
-        }
+        ASTVariable* parameter = node->ObjectInfo;
         if (!parameter->Type->IsArrayType()) {
             return FatalError("Can't use the \".length\" method on a non-array type: " + node->Name);
         }
@@ -204,64 +470,11 @@ AST::Type* TypeCheckProcedure::GetType(AST::MethodCallExpNode* const node, ASTCl
     }
     
     // load the class information for the object being called
-    ASTClass* calledObject = nullptr;
-    if (node->Object->IsThisObject()) {
-        calledObject = classObject;
-    }
-    else if (node->Object->IsNewArray()) {
+    if (node->Object->IsNewArray()) {
         // TODO implement
         assert(false && "typechecking for arrays not supported yet");
     }
-    else if (node->Object->IsNamedObject()) {
-        AST::NamedObjectNode* namedCalledObject = static_cast<AST::NamedObjectNode*>(node->Object);
-
-        if (namedCalledObject->IsNewObject()) {
-            AST::NewObjectNode* newObjectNode = dynamic_cast<AST::NewObjectNode*>(namedCalledObject);
-            calledObject = Table->GetClass(newObjectNode->Name);
-            if (calledObject == nullptr) {
-                return FatalError("Not an object type: " + newObjectNode->Name);
-            }
-        }
-        else {
-            // object could either be a variable or a parameter somewhere, we have to find it (if it's valid)
-            if (ASTVariable* parameter = methodObject->GetParameter(namedCalledObject->Name)) {
-                if (!parameter->Type->IsObjectType()) {
-                    return FatalError("Cannot invoke method on non-object type: " + namedCalledObject->Name);
-                }
-                AST::ObjectType* objType = dynamic_cast<AST::ObjectType*>(parameter->Type);
-                calledObject = Table->GetClass(objType->TypeName);
-                if (calledObject == nullptr) {
-                    return FatalError("Parameter has invalid type: " + namedCalledObject->Name);
-                }
-            }
-            else if (ASTVariable* methodVariable = methodObject->GetVariable(namedCalledObject->Name)) {
-                if (!methodVariable->Type->IsObjectType()) {
-                    return FatalError("Cannot invoke method on non-object type: " + namedCalledObject->Name);
-                }
-                AST::ObjectType* objType = dynamic_cast<AST::ObjectType*>(methodVariable->Type);
-                calledObject = Table->GetClass(objType->TypeName);
-                if (calledObject == nullptr) {
-                    return FatalError("Method variable has invalid type: " + namedCalledObject->Name);
-                }
-            }
-            else if (ASTVariable* classVariable = classObject->GetVariable(namedCalledObject->Name)) {
-                if (!methodVariable->Type->IsObjectType()) {
-                    return FatalError("Cannot invoke method on non-object type: " + namedCalledObject->Name);
-                }
-                AST::ObjectType* objType = dynamic_cast<AST::ObjectType*>(classVariable->Type);
-                calledObject = Table->GetClass(objType->TypeName);
-                if (calledObject == nullptr) {
-                    return FatalError("Method variable has invalid type: " + namedCalledObject->Name);
-                }
-            }
-            else {
-                // if it's not a method parameter, method variable, or a class variable then it's not a valid object to invoke upon
-                node->Dump();
-                return FatalError("Object is not valid: " + namedCalledObject->Name);
-            }
-        }
-    }
-    else { assert(false && "Unrecognized object type"); }
+    ASTClass* calledObject = node->Object->ClassInfo;
 
     // verify the method exists on the class
     ASTMethod* calledMethodObject = calledObject->GetMethod(node->Method);
@@ -279,34 +492,7 @@ AST::Type* TypeCheckProcedure::GetType(AST::ObjectExpNode* const node, ASTClass*
         return *(node->ExpressionType);
     }
     AST::ObjectNode* objectNode = node->Object;
-
-    if (objectNode->IsNamedObject()) {
-        AST::NamedObjectNode* namedObjectNode = dynamic_cast<AST::NamedObjectNode*>(objectNode);
-
-        if (namedObjectNode->IsNewObject()) {
-            // Verify the class exists
-            ASTClass* classDefinition = Table->GetClass(namedObjectNode->Name);
-            if (classDefinition == nullptr) {
-                return FatalError("Cannot construct object of type \"" + namedObjectNode->Name + "\", class doesn't exist");
-            }
-            node->ExpressionType = new AST::ObjectType(classDefinition->Name);
-            return *(node->ExpressionType);
-        }
-        else {
-            ASTVariable* variable = findVariableOrParameter(namedObjectNode->Name, classObject, methodObject);
-            // verify that the named class exists before accepting it's type
-            if (variable == nullptr) {
-                return FatalError("Not a valid object type: " + namedObjectNode->Name);
-            }
-            node->ExpressionType = variable->Type;
-            return *(node->ExpressionType);
-        }
-    }
-    else if (objectNode->IsThisObject()) {
-        node->ExpressionType = new AST::ObjectType(classObject->Name);
-        return *(node->ExpressionType);
-    }
-    else if (objectNode->IsNewArray()) {
+    if (objectNode->IsNewArray()) {
         AST::NewArrayObjectNode* newArrayNode = static_cast<AST::NewArrayObjectNode*>(objectNode);
         size_t dimensions = newArrayNode->Index->Expressions.size();
         if (newArrayNode->Type->IsBooleanType()) {
@@ -330,9 +516,22 @@ AST::Type* TypeCheckProcedure::GetType(AST::ObjectExpNode* const node, ASTClass*
             return FatalError("Cannot construct an array of this type");
         }
     }
-
-    node->Dump();
-    assert(false && "Unrecognized object expression type");
+    else if (objectNode->IsNamedObject()) {
+        AST::NamedObjectNode* namedObject = static_cast<AST::NamedObjectNode*>(objectNode);
+        if (namedObject->IsNewObject()) {
+            node->ExpressionType = objectNode->ClassInfo->Type;
+            return *(node->ExpressionType);
+        }
+        else {
+            node->ExpressionType = static_cast<AST::NamedObjectNode*>(objectNode)->Symbol->Type;
+            return *(node->ExpressionType);
+        }
+    }
+    else {
+        assert(false && "it happened");
+        node->ExpressionType = objectNode->ClassInfo->Type;
+        return *(node->ExpressionType);
+    }
 }
 AST::Type* TypeCheckProcedure::GetType(AST::UnaryExpNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
     AST::Type* type = GetType(node->Expression, classObject, methodObject);
@@ -360,21 +559,7 @@ AST::Type* TypeCheckProcedure::GetType(AST::UnaryExpNode* const node, ASTClass* 
 }
 
 void TypeCheckProcedure::TypeCheck(AST::AssignmentStatementNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
-    // verify the variable exists
-    AST::Type* variableType = nullptr;
-    if (ASTVariable* parameter = methodObject->GetParameter(node->Name)) {
-        variableType = parameter->Type;
-    }
-    else if (ASTVariable* methodVariable = methodObject->GetVariable(node->Name)) {
-        variableType = methodVariable->Type;
-    }
-    else if (ASTVariable* objectVariable = classObject->GetVariable(node->Name)) {
-        variableType = objectVariable->Type;
-    }
-    else {
-        FatalError("Variable " + node->Name + " does not exist");
-        return;
-    }
+    AST::Type* variableType = node->AssignedVariable->Type;
 
     // get the type of the expression
     AST::Type* expressionType = GetType(node->Expression, classObject, methodObject);
@@ -447,18 +632,19 @@ void TypeCheckProcedure::TypeCheck(AST::IfStatementNode* const node, ASTClass* c
 
 void TypeCheckProcedure::TypeCheck(AST::PrintStatementNode* const node, ASTClass* const classObject, ASTMethod* const methodObject) {
     // we only need to check the type of Print(expression) because Print(string) is always the correct type
-    if (node->IsPrintExpressionStatement()) {
-        AST::PrintExpStatementNode* printExpNode = dynamic_cast<AST::PrintExpStatementNode*>(node);
-        AST::Type* expressionType = GetType(printExpNode->Expression, classObject, methodObject);
-        if (expressionType == nullptr) { 
-            ValidCheck = false; 
-            Errs << "Failed to get expression type\n";
-            return; 
+    AST::Type* expressionType = GetType(node->Expression, classObject, methodObject);
+    if (expressionType == nullptr) { 
+        FatalError("Failed to get expression type");
+        return; 
+    }
+    // print statements accepts literals or integer expressions
+    if (node->Expression->IsLiteralExpression()) {
+        if (!expressionType->IsIntegerType() && !expressionType->IsStringType()) {
+            FatalError("Print expression only accepts integer and string literals");
         }
-        if (!expressionType->IsIntegerType()) {
-            ValidCheck = false;
-            Errs << "Print expression must return an integer\n";
-        }
+    }
+    else if (!expressionType->IsIntegerType()) {
+        FatalError("Print expression must return an integer");
     }
 }
 
@@ -545,6 +731,10 @@ void TypeCheckProcedure::TypeCheck(AST::StatementNode* const node, ASTClass* con
     else if (node->IsWhileStatement()) {
         TypeCheck(static_cast<AST::WhileStatementNode*>(node), classObject, methodObject);
     }
+    else if (node->IsMethodCallStatement()) {
+        AST::MethodCallStatementNode* callMethod = static_cast<AST::MethodCallStatementNode*>(node);
+        GetType(callMethod->CallExpression, classObject, methodObject);
+    }
     else {
         assert(false && "Non-recognized Statement Type");
     }
@@ -561,22 +751,19 @@ void TypeCheckProcedure::TypeCheck(AST::MethodDeclNode* const node, ASTClass* co
         AST::Type* returnType = GetType(node->ReturnExp, classObject, methodObject);
 
         if (returnType == nullptr) {
-            Errs << "Failed to get return type\n";
-            ValidCheck = false;
+            FatalError("Failed to get return type");
             return;
         }
 
         if (!returnType->Equals(methodObject->ReturnType)) {
-            Errs << "Return type doesn't match\n";
-            ValidCheck = false;
+            FatalError("Return type doesn't match");
             return;
         } 
     }
     else {
         // if the return expression is null, then the method type must be void
         if (!methodObject->ReturnType->IsVoidType()) {
-            Errs << "Method doesn't return for non-void type method\n";
-            ValidCheck = false;
+            FatalError("Method doesn't return for non-void type method");
             return;
         }
     }
@@ -590,10 +777,19 @@ void TypeCheckProcedure::TypeCheck(AST::ClassDeclNode* const node) {
 }
 
 bool Check(AST::ProgramNode* const program, ASTClassTable* const table, std::ostream& errs) {
+    if (table == nullptr) {
+        return false;
+    }
     TypeCheckProcedure typechecker(table, errs);
 
-    typechecker.TypeCheck(program->MainClass);
+    // Step 1, resolve any symbolic references within the AST to make typechecking easier
+    typechecker.Resolve(program->MainClass);
+    for (AST::ClassDeclNode* const classDecl: program->Classes) {
+        typechecker.Resolve(classDecl);
+    }
 
+    // Step 2, Perform typechecking on each class/method in the program
+    typechecker.TypeCheck(program->MainClass);
     for (AST::ClassDeclNode* const classDecl: program->Classes) {
         typechecker.TypeCheck(classDecl);
     }

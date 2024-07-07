@@ -22,17 +22,23 @@ AST::Node* ParseProgramFile(std::filesystem::path fileName, std::ostream& errs) 
     return result->Result;
 }
 
-ASTClassTable* LoadClassTableFromAST(AST::Node* tree) {
+ASTClassTable* LoadClassTableFromAST(AST::Node* tree, std::ostream& errs) {
     assert(tree != nullptr && "Called LoadClassTableFromAST with a null argument");
 
     if (AST::ProgramNode* programNode = dynamic_cast<AST::ProgramNode*>(tree)) {
         ASTClassTable* table = new ASTClassTable();
-        table->AddClass(programNode->MainClass);
+        if (!table->AddClass(programNode->MainClass)) {
+            return nullptr;
+        }
 
         for (AST::ClassDeclNode* classDecl: programNode->Classes) {
-            table->AddClass(classDecl);
+            if (!table->AddClass(classDecl)) {
+                return nullptr;
+            }
         }
-        table->Finalize();
+        if (!table->Finalize(errs)) {
+            return nullptr;
+        }
         return table;
     }
     else {
@@ -47,7 +53,7 @@ Core::IR::Module* LoadProgramFile(std::filesystem::path fileName, std::ostream& 
     if (tree == nullptr) { return nullptr; }
 
     // Load class information
-    ASTClassTable* table = LoadClassTableFromAST(tree);
+    ASTClassTable* table = LoadClassTableFromAST(tree, errs);
     if (table == nullptr) { return nullptr; }
 
     // Perform typechecking
