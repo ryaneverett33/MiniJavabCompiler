@@ -54,6 +54,19 @@ void Function::Print(std::ostream& out) const {
 }
 
 void Function::AppendBasicBlock(BasicBlock* block) {
+    // if the block has a name, make sure it's unique
+    if (block->HasName()) {
+        std::string blockName = block->Name;
+        std::unordered_map<std::string, int>::iterator nameSearch = _basicBlockNameCounts.find(blockName);
+        if (nameSearch != _basicBlockNameCounts.end()) {
+            blockName = blockName + std::to_string(nameSearch->second);
+            block->Name = blockName;
+        }
+        else {
+            _basicBlockNameCounts.insert({blockName, 1});
+        }
+    }
+
     _basicBlocks.push_back(block);
 
     block->ParentFunction = this;

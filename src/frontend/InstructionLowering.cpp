@@ -10,6 +10,7 @@
 #include "minijavab/core/ir/IRBuilder.h"
 #include "minijavab/core/ir/IntegerConstant.h"
 #include "minijavab/core/ir/StringConstant.h"
+#include "minijavab/core/ir/Instructions/Cmp.h"
 
 using namespace MiniJavab::Core;
 
@@ -63,6 +64,20 @@ InstructionLowering::FunctionSymbolTable InstructionLowering::CreateLocalVariabl
     }
 
     return functionSymbolTable;
+}
+
+IR::Value* InstructionLowering::GetVariable(ASTVariable* variable) {
+    if (variable->ParentMethod == _methodDefinition) {
+        // it's a local variable/parameter
+        FunctionSymbolTable::iterator search = _functionSymbolTable->find(variable->Name);
+        assert(search != _functionSymbolTable->end() && "unable to find local variable");
+
+        return search->second->isParameter ? search->second->copiedSymbol->Value : search->second->Value;
+    }
+    else {
+        // it's a class variable
+        assert(false && "Not implemented yet");
+    }
 }
 
 IR::Value* InstructionLowering::LowerObject(AST::ObjectNode* object) {
@@ -127,6 +142,30 @@ IR::Value* InstructionLowering::LowerExpression(AST::BinaryExpNode* expression) 
         case AST::OperatorType::Add: {
             return _builder->CreateAdd(leftHandSide, rightHandSide);
         }
+        case AST::OperatorType::EqualTo: {
+            return _builder->CreateCmp(IR::ComparisonOperation::Equal, leftHandSide, rightHandSide);
+        }
+        case AST::OperatorType::NotEqualTo: {
+            return _builder->CreateCmp(IR::ComparisonOperation::NotEqual, leftHandSide, rightHandSide);
+        }
+        case AST::OperatorType::LessThan: {
+            return _builder->CreateCmp(IR::ComparisonOperation::LessThan, leftHandSide, rightHandSide);
+        }
+        case AST::OperatorType::LessThanEqualTo: {
+            return _builder->CreateCmp(IR::ComparisonOperation::LessThanEqualTo, leftHandSide, rightHandSide);
+        }
+        case AST::OperatorType::GreaterThan: {
+            return _builder->CreateCmp(IR::ComparisonOperation::GreaterThan, leftHandSide, rightHandSide);
+        }
+        case AST::OperatorType::GreaterThanEqualTo: {
+            return _builder->CreateCmp(IR::ComparisonOperation::GreaterThanEqualTo, leftHandSide, rightHandSide);
+        }
+        case AST::OperatorType::Subtract:
+        case AST::OperatorType::Multiply:
+        case AST::OperatorType::Divide:
+        case AST::OperatorType::BooleanAnd:
+        case AST::OperatorType::BooleanNot:
+        case AST::OperatorType::BooleanOr:
         default:
             _builder->Block->ParentFunction->Dump();
             assert(false ** "binary expression lowering not implemented yet");
@@ -224,21 +263,47 @@ void InstructionLowering::LowerStatement(AST::AssignmentStatementNode* statement
 
     // look up the symbol being assigned to
     // TODO: symbol finding needs to be redone
-    IR::Value* symbol;
-    FunctionSymbolTable::iterator search = _functionSymbolTable->find(statement->Name);
-    if (search != _functionSymbolTable->end()) {
-        symbol = (search->second->isParameter ? search->second->copiedSymbol->Value : search->second->Value);
-    }
+    IR::Value* symbol = GetVariable(statement->AssignedVariable);
     
     IR::Value* assignmentValue = LowerExpression(statement->Expression);
     _builder->CreateStore(assignmentValue, symbol);
 }
+
+void InstructionLowering::LowerStatement(AST::MethodCallStatementNode* statement) {
+    LowerExpression(statement->CallExpression);
+}
+
 void InstructionLowering::LowerStatement(AST::IfStatementNode* statement) {
-    assert(false && "if statement lowering ot implemented yet");
+    // 0: Create each control flow block to jump to
+    IR::BasicBlock* ifBlock = _function->CreateBlock("if.then");
+    IR::BasicBlock* elseBlock = _function->CreateBlock("if.else");
+    IR::BasicBlock* ifExitBlock = _function->CreateBlock("if.exit");
+
+    // 1: lower if conditional block and install jumps
+    IR::Value* comparison = LowerExpression(statement->Expression);
+    _builder->CreateBrIf(ifBlock, comparison);
+    _builder->CreateBr(elseBlock);
+
+    // 2: lower if block
+    _builder->Block = ifBlock;
+    LowerStatement(statement->IfStatement);
+    _builder->CreateBr(ifExitBlock);
+
+    // 3: lower else block
+    _builder->Block = elseBlock;
+    LowerStatement(statement->ElseStatement);
+    _builder->CreateBr(ifExitBlock);
+
+    // 4: Set next instructions to exit block
+    _builder->Block = ifExitBlock;
 }
+
 void InstructionLowering::LowerStatement(AST::NestedStatementsNode* statement) {
-    assert(false && "nested lowering ot implemented yet");
+    for (AST::StatementNode* nestedStatement : statement->Statements) {
+        LowerStatement(nestedStatement);
+    }
 }
+
 void InstructionLowering::LowerStatement(AST::PrintStatementNode* statement) {
     IR::Module* mod = _function->GetContainingModule();
     AST::LiteralExpNode* literalExpression = nullptr;
@@ -264,11 +329,33 @@ void InstructionLowering::LowerStatement(AST::PrintStatementNode* statement) {
         _builder->CreateCall(printFunction, {immediate});
     }
 }
+
 void InstructionLowering::LowerStatement(AST::ReturnStatementNode* statement) {
-    assert(false && "return statement lowering ot implemented yet");
+    IR::Value* valueToReturn = LowerExpression(statement->Expression);
+    _builder->CreateRet(valueToReturn);
 }
+
 void InstructionLowering::LowerStatement(AST::WhileStatementNode* statement) {
-    assert(false && "while statement lowering ot implemented yet");
+    // 0: Create each control flow block to jump to
+    IR::BasicBlock* comparisonBlock = _function->CreateBlock("while.cmp");
+    IR::BasicBlock* whileBody = _function->CreateBlock("while.body");
+    IR::BasicBlock* whileExit = _function->CreateBlock("while.end");
+
+    // 1: Swap to the comparison block and lower it
+    _builder->Block = comparisonBlock;
+    IR::Value* comparisonValue = LowerExpression(statement->Expression);
+
+    // Jump to the body if the conditional was successful, else skip it
+    _builder->CreateBrIf(whileBody, comparisonValue);
+    _builder->CreateBr(whileExit);
+
+    // 2: Swap to the body block and lower it
+    _builder->Block = whileBody;
+    LowerStatement(statement->Statement);
+    _builder->CreateBr(comparisonBlock);
+
+    // 3: Set next instructions to exit block
+    _builder->Block = whileExit;
 }
 
 void InstructionLowering::LowerStatement(AST::StatementNode* statement) {
@@ -291,6 +378,12 @@ void InstructionLowering::LowerStatement(AST::StatementNode* statement) {
             break;
         case AST::StatementKind::While:
             LowerStatement(static_cast<AST::WhileStatementNode*>(statement));
+            break;
+        case AST::StatementKind::MethodCall:
+            LowerStatement(static_cast<AST::MethodCallStatementNode*>(statement));
+            break;
+        default:
+            assert(false && "Unknown statement kind for lowering");
     }
 }
 

@@ -67,6 +67,9 @@ class Function : public Value {
         /// The list of Basic Blocks in this function
         std::list<BasicBlock*> _basicBlocks;
 
+        /// A counting of unique basic block names, used for creating unique names
+        std::unordered_map<std::string, int> _basicBlockNameCounts;
+
         /// The module containing this function. Set by the containing module itself
         Module* _containingModule;
 

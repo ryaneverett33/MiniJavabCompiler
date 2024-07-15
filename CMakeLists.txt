@@ -34,7 +34,10 @@ set(INSTRUCTIONS
     src/core/ir/Instructions/Add.cpp
     src/core/ir/Instructions/Sub.cpp
     src/core/ir/Instructions/Div.cpp
-    src/core/ir/Instructions/Ret.cpp)
+    src/core/ir/Instructions/Ret.cpp
+    src/core/ir/Instructions/Br.cpp
+    src/core/ir/Instructions/BrIf.cpp
+    src/core/ir/Instructions/Cmp.cpp)
 
 # Build Core target
 add_library(core SHARED

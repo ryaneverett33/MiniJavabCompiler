@@ -50,6 +50,7 @@ class InstructionLowering {
         void LowerStatement(AST::PrintStatementNode* statement);
         void LowerStatement(AST::ReturnStatementNode* statement);
         void LowerStatement(AST::WhileStatementNode* statement);
+        void LowerStatement(AST::MethodCallStatementNode* statement);
 
         Core::IR::Value* LowerReturnExpression(AST::ExpNode* expression);
 
@@ -64,6 +65,11 @@ class InstructionLowering {
         /// @param methodDefinition The AST definition of the function
         /// @return A symbol table for local variables/parameters used by this function
         FunctionSymbolTable CreateLocalVariables(ASTMethod* methodDefinition);
+
+        /// Resolve a variable definition to an IR value, may create instructions
+        /// @param variable The variable to resolve
+        /// @return The value of the variable
+        Core::IR::Value* GetVariable(ASTVariable* variable);
 
         /// Lower an object reference to IR
         /// @param object The object reference
