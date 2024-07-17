@@ -17,6 +17,7 @@ class ReturnStatementNode : public StatementNode {
             out << ";";
         }
 
+        /// The value being returned
         ExpNode* Expression;
 };
 

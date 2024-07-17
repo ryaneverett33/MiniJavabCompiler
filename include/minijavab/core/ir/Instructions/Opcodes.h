@@ -105,6 +105,19 @@ inline std::string GetInstructionName(const Opcode opcode) {
         case Opcode::DivValueImmediate:
         case Opcode::DivValueValue:
             return "div";
+        case Opcode::Br:
+            return "br";
+        case Opcode::BrIf:
+            return "br_if";
+        case Opcode::CmpValueImmediate:
+        case Opcode::CmpValueValue:
+            return "cmp";
+        case Opcode::AndValueImmediate:
+        case Opcode::AndValueValue:
+            return "and";
+        case Opcode::OrValueImmediate:
+        case Opcode::OrValueValue:
+            return "or";
         default:
             assert(false && "Instruction not added yet!");
     }

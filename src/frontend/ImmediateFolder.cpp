@@ -45,12 +45,16 @@ Core::IR::Immediate* Fold(AST::BinaryExpNode* expression) {
                 return new Core::IR::Immediate(PrimitiveTypes::Boolean(), (leftHandSide->GetBoolean() || rightHandSide->GetBoolean()));
             case AST::OperatorType::NotEqualTo:
                 return new Core::IR::Immediate(PrimitiveTypes::Boolean(), (leftHandSide->GetBoolean() != rightHandSide->GetBoolean()));
+            case AST::OperatorType::EqualTo:
+                return new Core::IR::Immediate(PrimitiveTypes::Boolean(), (leftHandSide->GetBoolean() == rightHandSide->GetBoolean()));
             default:
                 assert(false && "Invalid expression type");
         }
     }
     else {
         switch (expression->Operator) {
+            case AST::OperatorType::EqualTo:
+                return new Core::IR::Immediate(PrimitiveTypes::Boolean(), (leftHandSide->GetI32() == rightHandSide->GetI32()));
             case AST::OperatorType::NotEqualTo:
                 return new Core::IR::Immediate(PrimitiveTypes::Boolean(), (leftHandSide->GetI32() != rightHandSide->GetI32()));
             case AST::OperatorType::LessThanEqualTo:

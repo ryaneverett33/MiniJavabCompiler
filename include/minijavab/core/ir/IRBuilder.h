@@ -8,6 +8,7 @@ namespace MiniJavab {
 namespace Core {
 namespace IR {
 class GlobalVariable;
+enum class ComparisonOperation;
 
 /// An IRBuilder is a helper object for easily creating and inserting instructions
 /// into a Basic Block. Instructions created through an IRBuilder are automatically
@@ -79,6 +80,31 @@ class IRBuilder {
         /// @see DivInstruction::DivInstruction()
         /// @return The newly created Div Instruction
         Value* CreateDiv(IR::Value* dividend, IR::Value* divisor);
+
+        /// Create a br_if Instruction
+        /// @see BrIfInstruction::BrIfInstruction()
+        /// @return The newly created br_if Instruction
+        Value* CreateBrIf(IR::BasicBlock* target, IR::Value* conditional);
+        
+        /// Create a br Instruction
+        /// @see BrInstruction::BrInstruction
+        /// @return The newly created br Instruction
+        Value* CreateBr(IR::BasicBlock* target);
+
+        /// Create a cmp Instruction
+        /// @see CmpInstruction::CmpInstruction 
+        /// @return The newly created cmp Instruction
+        Value* CreateCmp(ComparisonOperation operation, Value* leftHandSide, Value* rightHandSide);
+
+        /// Create an AND Instruction
+        /// @see ANDInstruction::ANDInstruction()
+        /// @return The newly created AND Instruction
+        Value* CreateAND(IR::Value* x, IR::Value* y);
+
+        /// Create an OR Instruction
+        /// @see ORInstruction::ORInstruction()
+        /// @return The newly created OR Instruction
+        Value* CreateOR(IR::Value* x, IR::Value* y);
 
         /// Wrapper function for inserting a created instruction into the block
         /// @see BasicBlock::AppendInstruction
