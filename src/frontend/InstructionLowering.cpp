@@ -17,6 +17,11 @@ using namespace MiniJavab::Core;
 namespace MiniJavab {
 namespace Frontend {
 
+// TODO:
+// - .length method
+// - index expressions
+// - finish object retrieval
+
 InstructionLowering::InstructionLowering(ASTConverter* converter)
                         : _converter(converter) {}
 
@@ -253,6 +258,12 @@ IR::Value* InstructionLowering::LowerExpression(AST::ExpNode* expression) {
             return LowerExpression(static_cast<AST::UnaryExpNode*>(expression));
         case AST::ExpKind::MethodCall:
             return LowerExpression(static_cast<AST::MethodCallExpNode*>(expression));
+        case AST::ExpKind::Nested: {
+            AST::NestedExpNode* nestedNode = static_cast<AST::NestedExpNode*>(expression);
+            return LowerExpression(nestedNode->Expression);
+        }
+        case AST::ExpKind::Index:
+        case AST::ExpKind::LengthMethod:
         default:
             _builder->Block->ParentFunction->Dump();
             assert(false && "expression lowering not implemented yet");
