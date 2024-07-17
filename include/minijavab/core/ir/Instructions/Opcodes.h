@@ -112,6 +112,12 @@ inline std::string GetInstructionName(const Opcode opcode) {
         case Opcode::CmpValueImmediate:
         case Opcode::CmpValueValue:
             return "cmp";
+        case Opcode::AndValueImmediate:
+        case Opcode::AndValueValue:
+            return "and";
+        case Opcode::OrValueImmediate:
+        case Opcode::OrValueValue:
+            return "or";
         default:
             assert(false && "Instruction not added yet!");
     }

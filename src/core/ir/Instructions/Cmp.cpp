@@ -10,7 +10,8 @@ namespace IR {
 CmpInstruction::CmpInstruction(ComparisonOperation operation, Value* leftHandSide, Value* rightHandSide)
     : Instruction(Opcode::UNKNOWN, new IR::BooleanType()),
     _leftHandSide(leftHandSide),
-    _rightHandSide(rightHandSide) {
+    _rightHandSide(rightHandSide),
+    _operation(operation) {
     
     _opcode = rightHandSide->IsImmediate() ? Opcode::CmpValueImmediate : Opcode::CmpValueValue;
 }
@@ -24,7 +25,7 @@ void CmpInstruction::Print(std::ostream& out) const {
     out << " ";
 
     PrinterImpl printer = ValuePrinter::Get();
-    switch (_operator) {
+    switch (_operation) {
         case ComparisonOperation::Equal:
             out << "eq ";
             break;

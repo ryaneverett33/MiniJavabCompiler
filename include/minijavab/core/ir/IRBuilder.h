@@ -96,6 +96,16 @@ class IRBuilder {
         /// @return The newly created cmp Instruction
         Value* CreateCmp(ComparisonOperation operation, Value* leftHandSide, Value* rightHandSide);
 
+        /// Create an AND Instruction
+        /// @see ANDInstruction::ANDInstruction()
+        /// @return The newly created AND Instruction
+        Value* CreateAND(IR::Value* x, IR::Value* y);
+
+        /// Create an OR Instruction
+        /// @see ORInstruction::ORInstruction()
+        /// @return The newly created OR Instruction
+        Value* CreateOR(IR::Value* x, IR::Value* y);
+
         /// Wrapper function for inserting a created instruction into the block
         /// @see BasicBlock::AppendInstruction
         /// @param instruction The instruction to insert

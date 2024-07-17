@@ -14,6 +14,8 @@
 #include "minijavab/core/ir/Instructions/Br.h"
 #include "minijavab/core/ir/Instructions/BrIf.h"
 #include "minijavab/core/ir/Instructions/Cmp.h"
+#include "minijavab/core/ir/Instructions/AND.h"
+#include "minijavab/core/ir/Instructions/OR.h"
 
 namespace MiniJavab {
 namespace Core {
@@ -122,6 +124,20 @@ Value* IRBuilder::CreateBrIf(IR::BasicBlock* target, IR::Value* conditional) {
 
 Value* IRBuilder::CreateCmp(ComparisonOperation operation, Value* leftHandSide, Value* rightHandSide) {
     Instruction* instruction = new CmpInstruction(operation, leftHandSide, rightHandSide);
+    Insert(instruction);
+
+    return instruction;
+}
+
+Value* IRBuilder::CreateAND(IR::Value* x, IR::Value* y) {
+    Instruction* instruction = new ANDInstruction(x, y);
+    Insert(instruction);
+
+    return instruction;
+}
+
+Value* IRBuilder::CreateOR(IR::Value* x, IR::Value* y) {
+    Instruction* instruction = new ORInstruction(x, y);
     Insert(instruction);
 
     return instruction;

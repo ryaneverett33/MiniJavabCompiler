@@ -160,12 +160,21 @@ IR::Value* InstructionLowering::LowerExpression(AST::BinaryExpNode* expression) 
         case AST::OperatorType::GreaterThanEqualTo: {
             return _builder->CreateCmp(IR::ComparisonOperation::GreaterThanEqualTo, leftHandSide, rightHandSide);
         }
-        case AST::OperatorType::Subtract:
-        case AST::OperatorType::Multiply:
-        case AST::OperatorType::Divide:
-        case AST::OperatorType::BooleanAnd:
-        case AST::OperatorType::BooleanNot:
-        case AST::OperatorType::BooleanOr:
+        case AST::OperatorType::Subtract: {
+            return _builder->CreateSub(leftHandSide, rightHandSide);
+        }
+        case AST::OperatorType::Multiply: {
+            return _builder->CreateMul(leftHandSide, rightHandSide);
+        }
+        case AST::OperatorType::Divide: {
+            return _builder->CreateDiv(leftHandSide, rightHandSide);
+        }
+        case AST::OperatorType::BooleanAnd: {
+            return _builder->CreateAND(leftHandSide, rightHandSide);
+        }
+        case AST::OperatorType::BooleanOr: {
+            return _builder->CreateOR(leftHandSide, rightHandSide);
+        }
         default:
             _builder->Block->ParentFunction->Dump();
             assert(false ** "binary expression lowering not implemented yet");

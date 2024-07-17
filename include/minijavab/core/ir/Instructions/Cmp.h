@@ -40,7 +40,7 @@ class CmpInstruction : public Instruction {
 
     private:
         /// The type of the comparison to perform
-        ComparisonOperation _operator;
+        ComparisonOperation _operation;
         /// The left hand side of the comparison
         Value* _leftHandSide;
         /// The right hand side of the comparison
