@@ -69,7 +69,9 @@ enum class Opcode {
     /// Compare a value with another value
     CmpValueValue,
     /// Compare a value with an immediate
-    CmpValueImmediate
+    CmpValueImmediate,
+    /// Type cast a pointer type to another pointer type
+    Bitcast
 };
 
 // todo: don't inline this
@@ -118,6 +120,8 @@ inline std::string GetInstructionName(const Opcode opcode) {
         case Opcode::OrValueImmediate:
         case Opcode::OrValueValue:
             return "or";
+        case Opcode::Bitcast:
+            return "bitcast";
         default:
             assert(false && "Instruction not added yet!");
     }

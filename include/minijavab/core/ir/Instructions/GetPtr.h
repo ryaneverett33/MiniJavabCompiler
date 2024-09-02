@@ -7,7 +7,6 @@
 namespace MiniJavab {
 namespace Core {
 namespace IR {
-class GlobalVariable;
 
 /// Represents a load Instruction for loading memory from a pointer
 class GetPtrInstruction : public Instruction {
@@ -15,7 +14,7 @@ class GetPtrInstruction : public Instruction {
         /// Create a getptr instruction that constructs a pointer to a global
         /// variable
         /// @param variable
-        GetPtrInstruction(IR::GlobalVariable* variable);
+        GetPtrInstruction(IR::Value* variable, IR::Type* variableType, uint32_t immediate=0);
 
         /// Create a getptr instruction that constructs a pointer with a constant value
         /// @note Useful for creating null values
@@ -43,7 +42,8 @@ class GetPtrInstruction : public Instruction {
         void Print(std::ostream& out = std::cerr) const override;
 
     private:
-        IR::GlobalVariable* _variable = nullptr;
+        IR::Value* _variable = nullptr;
+        uint32_t _offset = 0;
         uint32_t _immediate = 0;
 };
 

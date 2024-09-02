@@ -2,15 +2,15 @@
 
 #include "minijavab/core/ir/ValuePrinter.h"
 #include "minijavab/core/ir/PrinterImpl.h"
-#include "minijavab/core/ir/GlobalVariable.h"
 
 namespace MiniJavab {
 namespace Core {
 namespace IR {
 
-GetPtrInstruction::GetPtrInstruction(IR::GlobalVariable* variable)
-    : Instruction(Opcode::GetPtrValue, new PointerType(variable->ValueType)),
-    _variable(variable) 
+GetPtrInstruction::GetPtrInstruction(IR::Value* variable, IR::Type* variableType, uint32_t offset)
+    : Instruction(Opcode::GetPtrValue, new PointerType(variableType)),
+    _variable(variable),
+    _offset(offset)
 {}
 
 
@@ -40,6 +40,7 @@ void GetPtrInstruction::Print(std::ostream& out) const {
     else {
         out << " ";
         printer.Print(out, _variable);
+        out << ", " << _offset;
     }
     //out << " " << ValueType->GetString() << ", ";
     //printer.Print(out, _pointer);

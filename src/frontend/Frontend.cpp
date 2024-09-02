@@ -50,11 +50,17 @@ ASTClassTable* LoadClassTableFromAST(AST::Node* tree, std::ostream& errs) {
 Core::IR::Module* LoadProgramFile(std::filesystem::path fileName, std::ostream& errs) {
     // Load AST
     AST::Node* tree = ParseProgramFile(fileName, errs);
-    if (tree == nullptr) { return nullptr; }
+    if (tree == nullptr) {
+        std::cerr << "Failed to parse program\n";
+        return nullptr;
+    }
 
     // Load class information
     ASTClassTable* table = LoadClassTableFromAST(tree, errs);
-    if (table == nullptr) { return nullptr; }
+    if (table == nullptr) {
+        std::cerr << "Failed to load class table\n";
+        return nullptr;
+    }
 
     // Perform typechecking
     if (!TypeChecker::Check(static_cast<AST::ProgramNode*>(tree), table, errs)) { return nullptr; }

@@ -16,6 +16,7 @@
 #include "minijavab/core/ir/Instructions/Cmp.h"
 #include "minijavab/core/ir/Instructions/AND.h"
 #include "minijavab/core/ir/Instructions/OR.h"
+#include "minijavab/core/ir/Instructions/Bitcast.h"
 
 namespace MiniJavab {
 namespace Core {
@@ -59,8 +60,8 @@ Value* IRBuilder::CreateLoad(IR::Type* type, IR::Value* pointer) {
     return instruction;
 }
 
-Value* IRBuilder::CreateGetPtr(IR::GlobalVariable* variable) {
-    Instruction* instruction = new GetPtrInstruction(variable);
+Value* IRBuilder::CreateGetPtr(IR::Value* variable, IR::Type* variableType, uint32_t offset) {
+    Instruction* instruction = new GetPtrInstruction(variable, variableType, offset);
     Insert(instruction);
 
     return instruction;
@@ -138,6 +139,13 @@ Value* IRBuilder::CreateAND(IR::Value* x, IR::Value* y) {
 
 Value* IRBuilder::CreateOR(IR::Value* x, IR::Value* y) {
     Instruction* instruction = new ORInstruction(x, y);
+    Insert(instruction);
+
+    return instruction;
+}
+
+Value* IRBuilder::CreateBitcast(IR::Value* castee, IR::Type* newType) {
+    Instruction* instruction = new BitcastInstruction(castee, newType);
     Insert(instruction);
 
     return instruction;

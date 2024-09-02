@@ -30,6 +30,10 @@ bool CanFold(AST::ExpNode* expression) {
 
         return unaryExpression->Expression->IsLiteralExpression();
     }
+    else if (expression->IsLiteralExpression()) {
+        AST::LiteralExpNode* literalExpression = static_cast<AST::LiteralExpNode*>(expression);
+        return literalExpression->IsIntegerLiteral() || literalExpression->IsBooleanLiteral();
+    }
     return false;
 }
 
@@ -98,12 +102,26 @@ Core::IR::Immediate* Fold(AST::UnaryExpNode* expression) {
     }
 }
 
+Core::IR::Immediate* Fold(AST::LiteralExpNode* expression) {
+    if (expression->IsIntegerLiteral()) {
+        AST::IntegerLiteralExpNode* integerLiteral = static_cast<AST::IntegerLiteralExpNode*>(expression);
+        return new Core::IR::Immediate(PrimitiveTypes::Int(), integerLiteral->Value);
+    }
+    else {
+        AST::BooleanLiteralExpNode* integerLiteral = static_cast<AST::BooleanLiteralExpNode*>(expression);
+        return new Core::IR::Immediate(PrimitiveTypes::Boolean(), integerLiteral->Value);
+    }
+}
+
 Core::IR::Immediate* Fold(AST::ExpNode* expression) {
     if (expression->IsBinaryExpression()) {
         return Fold(static_cast<AST::BinaryExpNode*>(expression));
     }
     else if (expression->IsUnaryExpression()) {
         return Fold(static_cast<AST::UnaryExpNode*>(expression));
+    }
+    else if (expression->IsLiteralExpression()) {
+        return Fold(static_cast<AST::LiteralExpNode*>(expression));
     }
     assert(false && "unrecognized fold type");
 }

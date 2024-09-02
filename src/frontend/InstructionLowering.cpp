@@ -17,10 +17,13 @@ using namespace MiniJavab::Core;
 namespace MiniJavab {
 namespace Frontend {
 
+/// The maximum size of an array. We only support four dimensional arrays to simplify the 
+/// intrinsic function invocation. Four was chosen somewhat randomly in that it ought to
+/// be enough for most things
+constexpr size_t MAX_ARRAY_DIMENSIONS = 4;
+
 // TODO:
-// - .length method
-// - index expressions
-// - finish object retrieval
+// - Make arrays stored as T* not T**
 
 InstructionLowering::InstructionLowering(ASTConverter* converter)
                         : _converter(converter) {}
@@ -29,11 +32,12 @@ InstructionLowering::FunctionSymbolTable InstructionLowering::CreateLocalVariabl
     FunctionSymbolTable functionSymbolTable;
 
     // Create local variables for each passed-in parameter
-    for (auto& [parameterName, parameter] : methodDefinition->Parameters) {
+    for (auto [parameterName, parameter] : methodDefinition->Parameters) {
         IR::Parameter* functionParameter = _builder->Block->ParentFunction->GetParameterByName(parameterName);
+        IR::Type* resolvedType = _converter->ResolveASTType(parameter->Type);
 
         // Create a new local variable as a copy of the passed-in parameter
-        IR::Value* localVariable = _builder->CreateAlloc(_converter->ResolveASTType(parameter->Type),
+        IR::Value* localVariable = _builder->CreateAlloc(resolvedType,
                                                             parameterName + ".local");
         
         // Store the passed-in parameter into the local variable
@@ -43,12 +47,14 @@ InstructionLowering::FunctionSymbolTable InstructionLowering::CreateLocalVariabl
         FunctionSymbolEntry* localEntry = new FunctionSymbolEntry {
             /*Value*/ localVariable,
             /*isParameter*/ false,
+            /*type*/ resolvedType->StripPointerCasts(),
             /*copiedSymbol*/ nullptr
         };
 
         FunctionSymbolEntry* parameterEntry = new FunctionSymbolEntry {
             /*Value*/ functionParameter,
             /*isParameter*/ true,
+            /*type*/ resolvedType->StripPointerCasts(),
             /*copiedSymbol*/ localEntry
         };
 
@@ -57,13 +63,15 @@ InstructionLowering::FunctionSymbolTable InstructionLowering::CreateLocalVariabl
     }
 
     // Create local variables for each variable declaration in the method
-    for (auto& [variableName, variable] : methodDefinition->Variables) {
-        IR::Value* localVariable = _builder->CreateAlloc(_converter->ResolveASTType(variable->Type),
+    for (auto [variableName, variable] : methodDefinition->Variables) {
+        IR::Type* resolvedType = _converter->ResolveASTType(variable->Type);
+        IR::Value* localVariable = _builder->CreateAlloc(resolvedType,
                                                             variableName);
 
         functionSymbolTable.insert({variableName, new FunctionSymbolEntry {
             /*Value*/ localVariable,
             /*isParameter*/ false,
+            /*type*/ resolvedType,
             /*copiedSymbol*/ nullptr
         }});
     }
@@ -71,8 +79,14 @@ InstructionLowering::FunctionSymbolTable InstructionLowering::CreateLocalVariabl
     return functionSymbolTable;
 }
 
-IR::Value* InstructionLowering::GetVariable(ASTVariable* variable) {
-    if (variable->ParentMethod == _methodDefinition) {
+IR::Value* InstructionLowering::GetVariablePointer(ASTVariable* variable) {
+    if (variable == nullptr) {
+        // Get `this` variable from function symbol table
+        FunctionSymbolTable::iterator searchResult = _functionSymbolTable->find("this");
+        assert(searchResult != _functionSymbolTable->end() && "Unable to find this symbol");
+        return searchResult->second->copiedSymbol->Value;
+    }
+    else if (variable->ParentMethod == _methodDefinition) {
         // it's a local variable/parameter
         FunctionSymbolTable::iterator search = _functionSymbolTable->find(variable->Name);
         assert(search != _functionSymbolTable->end() && "unable to find local variable");
@@ -80,14 +94,51 @@ IR::Value* InstructionLowering::GetVariable(ASTVariable* variable) {
         return search->second->isParameter ? search->second->copiedSymbol->Value : search->second->Value;
     }
     else {
-        // it's a class variable
-        assert(false && "Not implemented yet");
+        // Get `this` variable from function symbol table
+        FunctionSymbolTable::iterator searchResult = _functionSymbolTable->find("this");
+        assert(searchResult != _functionSymbolTable->end() && "Unable to find this symbol");
+        IR::Value* thisVariable = searchResult->second->copiedSymbol->Value;
+        IR::Value* thisValue = _builder->CreateLoad(static_cast<IR::PointerType*>(thisVariable->ValueType)->ElementType, thisVariable);
+
+        // Get offset into `this` where the local variable is stored
+        IR::StructType* thisStruct = static_cast<IR::StructType*>(searchResult->second->Type);
+        IR::Type* localVariableType = thisStruct->GetElementType(variable->Name);
+        size_t variableOffset = thisStruct->GetElementOffset(variable->Name);
+
+        // create a pointer to the local variable and then load it
+        IR::Value* localVariablePointer = _builder->CreateGetPtr(thisValue, localVariableType, variableOffset);
+        return localVariablePointer;
     }
 }
 
-IR::Value* InstructionLowering::LowerObject(AST::ObjectNode* object) {
-    assert(object->IsNamedObject() && "only named object expressions supported");
+IR::Value* InstructionLowering::GetArrayOffset(IR::Value* arrayPointer, AST::IndexNode* arrayIndices) {
+    // TODO: cleanup comments
+    IR::Value* currentPointer = _builder->CreateBitcast(arrayPointer, new IR::PointerType(PrimitiveTypes::Int()));
 
+    for (size_t expressionIndex = 0; expressionIndex < arrayIndices->Expressions.size(); expressionIndex++) {
+        AST::ExpNode* expression = arrayIndices->Expressions[expressionIndex];
+
+        // Offset the array pointer to the location of the element we're assigning to
+        IR::Value* loweredExpression = LowerExpression(expression);
+        // Include the array header in the offset calculation
+        _builder->CreateAdd(loweredExpression, new IR::Immediate(PrimitiveTypes::Int(), 1));
+        currentPointer = _builder->CreateAdd(currentPointer, loweredExpression);
+
+        // If this is the last index expression, assign the value to the current array pointer. Else
+        // load the next array pointer from the current array pointer and run the loop again
+        if (expressionIndex == arrayIndices->Expressions.size() - 1) {
+            // Cast back to the correct pointer type before assignment
+            return _builder->CreateBitcast(currentPointer, arrayPointer->ValueType);
+        }
+        else {
+            IR::Value* castedPointer = _builder->CreateBitcast(currentPointer, new IR::PointerType(new IR::PointerType(PrimitiveTypes::Int())));
+            currentPointer = _builder->CreateLoad(new IR::PointerType(PrimitiveTypes::Int()), castedPointer);
+        }
+    }
+    assert(false); // unreachable
+}
+
+IR::Value* InstructionLowering::LowerObject(AST::ObjectNode* object) {
     if (object->IsNamedObject()) {
         AST::NamedObjectNode* namedObject = static_cast<AST::NamedObjectNode*>(object);
         if (namedObject->IsNewObject()) {
@@ -102,21 +153,45 @@ IR::Value* InstructionLowering::LowerObject(AST::ObjectNode* object) {
             return _builder->CreateCall(newIntrinsic, {});
         }
         else {
-            // look up the symbol being referenced
-            // TODO: symbol finding needs to be redone
-            IR::Value* symbol;
-            FunctionSymbolTable::iterator search = _functionSymbolTable->find(namedObject->Name);
-            if (search != _functionSymbolTable->end()) {
-                symbol = (search->second->isParameter ? search->second->copiedSymbol->Value : search->second->Value);
-            }
+            IR::Value* localVariable = GetVariablePointer(namedObject->Symbol);
+            return _builder->CreateLoad(static_cast<IR::PointerType*>(localVariable->ValueType)->ElementType, localVariable);
+        }
+    }
+    else if (object->IsThisObject()) {
+        IR::Value* localVariable = GetVariablePointer(nullptr);
+        return _builder->CreateLoad(static_cast<IR::PointerType*>(localVariable->ValueType)->ElementType, localVariable);
+    }
+    else if (object->IsNewArray()) {
+        AST::NewArrayObjectNode* newArrayNode = static_cast<AST::NewArrayObjectNode*>(object);
+        IR::Type* baseType = _converter->ResolveASTType(newArrayNode->Type->ResolveType());
 
-            // load the symbol
-            return _builder->CreateLoad(static_cast<IR::PointerType*>(symbol->ValueType)->ElementType, symbol);
+        if (newArrayNode->Index->Expressions.size() > MAX_ARRAY_DIMENSIONS) {
+            assert(false && "cannot construct multi-dimensional arrays greater than four dimensions"); 
         }
 
-        assert(!namedObject->IsNewObject() && "not supported yet");
+        // Lower the array construction expressions into individual call parameters
+        std::vector<IR::Value*> arrayDimensions;
+        arrayDimensions.reserve(MAX_ARRAY_DIMENSIONS);
+        for (AST::ExpNode* expression : newArrayNode->Index->Expressions) {
+            arrayDimensions.push_back(LowerExpression(expression));
+        }
+
+        // The call to mj.new_array expects four arguments, if we're allocating a smaller array just pad
+        // the call with zeroes
+        if (arrayDimensions.size() != MAX_ARRAY_DIMENSIONS) {
+            for (size_t i = arrayDimensions.size(); i < MAX_ARRAY_DIMENSIONS; i++) {
+                arrayDimensions.push_back(new IR::Immediate(PrimitiveTypes::Int(), 0));
+            }
+        }
+
+        // Invoke mj.new_array to construct the array
+        IR::Function* newArrayFunction = _function->GetContainingModule()->GetIntrinsic(IR::MJ_NEW_ARRAY_INTRINSIC);
+        IR::Value* arrayPointer = _builder->CreateCall(newArrayFunction, arrayDimensions);
+
+        return _builder->CreateBitcast(arrayPointer, new IR::PointerType(baseType));
     }
-    assert(false && "object expression not supported yet");
+
+    assert(false && "unreachable");
 }
 
 IR::Value* InstructionLowering::LowerExpression(AST::LiteralExpNode* expression) {
@@ -246,6 +321,40 @@ IR::Value* InstructionLowering::LowerExpression(AST::MethodCallExpNode* expressi
     return _builder->CreateCall(calledFunction, arguments);
 }
 
+IR::Value* InstructionLowering::LowerExpression(AST::IndexExpNode* expression) {
+    // Get the object we're loading from
+    IR::Value* objectPointer = GetVariablePointer(expression->ObjectInfo);
+
+    // Load the array from wherever it's stored
+    // TODO: array is stored as pointer to array, dumb
+    objectPointer = _builder->CreateLoad(objectPointer->ValueType->StripPointerCasts(), objectPointer);
+
+    // Get the offset into the array where we should load from
+    IR::Value* offsetPointer = GetArrayOffset(objectPointer, expression->Index);
+
+    // Load it
+    return _builder->CreateLoad(offsetPointer->ValueType->StripPointerCasts(), offsetPointer);
+}
+
+IR::Value* InstructionLowering::LowerExpression(AST::LengthExpNode* expression) {
+    // Get the array we're examining
+    IR::Value* objectPointer = GetVariablePointer(expression->ObjectInfo);
+
+    // Load the array from wherever it's stored
+    // TODO: array is stored as pointer to array, dumb
+    objectPointer = _builder->CreateLoad(objectPointer->ValueType->StripPointerCasts(), objectPointer);
+
+    if (expression->Index != nullptr) {
+        // Update the pointer to the array within the multi-dimensional array
+        objectPointer = GetArrayOffset(objectPointer, expression->Index);
+    }
+
+    // Call the length method on the array
+    IR::Function* lengthFunction = _function->GetContainingModule()->GetIntrinsic(IR::MJ_ARRAY_LENGTH_INTRINSIC);
+    objectPointer = _builder->CreateBitcast(objectPointer, new IR::PointerType(PrimitiveTypes::Int()));
+    return _builder->CreateCall(lengthFunction, {objectPointer});
+}
+
 IR::Value* InstructionLowering::LowerExpression(AST::ExpNode* expression) {
     switch (expression->Kind) {
         case AST::ExpKind::Literal:
@@ -262,8 +371,12 @@ IR::Value* InstructionLowering::LowerExpression(AST::ExpNode* expression) {
             AST::NestedExpNode* nestedNode = static_cast<AST::NestedExpNode*>(expression);
             return LowerExpression(nestedNode->Expression);
         }
-        case AST::ExpKind::Index:
-        case AST::ExpKind::LengthMethod:
+        case AST::ExpKind::Index: {
+            return LowerExpression(static_cast<AST::IndexExpNode*>(expression));
+        }
+        case AST::ExpKind::LengthMethod: {
+            return LowerExpression(static_cast<AST::LengthExpNode*>(expression));
+        }
         default:
             _builder->Block->ParentFunction->Dump();
             assert(false && "expression lowering not implemented yet");
@@ -279,14 +392,28 @@ IR::Value* InstructionLowering::LowerReturnExpression(AST::ExpNode* expression) 
 }
 
 void InstructionLowering::LowerStatement(AST::AssignmentStatementNode* statement) {
-    assert(!statement->IsIndexedAssignment() && "indexed assignment not supported yet");
+    // Pointer to where we should assign the value to. Either the symbol pointer itself, or
+    // an array pointer derived from the symbol pointer
+    IR::Value* symbolPointer = GetVariablePointer(statement->AssignedVariable);
+    IR::Value* originalPointer = symbolPointer;
 
-    // look up the symbol being assigned to
-    // TODO: symbol finding needs to be redone
-    IR::Value* symbol = GetVariable(statement->AssignedVariable);
-    
-    IR::Value* assignmentValue = LowerExpression(statement->Expression);
-    _builder->CreateStore(assignmentValue, symbol);
+    if (statement->IsIndexedAssignment()) { // assigning to an array
+        // load the array from wherever it's stored
+        // TODO: array is stored as pointer to array, dumb
+        symbolPointer = _builder->CreateLoad(symbolPointer->ValueType->StripPointerCasts(), symbolPointer);
+        AST::AssignmentIndexStatementNode* indexedAssignment = static_cast<AST::AssignmentIndexStatementNode*>(statement);
+
+        // Get the offset into the array where we should store to
+        IR::Value* offsetPointer = GetArrayOffset(symbolPointer, indexedAssignment->Index);
+
+        // Store it
+        IR::Value* toStore = LowerExpression(indexedAssignment->Expression);
+        _builder->CreateStore(toStore, offsetPointer);
+    }
+    else { // assigning to a primitive
+        IR::Value* assignmentValue = LowerExpression(statement->Expression);
+        _builder->CreateStore(assignmentValue, symbolPointer);
+    }
 }
 
 void InstructionLowering::LowerStatement(AST::MethodCallStatementNode* statement) {
@@ -338,7 +465,7 @@ void InstructionLowering::LowerStatement(AST::PrintStatementNode* statement) {
         IR::GlobalVariable* constant = mod->AddStringConstant(stringLiteral->Value);
 
         // Call the print intrinsic with a pointer to the global string
-        IR::Value* stringPointer = _builder->CreateGetPtr(constant);
+        IR::Value* stringPointer = _builder->CreateGetPtr(constant, constant->ValueType);
         IR::Function* printFunction = mod->GetIntrinsic(IR::MJ_PRINTLN_STR_INTRINSIC);
         _builder->CreateCall(printFunction, {stringPointer});
     }

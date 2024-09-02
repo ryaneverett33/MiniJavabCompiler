@@ -25,13 +25,16 @@ IR language
 - load <type> <value> -> <type>
 - store <type> {<value> || <immediate>}, <arg> -> void
 - getptr <type*> <value>, {<immediate> || <arg>} -> <type*>
+- getptr <value>, <arg>, <immediate> -> <type*>
 - cmp <operator>, <value>, {<value> || <immediate>} -> bool
+- bitcast <type*> <value> to <type*> -> <value*>
 
 # Intrinsics
 
 - mj.println.str vector<i32>* <arg> -> void
 - mj.println.int i32 <arg> -> void
 - mj.new <type> -> type*
+- mj.new_array <i32> -> i32*
 - mj.delete <value> -> void
 
 # Types

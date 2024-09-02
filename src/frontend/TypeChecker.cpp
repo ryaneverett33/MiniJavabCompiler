@@ -193,6 +193,10 @@ void TypeCheckProcedure::Resolve(AST::ObjectExpNode* const node) {
     }
     else if (node->Object->IsNewArray()) {
         // do nothing, there is nothing to resolve
+        AST::NewArrayObjectNode* newArrayNode = static_cast<AST::NewArrayObjectNode*>(node->Object);
+        for (AST::ExpNode* expression : newArrayNode->Index->Expressions) {
+            Resolve(expression, node->ParentMethod);
+        }
     }
 }
 

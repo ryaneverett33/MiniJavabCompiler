@@ -6,8 +6,21 @@ namespace IR {
 
 // IntegerType definitions
 
-IntegerType::IntegerType(uint8_t bitWidth, bool isSigned)
-    : _isSigned(isSigned) {
+Type::Type(std::string name)
+    : Name(name)
+    {}
+
+Type* Type::StripPointerCasts() {
+    if (IsPointerType()) {
+        PointerType* pointerType = static_cast<PointerType*>(this);
+        return pointerType->ElementType;
+    }
+    return this;
+}
+
+IntegerType::IntegerType(uint8_t bitWidth, bool isSigned, std::string name)
+    : Type(name),
+    _isSigned(isSigned) {
     if (bitWidth != 1 && bitWidth != 8 && bitWidth != 32) {
         throw std::invalid_argument("Invalid bit width!");
     }
@@ -27,11 +40,14 @@ bool IntegerType::IsIntegerType() const { return true; }
 TypeKind IntegerType::GetTypeKind() const {
     return TypeKind::Integer;
 }
+size_t IntegerType::GetSize() const {
+    return GetBitWidth() / 8;
+}
 
 // BooleanType definitions
 
-BooleanType::BooleanType()
-    : IntegerType(1) {}
+BooleanType::BooleanType(std::string name)
+    : IntegerType(1, false, name) {}
 
 std::string BooleanType::GetString() const {
     return "bool";
@@ -51,12 +67,49 @@ bool VoidType::IsVoidType() const { return true; }
 TypeKind VoidType::GetTypeKind() const {
     return TypeKind::Void;
 }
+size_t VoidType::GetSize() const {
+    return 0;
+}
 
 // StructType definitions
 
 StructType::StructType(std::string name, std::initializer_list<Type*> types)
-            : Name(name),
-            ElementTypes(types) {}
+            : Type(name),
+            ElementTypes(types) {
+    for (Type* elementType: types) {
+        if (elementType->Name.empty()) {
+            throw std::invalid_argument("types");
+        }
+    }
+}
+size_t StructType::GetElementOffset(std::string name) {
+    size_t offset = 0;
+    for (Type* elementType: ElementTypes) {
+        if (elementType->Name == name) {
+            return offset;
+        }
+        offset += elementType->GetSize();
+    }
+    assert(false && "struct type with unnamed sub-types!");
+}
+
+Type* StructType::GetElementType(std::string name) {
+    size_t offset = 0;
+    for (Type* elementType: ElementTypes) {
+        if (elementType->Name == name) {
+            return elementType;
+        }
+    }
+    assert(false && "struct type with unnamed sub-types!");
+}
+
+size_t StructType::GetSize() const {
+    size_t size = 0;
+    for (Type* elementType: ElementTypes) {
+        size += elementType->GetSize();
+    }
+    return size;
+}
 
 std::string StructType::GetString() const { return "%" + Name; }
 bool StructType::IsStructType() const { return true; }
@@ -65,7 +118,8 @@ TypeKind StructType::GetTypeKind() const { return TypeKind::Struct; }
 void StructType::Dump() const {
     std::cerr << GetString() << " = type { ";
     for (size_t i = 0; i < ElementTypes.size(); i++) {
-        std::cerr << ElementTypes[i]->GetString();
+        std::cerr << ElementTypes[i]->GetString() << " " << ElementTypes[i]->Name;
+
         if ((i + 1) < ElementTypes.size()) {
             std::cerr << ", ";
         }
@@ -75,24 +129,34 @@ void StructType::Dump() const {
 
 // VectorType definitions
 
-VectorType::VectorType(Type* elementType)
-    : ElementType(elementType) {}
+VectorType::VectorType(Type* elementType, std::string name)
+    : Type(name),
+    ElementType(elementType) {}
 std::string VectorType::GetString() const {
     return "vector<" + ElementType->GetString() + ">";
 }
 bool VectorType::IsVectorType() const { return true; }
 TypeKind VectorType::GetTypeKind() const { return TypeKind::Vector; }
+size_t VectorType::GetSize() const {
+    // TODO: make pointer size of architecture
+    return 8;
+}
 
 // PointerType definitions
 
-PointerType::PointerType(Type* elementType)
-    : ElementType(elementType) {}
+PointerType::PointerType(Type* elementType, std::string name)
+    : Type(name),
+    ElementType(elementType) {}
 
 std::string PointerType::GetString() const {
     return ElementType->GetString() + "*";
 }
 bool PointerType::IsPointerType() const { return true; }
 TypeKind PointerType::GetTypeKind() const { return TypeKind::Pointer; }
+size_t PointerType::GetSize() const {
+    // TODO: make pointer size of architecture
+    return 8;
+}
 
 // FunctionType definitions
 
@@ -120,6 +184,10 @@ std::string FunctionType::GetString() const {
     }
     typeName << ")";
     return typeName.str();
+}
+size_t FunctionType::GetSize() const {
+    // TODO: make pointer size of architecture
+    return 8;
 }
 
 }}} // end namespace

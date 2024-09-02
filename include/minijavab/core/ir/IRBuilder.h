@@ -47,7 +47,7 @@ class IRBuilder {
         /// Create a Getptr Instruction
         /// @see GetPtrInstruction::GetPtrInstruction()
         /// @return The newly created Getptr Instruction
-        Value* CreateGetPtr(IR::GlobalVariable* variable);
+        Value* CreateGetPtr(IR::Value* variable, IR::Type* variableType, uint32_t offset=0);
 
         //Value* CreateGetPtr(IR::Type* type, uint32_t immediate);
 
@@ -105,6 +105,11 @@ class IRBuilder {
         /// @see ORInstruction::ORInstruction()
         /// @return The newly created OR Instruction
         Value* CreateOR(IR::Value* x, IR::Value* y);
+
+        /// Create a Bitcast Instruction
+        /// @see BitcastInstruction::BitcastInstruction()
+        /// @return The newly create Bitcast Instruction
+        Value* CreateBitcast(IR::Value* castee, IR::Type* newType);
 
         /// Wrapper function for inserting a created instruction into the block
         /// @see BasicBlock::AppendInstruction

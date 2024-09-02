@@ -39,7 +39,8 @@ set(INSTRUCTIONS
     src/core/ir/Instructions/BrIf.cpp
     src/core/ir/Instructions/Cmp.cpp
     src/core/ir/Instructions/AND.cpp
-    src/core/ir/Instructions/OR.cpp)
+    src/core/ir/Instructions/OR.cpp
+    src/core/ir/Instructions/Bitcast.cpp)
 
 # Build Core target
 add_library(core SHARED
