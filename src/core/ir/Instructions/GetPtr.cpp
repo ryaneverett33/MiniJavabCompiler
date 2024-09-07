@@ -42,8 +42,6 @@ void GetPtrInstruction::Print(std::ostream& out) const {
         printer.Print(out, _variable);
         out << ", " << _offset;
     }
-    //out << " " << ValueType->GetString() << ", ";
-    //printer.Print(out, _pointer);
 }
 
 }}} // end namespace

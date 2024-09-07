@@ -51,10 +51,13 @@ class Type {
         /// Whether or not this type is a compound FunctionType
         virtual bool IsFunctionType() const { return false; }
 
-        /// @todo
+        /// Get the size in bytes needed to hold a value of this type
+        /// @return The size in bytes
         virtual size_t GetSize() const = 0;
 
-        /// @todo
+        /// Strip any pointer casts for the type.
+        /// @return If the type is a pointer type, then the base type will be returned.
+        ///         If the type is not a pointer type, then `this` will be returned
         Type* StripPointerCasts();
 
         /// Get the underlying kind for this type. May be used

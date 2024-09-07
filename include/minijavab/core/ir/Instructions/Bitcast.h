@@ -9,10 +9,13 @@ namespace MiniJavab {
 namespace Core {
 namespace IR {
 
-/// @todo
+/// Represents a bitcast instruction for typecasting a value of one type to another type
+/// @example bitcast i8* %a to i32*
 class BitcastInstruction : public Instruction {
     public:
-        /// @todo
+        /// Construct a new bitcast instruction converting the value to a new type
+        /// @param value The value to cast
+        /// @param newType The new type that the value shall take
         BitcastInstruction(IR::Value* value, IR::Type* newType);
 
         bool YieldsValue() const override;
@@ -23,6 +26,7 @@ class BitcastInstruction : public Instruction {
         void Print(std::ostream& out = std::cerr) const override;
 
     private:
+        /// The value that's being bitcasted
         IR::Value* _castee;
 };
 

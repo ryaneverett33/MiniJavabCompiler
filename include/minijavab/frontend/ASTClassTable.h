@@ -74,11 +74,9 @@ class ASTMethod {
         ASTClass* ParentClass;
 
         // All defined variables in the method stored by Name
-        //std::unordered_map<std::string, ASTVariable*> Variables;
         InsertionOrderedMap<std::string, ASTVariable*> Variables;
 
         // All parameters given to the method stored by Name
-        //std::unordered_map<std::string, ASTVariable*> Parameters;
         InsertionOrderedMap<std::string, ASTVariable*> Parameters;
 };
 

@@ -22,9 +22,6 @@ namespace Frontend {
 /// be enough for most things
 constexpr size_t MAX_ARRAY_DIMENSIONS = 4;
 
-// TODO:
-// - Make arrays stored as T* not T**
-
 InstructionLowering::InstructionLowering(ASTConverter* converter)
                         : _converter(converter) {}
 
@@ -112,9 +109,10 @@ IR::Value* InstructionLowering::GetVariablePointer(ASTVariable* variable) {
 }
 
 IR::Value* InstructionLowering::GetArrayOffset(IR::Value* arrayPointer, AST::IndexNode* arrayIndices) {
-    // TODO: cleanup comments
+    // All array operations happen for i32*, so bitcast whatever we were given to match
     IR::Value* currentPointer = _builder->CreateBitcast(arrayPointer, new IR::PointerType(PrimitiveTypes::Int()));
 
+    // Iterate through the array elements to find the one being referenced
     for (size_t expressionIndex = 0; expressionIndex < arrayIndices->Expressions.size(); expressionIndex++) {
         AST::ExpNode* expression = arrayIndices->Expressions[expressionIndex];
 
@@ -124,13 +122,14 @@ IR::Value* InstructionLowering::GetArrayOffset(IR::Value* arrayPointer, AST::Ind
         _builder->CreateAdd(loweredExpression, new IR::Immediate(PrimitiveTypes::Int(), 1));
         currentPointer = _builder->CreateAdd(currentPointer, loweredExpression);
 
-        // If this is the last index expression, assign the value to the current array pointer. Else
-        // load the next array pointer from the current array pointer and run the loop again
+        // If this is the last index expression, then return the current pointer value as it points to the desired
+        // array element
         if (expressionIndex == arrayIndices->Expressions.size() - 1) {
-            // Cast back to the correct pointer type before assignment
+            // Cast back to the correct pointer type before returning
             return _builder->CreateBitcast(currentPointer, arrayPointer->ValueType);
         }
         else {
+            // If this is a multi-index lookup, get the next array to continue the traversal
             IR::Value* castedPointer = _builder->CreateBitcast(currentPointer, new IR::PointerType(new IR::PointerType(PrimitiveTypes::Int())));
             currentPointer = _builder->CreateLoad(new IR::PointerType(PrimitiveTypes::Int()), castedPointer);
         }
@@ -312,12 +311,11 @@ IR::Value* InstructionLowering::LowerExpression(AST::MethodCallExpNode* expressi
         arguments[i + 1] = LowerExpression(expression->Expressions[i]);
     }
 
-    // Lookup the method to call
-    // todo: stow this away during AST parsing
+    // Get the method to call
     ASTMethod* methodSymbol = expression->CalledMethod; 
     IR::Function* calledFunction = mod->GetFunctionByName(methodSymbol->ParentClass->Name + "_" + methodSymbol->Name);
 
-    // finally create the call with our arguments
+    // Finally create the call with our arguments
     return _builder->CreateCall(calledFunction, arguments);
 }
 
@@ -326,7 +324,6 @@ IR::Value* InstructionLowering::LowerExpression(AST::IndexExpNode* expression) {
     IR::Value* objectPointer = GetVariablePointer(expression->ObjectInfo);
 
     // Load the array from wherever it's stored
-    // TODO: array is stored as pointer to array, dumb
     objectPointer = _builder->CreateLoad(objectPointer->ValueType->StripPointerCasts(), objectPointer);
 
     // Get the offset into the array where we should load from
@@ -341,7 +338,6 @@ IR::Value* InstructionLowering::LowerExpression(AST::LengthExpNode* expression) 
     IR::Value* objectPointer = GetVariablePointer(expression->ObjectInfo);
 
     // Load the array from wherever it's stored
-    // TODO: array is stored as pointer to array, dumb
     objectPointer = _builder->CreateLoad(objectPointer->ValueType->StripPointerCasts(), objectPointer);
 
     if (expression->Index != nullptr) {
@@ -398,8 +394,7 @@ void InstructionLowering::LowerStatement(AST::AssignmentStatementNode* statement
     IR::Value* originalPointer = symbolPointer;
 
     if (statement->IsIndexedAssignment()) { // assigning to an array
-        // load the array from wherever it's stored
-        // TODO: array is stored as pointer to array, dumb
+        // Load the array from wherever it's stored
         symbolPointer = _builder->CreateLoad(symbolPointer->ValueType->StripPointerCasts(), symbolPointer);
         AST::AssignmentIndexStatementNode* indexedAssignment = static_cast<AST::AssignmentIndexStatementNode*>(statement);
 

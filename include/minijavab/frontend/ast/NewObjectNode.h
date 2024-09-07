@@ -38,9 +38,6 @@ class NewArrayObjectNode : public ObjectNode {
 
         TypeNode* Type;
         IndexNode* Index;
-
-        /// Class Info about the object being created
-        //ASTClass* ObjectInfo = nullptr;
 };
 
 }}} // end namespace 
