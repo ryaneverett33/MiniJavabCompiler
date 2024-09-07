@@ -8,6 +8,8 @@ class ASTVariable;
 
 namespace AST {
 
+/// Represents retrieving a value from an array
+/// Example: ... = arr[0];
 class IndexExpNode : public ExpNode {
     public:
         IndexExpNode(std::string object, IndexNode* index)
@@ -22,7 +24,7 @@ class IndexExpNode : public ExpNode {
         std::string Object;
         IndexNode* Index;
 
-        /// The object being stored to or retrieved from
+        /// The object being retrieved from
         ASTVariable* ObjectInfo = nullptr;
 };
 

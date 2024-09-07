@@ -52,6 +52,12 @@ ASTMethod::ASTMethod(AST::MethodDeclNode* methodDecl, ASTClass* parentClass)
         Variables.insert({variable->Name, variable});
     }
 
+    // add the `this` parameter if possible
+    if (!methodDecl->IsMainMethod()) {
+        ASTVariable* thisParameter = new ASTVariable("this", parentClass);
+        Parameters.insert({thisParameter->Name, thisParameter});
+    }
+
     // load parameter info from the node's method list
     for (AST::VarDeclNode* parameterDecl: methodDecl->Parameters) {
         ASTVariable* parameter = new ASTVariable(parameterDecl, this);
@@ -155,7 +161,6 @@ bool ASTClassTable::AddClass(AST::ClassDeclNode* classDecl) {
     }
     Classes.insert({classObject->Name, classObject});
 
-    classObject->Variables.insert({"this", new ASTVariable("this", classObject)});
     return true;
 }
 

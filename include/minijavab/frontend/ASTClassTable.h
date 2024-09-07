@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <unordered_map>
+#include "minijavab/InsertionOrderedMap.h"
 #include "minijavab/frontend/ast/ast.h"
 #include "minijavab/frontend/ast/Type.h"
 
@@ -73,10 +74,10 @@ class ASTMethod {
         ASTClass* ParentClass;
 
         // All defined variables in the method stored by Name
-        std::unordered_map<std::string, ASTVariable*> Variables;
+        InsertionOrderedMap<std::string, ASTVariable*> Variables;
 
         // All parameters given to the method stored by Name
-        std::unordered_map<std::string, ASTVariable*> Parameters;
+        InsertionOrderedMap<std::string, ASTVariable*> Parameters;
 };
 
 class ASTClass {

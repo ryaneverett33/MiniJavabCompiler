@@ -49,13 +49,7 @@ IR::Type* ASTConverter::ResolveASTType(AST::Type* type) {
         case AST::TypeKind::Array: {
             AST::ArrayType* arrayType = static_cast<AST::ArrayType*>(type);
             IR::Type* baseType = ResolveASTType(arrayType->BaseType);
-            
-            // Create an n-dimensional vector of basetype
-            IR::Type* resultantType = new IR::VectorType(baseType);
-            for (size_t i = arrayType->Dimensions; i > 1; i--) {
-                resultantType = new IR::VectorType(resultantType);
-            }
-            return resultantType;
+            return new IR::PointerType(baseType);
         }
         default:
             assert(false && "Unknown Type Kind!");
@@ -65,31 +59,31 @@ IR::Type* ASTConverter::ResolveASTType(AST::Type* type) {
 void ASTConverter::CreateMetadataTypes() {
     // Create %method_type_t = type { vector<i8>, vector<vector<i8>> }
     IR::StructType* methodTypeType = new IR::StructType("method_type_t", {
-        new IR::VectorType(new IR::IntegerType(8)),
-        new IR::VectorType(new IR::VectorType(new IR::IntegerType(8)))
+        IR::StringType("returnType"),
+        new IR::VectorType(new IR::VectorType(new IR::IntegerType(8)), "parameterTypes")
     });
 
     // Create %variable_t = type { vector<i8>, vector<i8>, i32 }
     IR::StructType* variableType = new IR::StructType("variable_t", {
-        new IR::VectorType(new IR::IntegerType(8)),
-        new IR::VectorType(new IR::IntegerType(8)),
-        new IR::IntegerType(32)
+        IR::StringType("name"),
+        IR::StringType("type"),
+        new IR::IntegerType(32, false, "size")
     });
 
     // Create %method_t = type { vector<i8>, %method_type_t*, bool, void* }
     IR::StructType* methodType = new IR::StructType("method_t", {
-        new IR::VectorType(new IR::IntegerType(8)),
-        new IR::PointerType(methodTypeType),
-        new IR::BooleanType(),
-        new IR::PointerType(new IR::VoidType())
+        IR::StringType("name"),
+        new IR::PointerType(methodTypeType, "methodType"),
+        new IR::BooleanType("isOverriden"),
+        new IR::PointerType(new IR::VoidType(), "implementation")
     });
 
     // Create %class_t = type { vector<i32>, %class_t*, vector<%variable_t>, vector<%method_t> }
     IR::StructType* classType = new IR::StructType("class_t", {
-        new IR::VectorType(new IR::IntegerType(8)),
-        new IR::PointerType(nullptr), /* placeholder for circular type */
-        new IR::VectorType(variableType),
-        new IR::VectorType(methodType)
+        IR::StringType("name"),
+        new IR::PointerType(nullptr, "superClass"), /* placeholder for circular type */
+        new IR::VectorType(variableType, "variables"),
+        new IR::VectorType(methodType, "methods")
     });
     static_cast<IR::PointerType*>(classType->ElementTypes[1])->ElementType = classType;
 
@@ -103,8 +97,7 @@ void ASTConverter::CreateMetadataTypes() {
 IR::GlobalVariable* ASTConverter::CreateMetadataMethod(ASTClass* parentClass, ASTMethod* method) {
     // Resolve types
     std::vector<std::string> parameterTypeNames;
-    for (auto& [name, parameter] : method->Parameters) {
-        std::cout << "Parameter type: " << parameter->Type->GetName() << "\n";
+    for (auto [name, parameter] : method->Parameters) {
         parameterTypeNames.push_back(parameter->Type->GetName());
     }
 
@@ -115,7 +108,6 @@ IR::GlobalVariable* ASTConverter::CreateMetadataMethod(ASTClass* parentClass, AS
     }
 
     // create initializer
-    //IR::IntegerConstant* initializer = new IR::IntegerConstant(returnType, 69);
     IR::Type* methodTypeT = _module->GetStructTypeByName("method_type_t");
     IR::VectorConstant* parameterTypesConstant = new IR::VectorConstant(new IR::VectorType(IR::StringType()), parameterTypes);
     IR::StringConstant* returnTypeConstant = new IR::StringConstant(method->ReturnType->GetName());
@@ -143,7 +135,9 @@ void ASTConverter::CreateClassTypes() {
 
         std::vector<IR::Type*> variableTypes;
         for (auto& [_, variableDefinition] : definition->Variables) {
-            variableTypes.push_back(ResolveASTType(variableDefinition->Type));
+            IR::Type* resolvedType = ResolveASTType(variableDefinition->Type);
+            resolvedType->Name = variableDefinition->Name;
+            variableTypes.push_back(resolvedType);
         }
         classType->ElementTypes = variableTypes;
     }
@@ -194,7 +188,8 @@ void ASTConverter::CreateClassMetadata() {
         // Fill out variable metadata
         uint32_t structOffset = 0;
         for (auto& [variableName, variableDefinition] : classDefinition->Variables) {
-            variableTypes.push_back(new IR::StructConstant(variableTType, {
+            variableTypes.push_back
+            (new IR::StructConstant(variableTType, {
                 new IR::StringConstant(variableName),
                 new IR::StringConstant(variableDefinition->Type->GetName()),
                 new IR::IntegerConstant(structOffsetType, new IR::Immediate(structOffsetType, structOffset))
@@ -239,17 +234,8 @@ void ASTConverter::CreateFunctionSignatures() {
             parameterTypes.reserve(methodDefinition->Parameters.size());
             parameterNames.reserve(methodDefinition->Parameters.size());
 
-            // Resolve the "this" variable
-            if (!methodDefinition->MethodDecl->IsMainMethod()) {
-                parameterTypes.reserve(1 + parameterTypes.capacity());
-                parameterNames.reserve(1 + parameterNames.capacity());
-
-                parameterTypes.push_back(PrimitiveTypes::ClassType(_classTypeTable.find(className)->second));
-                parameterNames.push_back("this");
-            }
-
             // The rest of the parameters are given by the method signature
-            for (auto& [parameterName, parameterDefinition] : methodDefinition->Parameters) {
+            for (auto [parameterName, parameterDefinition] : methodDefinition->Parameters) {
                 parameterTypes.push_back(ResolveASTType(parameterDefinition->Type));
                 parameterNames.push_back(parameterName);
             }

@@ -1,0 +1,29 @@
+;; int[][] arr = new int[1][1];
+;;  allocate space on the stack
+%arr = alloc i32**
+;;  construct the array
+;;  TODO change new_array call
+%0 = call i32* %mj.new_array(i32 1, i32 1, i32 0, i32 0)
+;;  store the array onto the stack
+%1 = bitcast i32* %0 to i32*
+store i32* %1, i32** %arr
+
+;; arr[0] = new int[5];
+%2 = load i32*, i32** arr.local
+;;  offset pointer
+%3 = add i32* %2, i32 1 + 0
+;;  construct and assign the new array
+%4 = call i32* %mj.new_array(i32 5, i32 0, i32 0, i32 0)
+store i32* %4, i32* %3
+
+;; arr[1][1] = 5
+%0 = load i32*, i32** arr.local
+;;  offset pointer to first dimension
+%1 = add i32* %0, i32 1 + 1
+;;  get array at pointer location
+%2 = bitcast i32* %1 to i32**
+%3 = load i32*, i32** %2
+;;  offset pointer to second dimension
+%4 = add i32*, i32 1 + 1
+;;  store value into array
+store i32 5, i32* %4

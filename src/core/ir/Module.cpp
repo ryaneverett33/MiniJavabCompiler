@@ -96,7 +96,9 @@ IntrinsicFunction* Module::GetIntrinsic(std::string name) {
     if (name != MJ_PRINTLN_STR_INTRINSIC && 
         name != MJ_PRINTLN_INT_INTRINSIC &&
         name != MJ_NEW_INTRINSIC &&
-        name != MJ_DELETE_INTRINSIC) {
+        name != MJ_DELETE_INTRINSIC &&
+        name != MJ_NEW_ARRAY_INTRINSIC &&
+        name != MJ_ARRAY_LENGTH_INTRINSIC) {
         throw std::invalid_argument("Unknown intrinsic!");
     }
 
@@ -125,6 +127,24 @@ IntrinsicFunction* Module::GetIntrinsic(std::string name) {
         IntrinsicFunction* intrinsic = new IntrinsicFunction(MJ_PRINTLN_INT_INTRINSIC, new FunctionType(
             new VoidType(),
             {new IntegerType(32)}
+        ));
+
+        addFunctionHelper(intrinsic);
+        return intrinsic;
+    }
+    else if (name == MJ_NEW_ARRAY_INTRINSIC) {
+        IntrinsicFunction* intrinsic = new IntrinsicFunction(MJ_NEW_ARRAY_INTRINSIC, new FunctionType(
+            new PointerType(new IntegerType(32)),
+            {new IntegerType(32), new IntegerType(32), new IntegerType(32), new IntegerType(32)}
+        ));
+
+        addFunctionHelper(intrinsic);
+        return intrinsic;
+    }
+    else if (name == MJ_ARRAY_LENGTH_INTRINSIC) {
+        IntrinsicFunction* intrinsic = new IntrinsicFunction(MJ_ARRAY_LENGTH_INTRINSIC, new FunctionType(
+            new IntegerType(32),
+            {new PointerType(new IntegerType(32))}
         ));
 
         addFunctionHelper(intrinsic);

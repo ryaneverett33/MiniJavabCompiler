@@ -1,0 +1,45 @@
+int[] arr = new int[1];
+{ size_t, i32}
+
+int[][] arr2 = new int[1][1];
+{ size_t, {
+    size_t, i32
+}}
+||
+{
+    size_t
+    i32*
+}
+
+int[][] arr3 = new int[2][2];
+{
+    size_t, {
+        size_t, i32, i32
+    }, {
+        size_t, i32, i32
+    }
+}
+
+||
+{
+    size_t
+    i32*
+    i32*
+}
+
+int[][][] arr4 = new int[1][2][3];
+{
+    size_t, {
+        size_t, {
+            size_t, i32, i32, i32
+        }, {
+            size_t, i32, i32, i32
+        }
+    }, {
+        size_t, {
+            size_t, i32, i32, i32
+        }, {
+            size_t, i32, i32, i32
+        }
+    }
+}

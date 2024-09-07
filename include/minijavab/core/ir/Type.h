@@ -24,6 +24,8 @@ enum class TypeKind {
 /// Abstract class describing a Type
 class Type {
     public:
+        Type(std::string name = "");
+
         /// Get a string representation of a given type
         /// @return The string representation of the type
         virtual std::string GetString() const = 0;
@@ -49,19 +51,32 @@ class Type {
         /// Whether or not this type is a compound FunctionType
         virtual bool IsFunctionType() const { return false; }
 
+        /// Get the size in bytes needed to hold a value of this type
+        /// @return The size in bytes
+        virtual size_t GetSize() const = 0;
+
+        /// Strip any pointer casts for the type.
+        /// @return If the type is a pointer type, then the base type will be returned.
+        ///         If the type is not a pointer type, then `this` will be returned
+        Type* StripPointerCasts();
+
         /// Get the underlying kind for this type. May be used
         /// in place of dynamic_cast.
         /// @return The kind of this type
         virtual TypeKind GetTypeKind() const = 0;
+
+        /// Friendly name of the type
+        std::string Name;
 };
 
 /// Describes signed and unsigned integers of different widths
 class IntegerType : public Type {
     public:
-        IntegerType(uint8_t bitWidth, bool isSigned=true);
+        IntegerType(uint8_t bitWidth, bool isSigned=true, std::string name="");
         virtual std::string GetString() const override;
         virtual bool IsIntegerType() const override;
         virtual TypeKind GetTypeKind() const override;
+        virtual size_t GetSize() const override;
 
         /// Get the number of bits required to represent this integer
         /// @return The number of bits required
@@ -82,7 +97,7 @@ class IntegerType : public Type {
 /// Describes true/false boolean values
 class BooleanType : public IntegerType {
     public:
-        BooleanType();
+        BooleanType(std::string name="");
 
         virtual std::string GetString() const override;
         virtual bool IsBooleanType() const override;
@@ -96,6 +111,7 @@ class VoidType : public Type {
         virtual std::string GetString() const override;
         virtual bool IsVoidType() const override;
         virtual TypeKind GetTypeKind() const override;
+        virtual size_t GetSize() const override;
 };
 
 /// Describes a structure type that contains multiple types within it.
@@ -109,12 +125,18 @@ class StructType : public Type {
         virtual std::string GetString() const override;
         virtual bool IsStructType() const override;
         virtual TypeKind GetTypeKind() const override;
+        virtual size_t GetSize() const override;
 
-        // todo: is this used?
+        /// Print out a helpful debug message about the structure's contents
         void Dump() const;
 
-        /// The common name of the structure
-        std::string Name;
+        /// Get the byte offset of an element within the structure by a given name
+        /// @param name The name of the element
+        /// @return The byte offset of the element
+        /// @note The named element must exist within the structure
+        size_t GetElementOffset(std::string name);
+
+        Type* GetElementType(std::string name);
 
         /// The types of the elements contained within the structure
         std::vector<Type*> ElementTypes;
@@ -125,10 +147,11 @@ class VectorType : public Type {
     public:
         /// Create a new vector type
         /// @param elementType The type of elements this vector contains
-        VectorType(Type* elementType);
+        VectorType(Type* elementType, std::string name="");
         virtual std::string GetString() const override;
         virtual bool IsVectorType() const override;
         virtual TypeKind GetTypeKind() const override;
+        virtual size_t GetSize() const override;
 
         /// The type of elements contained in the vector
         Type* ElementType;
@@ -139,11 +162,12 @@ class PointerType : public Type {
     public:
         /// Creates a new pointer type
         /// @param elementType The type of the target element
-        PointerType(Type* elementType);
+        PointerType(Type* elementType, std::string name="");
 
         virtual std::string GetString() const override;
         virtual bool IsPointerType() const override;
         virtual TypeKind GetTypeKind() const override;
+        virtual size_t GetSize() const override;
 
         /// The type of the element pointed to by this type
         Type* ElementType;
@@ -161,6 +185,7 @@ class FunctionType : public Type {
         virtual std::string GetString() const override;
         virtual bool IsFunctionType() const override;
         virtual TypeKind GetTypeKind() const override;
+        virtual size_t GetSize() const override;
 
         /// The return type, may be a void type
         Type* ReturnType;
@@ -172,8 +197,8 @@ class FunctionType : public Type {
 /// Helper function for creating a "StringType"
 /// @note StringTypes are the same as vector<i8> types
 /// @return A new "StringType" object
-inline VectorType* StringType() {
-    return new VectorType(new IntegerType(8));
+inline VectorType* StringType(std::string name="") {
+    return new VectorType(new IntegerType(8, false), name);
 } 
 
 }}} // end namespace

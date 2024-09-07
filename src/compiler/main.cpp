@@ -44,6 +44,8 @@ int main(int argc, char** argv) {
 
     Core::IR::Module* mod = Frontend::LoadProgramFile(inputs[0]);
     if (mod == nullptr) {
+        // TODO: don't do this and let the frontend log errors
+        std::cerr << "Failed to load IR\n";
         exit(2);
     }
     mod->Dump();

@@ -20,7 +20,9 @@ class Value;
 const std::string MJ_PRINTLN_STR_INTRINSIC = "mj.println.str";
 const std::string MJ_PRINTLN_INT_INTRINSIC = "mj.println.int";
 const std::string MJ_NEW_INTRINSIC = "mj.new";
+const std::string MJ_NEW_ARRAY_INTRINSIC = "mj.new_array";
 const std::string MJ_DELETE_INTRINSIC = "mj.delete";
+const std::string MJ_ARRAY_LENGTH_INTRINSIC = "mj.array_length";
 
 /// Describes a single module in the IR. A module is a single linkable object that contains
 /// functions, global variables, and unique types. A module may encompass multiple Compile Units. 

@@ -9,13 +9,13 @@ class ASTVariable;
 
 namespace AST {
 
+/// Represents getting the length of an array, either single or multi-dimensional.
+/// Example: arr.length; arr[0].length
 class LengthExpNode : public ExpNode {
-    // hello.length, Name: "hello"
     public:
         LengthExpNode(std::string name)
             : ExpNode(ExpKind::LengthMethod),
-            Name(name),
-            Index(nullptr) {}
+            Name(name) {}
 
         LengthExpNode(std::string name, IndexNode* index)
             : ExpNode(ExpKind::LengthMethod),
@@ -30,7 +30,7 @@ class LengthExpNode : public ExpNode {
         }
 
         std::string Name;
-        IndexNode* Index;
+        IndexNode* Index = nullptr;
 
         /// The object being referenced
         ASTVariable* ObjectInfo = nullptr;

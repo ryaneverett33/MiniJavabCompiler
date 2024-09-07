@@ -9,6 +9,7 @@ namespace IR {
     class Function;
     class Value;
     class IRBuilder;
+    class Type;
 }} // end Core::IR namespace
 
 namespace Frontend {
@@ -25,6 +26,9 @@ class InstructionLowering {
         /// Whether or not this symbol is a parameter.
         /// @see copiedSymbol
         bool isParameter = false;
+
+        /// Typing information for the symbol
+        Core::IR::Type* Type = nullptr;
 
         /// Points to the the copied parameter symbol if one exists.
         /// Parameter values are copied into local variables on function invocation.
@@ -60,6 +64,8 @@ class InstructionLowering {
         Core::IR::Value* LowerExpression(AST::ObjectExpNode* expression);
         Core::IR::Value* LowerExpression(AST::UnaryExpNode* expression);
         Core::IR::Value* LowerExpression(AST::MethodCallExpNode* expression);
+        Core::IR::Value* LowerExpression(AST::IndexExpNode* expression);
+        Core::IR::Value* LowerExpression(AST::LengthExpNode* expression);
 
         /// Create any local variables needed for the function and save parameter values
         /// @param methodDefinition The AST definition of the function
@@ -67,9 +73,11 @@ class InstructionLowering {
         FunctionSymbolTable CreateLocalVariables(ASTMethod* methodDefinition);
 
         /// Resolve a variable definition to an IR value, may create instructions
-        /// @param variable The variable to resolve
+        /// @param variable The variable to resolve. If nullptr, resolves the `this` variable
         /// @return The value of the variable
-        Core::IR::Value* GetVariable(ASTVariable* variable);
+        Core::IR::Value* GetVariablePointer(ASTVariable* variable);
+
+        Core::IR::Value* GetArrayOffset(Core::IR::Value* arrayPointer, AST::IndexNode* arrayIndices);
 
         /// Lower an object reference to IR
         /// @param object The object reference

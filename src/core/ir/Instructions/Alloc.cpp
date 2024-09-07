@@ -5,7 +5,7 @@ namespace Core {
 namespace IR {
 
 AllocInstruction::AllocInstruction(IR::Type* localType, std::string name)
-    : Instruction(Opcode::Alloc, /*localType*/ new IR::PointerType(localType)) {
+    : Instruction(Opcode::Alloc, new IR::PointerType(localType)) {
     Name = name;
 }
 
